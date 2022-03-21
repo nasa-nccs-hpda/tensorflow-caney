@@ -1,2 +1,6 @@
 # caney-tensorflow
-Python framework for lots of TensorFlow tools.
+Python package for lots of TensorFlow tools.
+
+## Why Caney?
+
+"Caney" means longhouse in Taíno.
