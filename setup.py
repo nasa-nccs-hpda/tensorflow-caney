@@ -7,7 +7,7 @@ with open("README.md", "r") as fh:
 setup(
     name='tensorflow_caney',
     version='0.0.1',
-    description='Methods for remote sensing satellite imagery processing',
+    description='Methods for tensorflow deep learning applications.',
     author='Jordan A. Caraballo-Vega',
     author_email='jordan.a.caraballo-vega@nasa.gov',
     zip_safe=False,

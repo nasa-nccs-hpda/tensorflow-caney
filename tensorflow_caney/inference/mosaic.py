@@ -154,7 +154,7 @@ class MightyMosaic(np.ndarray):
             batch = tf.data.Dataset.from_tensor_slices(
                 np.expand_dims(batch, axis=0))
             batch = batch.with_options(self.options)
-            batch = function(batch)
+            batch = function(batch, batch_size=batch_size)
 
             #batch = np.moveaxis(batch, -1, 1)
             #batch = torch.from_numpy(batch).float().to('cuda')

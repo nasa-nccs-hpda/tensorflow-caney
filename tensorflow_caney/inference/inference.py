@@ -164,7 +164,7 @@ def sliding_window(
             # print("After from_array", window.shape)
 
             input_path = input_path.apply(
-                model, progress_bar=False,
+                model.predict, progress_bar=False,
                 batch_size=batch_size, mean=mean, std=std)
             # print("After apply", window.shape)
             #logging.info(f'{psutil.virtual_memory().percent}')
