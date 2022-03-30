@@ -121,3 +121,20 @@ def modify_label_classes(mask: np.ndarray, expressions: List[dict]):
             [(k, v)] = exp.items()
             mask[eval(k, {k.split(' ')[0]: mask})] = v
     return mask
+
+
+def modify_pixel_extremity(
+        img: np.ndarray, xmin: int = 0, xmax: int = 10000):
+    """
+    Crop ROI, from outside to inside based on pixel address
+    """
+    return np.clip(img, xmin, xmax)
+
+
+def modify_roi(
+        img: np.ndarray, mask: np.ndarray,
+        ymin: int, ymax: int, xmin: int, xmax: int):
+    """
+    Crop ROI, from outside to inside based on pixel address
+    """
+    return img[ymin:ymax, xmin:xmax], mask[ymin:ymax, xmin:xmax]
