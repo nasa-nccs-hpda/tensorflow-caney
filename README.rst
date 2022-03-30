@@ -1,4 +1,5 @@
-# caney-tensorflow
+# tensorflow-caney
+
 Python package for lots of TensorFlow tools.
 
 ## Why Caney?
