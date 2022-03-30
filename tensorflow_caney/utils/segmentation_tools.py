@@ -1,4 +1,5 @@
 import logging
+from sys import stdout
 import numpy as np
 from typing import Any
 import tensorflow as tf
@@ -10,10 +11,21 @@ AUTOTUNE = tf.data.experimental.AUTOTUNE
 
 class SegmentationDataLoader(object):
 
-    def __init__(self, data_filenames, label_filenames, conf):
+    def __init__(
+            self,
+            data_filenames: list,
+            label_filenames: list,
+            conf,
+            train_step: bool = True,
+        ):
 
         # Set configuration variables
         self.conf = conf
+        self.train_step = train_step
+
+        # Set data filenames
+        self.data_filenames = data_filenames
+        self.label_filenames = label_filenames
 
         # Disable AutoShard, data lives in memory, use in memory options
         options = tf.data.Options()
@@ -40,8 +52,9 @@ class SegmentationDataLoader(object):
         if len(self.val_x) % self.conf.batch_size != 0:
             self.val_steps += 1
 
-        # Calculate mean and std metrics
-        # if self.conf.standardize:
+        # Read mean and std metrics
+        if train_step and self.conf.standardize:
+            logging.info('Loading mean and std values.')
         #    self.conf.mean = np.load(
         #        os.path.join(
         #            self.conf.data_dir,
@@ -86,11 +99,12 @@ class SegmentationDataLoader(object):
         return dataset
 
     def tf_data_loader(self, x, y):
-
+        """
+        Initialize TensorFlow dataloader.
+        """
         def _loader(x, y):
             x, y = self.load_data(x.decode(), y.decode())
             return x.astype(np.float32), y.astype(np.float32)
-
         x, y = tf.numpy_function(_loader, [x, y], [tf.float32, tf.float32])
         x.set_shape([
             self.conf.tile_size, self.conf.tile_size, len(self.conf.output_bands)])
@@ -138,3 +152,16 @@ class SegmentationDataLoader(object):
                 y = np.rot90(y, 3)
 
         return x, y
+
+    def get_preprocessing_metadata(self):
+        """
+        Get preprocessing metadat, mean and std values of d
+        """
+        preprocess_dataset = self.tf_dataset(
+            self.data_filenames, self.label_filenames,
+            read_func=self.tf_data_loader,
+            repeat=True, batch_size=conf.batch_size
+        )
+        self.train_dataset = self.train_dataset.with_options(options)
+
+        return mean, std

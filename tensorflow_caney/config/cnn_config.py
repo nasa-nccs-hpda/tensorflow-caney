@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
-from typing import List
+from typing import List, Optional
 from omegaconf import OmegaConf
 from dataclasses import dataclass, field
 
@@ -25,6 +25,8 @@ class Config:
             ['Blue', 'Green', 'Red', 'NIR1', 'HOM1', 'HOM2'])
     output_bands: List[str] = field(
         default_factory=lambda: ['Blue', 'Green', 'Red', 'NIR1'])
+
+    modify_labels: Optional[List[str]] = None
 
     expand_dims: bool = True
     tile_size: int = 256

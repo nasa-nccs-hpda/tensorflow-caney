@@ -110,3 +110,14 @@ def modify_bands(
     for ind_id in list(set(input_bands) - set(output_bands)):
         drop_bands.append(input_bands.index(ind_id)+1)
     return xraster.drop(dim="band", labels=drop_bands, drop=True)
+
+
+def modify_label_classes(mask: np.ndarray, expressions: List[dict]):
+    """
+    Change pixel label values based on expression.
+    """
+    if expressions is not None:
+        for exp in expressions:
+            [(k, v)] = exp.items()
+            mask[eval(k, {k.split(' ')[0]: mask})] = v
+    return mask
