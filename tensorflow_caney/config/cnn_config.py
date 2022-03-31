@@ -8,24 +8,44 @@ from dataclasses import dataclass, field
 
 @dataclass
 class Config:
+    """
+    CNN data configuration class (embedded with OmegaConf).
+    """
 
-    # dataset_csv: str
+    # directory to store all data files
     data_dir: str
 
+    # directory to store inference output files
+    inference_save_dir: str = 'results'
+
+    # experiment name to track
     experiment_name: str = 'unet-cnn'
+    
+    # experiment type to track (normally embedded in the inference output)
     experiment_type: str = 'landcover'
 
-    seed: int = 24
-    gpu_devices: str = '0,1,2,3'
-    mixed_precision: bool = True
-    xla: bool = True
+    # seed to control the randomization
+    seed: Optional[int] = 24
 
+    # gpu devices to utilize
+    gpu_devices: str = '0,1,2,3'
+    
+    # bool to enable mixed_precision
+    mixed_precision: Optional[bool] = True
+
+    # bool to enable linear acceleration
+    xla: Optional[bool] = False
+
+    # input bands from the incoming dataset
     input_bands: List[str] = field(
         default_factory=lambda:
             ['Blue', 'Green', 'Red', 'NIR1', 'HOM1', 'HOM2'])
+    
+    # output bands that will be used to train and predict from
     output_bands: List[str] = field(
         default_factory=lambda: ['Blue', 'Green', 'Red', 'NIR1'])
 
+    # list of strings to support the modification of labels
     modify_labels: Optional[List[str]] = None
 
     expand_dims: bool = True
@@ -42,68 +62,25 @@ class Config:
     std: List[float] = field(
         default_factory=lambda: [])
 
+    # loss function expression, expects a loss function
     loss: str = 'tversky'
+
     learning_rate: float = 0.0001
     max_epochs: int = 6000
     patience: int = 7
 
     model_filename: str = 'model.h5'
     inference_regex: str = '*.tif'
-    inference_save_dir: str = 'results'
     window_size: int = 8120
     inference_overlap: int = 2
     inference_treshold: float = 0.5
     pred_batch_size: int = 128
-
-    # set some strict hyperparameter attributes
-    # self.seed = getattr(self, 'seed', 34)
-    # self.batch_size = getattr(self, 'batch_size', 16) * \
-    #    getattr(self, 'strategy.num_replicas_in_sync', 1)
-
-    # set some data parameters manually
-    # self.data_min = getattr(self, 'data_min', 0)
-    # self.data_max = getattr(self, 'data_max', 10000)
-    # self.tile_size = getattr(self, 'tile_size', 256)
-    # self.chunks = {'band': 1, 'x': 2048, 'y': 2048}
-
-    # set some data parameters manually
-    # self.modify_labels = getattr(self, 'modify_labels', None)
-    # self.test_size = getattr(self, 'test_size', 0.25)
-    # self.initial_epoch = getattr(self, 'initial_epoch', 0)
-    # self.max_epoch = getattr(self, 'max_epoch', 50)
-    # self.shuffle_train = getattr(self, 'shuffle_train', True)
-
-    # set model parameters
-    # self.network = getattr(self, 'network', 'unet')
-    # self.optimizer = getattr(self, 'optimizer', 'Adam')
-    # self.loss = getattr(self, 'loss', 'categorical_crossentropy')
-    # self.metrics = getattr(self, 'metrics', ['accuracy'])
-
-    # system performance settings
-    # self.cuda_devices = getattr(self, 'cuda_devices', '0,1,2,3')
-    # self.mixed_precission = getattr(self, 'mixed_precission', True)
-    # self.xla = getattr(self, 'xla', False)
-    # self.device = torch.device(
-    #    "cuda" if torch.cuda.is_available() else "cpu")
-
-    # setup directories for input and output
-    # self.dataset_dir = os.path.join(self.data_output_dir, 'dataset')
-
-    # directories to store new image and labels tiles for training
-    # self.images_dir = os.path.join(self.dataset_dir, 'images')
-    # self.labels_dir = os.path.join(self.dataset_dir, 'labels')
 
     # logging files
     # self.logs_dir = os.path.join(self.data_output_dir, 'logs')
     # self.log_file = os.path.join(
     #    self.logs_dir, datetime.now().strftime("%Y%m%d-%H%M%S") +
     #    f'-{self.experiment_name}.out')
-
-    # directory to store and retrieve the model object from
-    # self.model_dir = os.path.join(self.data_output_dir, 'model')
-
-    # directory to store prediction products
-    # self.predict_dir = os.path.join(self.inference_output_dir)
 
     # setup directory structure, create directories
     # directories_list = [
@@ -126,7 +103,7 @@ if __name__ == "__main__":
     schema = OmegaConf.structured(Config)
     conf = OmegaConf.load("../config/config_clouds/vietnam_clouds.yaml")
     try:
-        OmegaConf.merge(schema, conf)
+        conf = OmegaConf.merge(schema, conf)
     except BaseException as err:
         sys.exit(f"ERROR: {err}")
     sys.exit(conf)
