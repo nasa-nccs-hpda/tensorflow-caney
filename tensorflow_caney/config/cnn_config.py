@@ -48,11 +48,17 @@ class Config:
     # list of strings to support the modification of labels
     modify_labels: Optional[List[str]] = None
 
+    # subtract 1 from labels
+    substract_labels: Optional[bool] = False
+
     expand_dims: bool = True
     tile_size: int = 256
     include_classes: bool = False
     augment: bool = True
+    
+    normalize: float = None
     standardize: bool = True
+    
     batch_size: int = 32
     n_classes: int = 1
     test_size: float = 0.20

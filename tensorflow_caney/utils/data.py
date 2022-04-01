@@ -10,16 +10,6 @@ import xarray as xr
 import pandas as pd
 
 
-def read_dataset_csv(filename: str) -> pd.core.frame.DataFrame:
-    """
-    Read dataset CSV from disk and load for preprocessing.
-    """
-    assert os.path.exists(filename), f'File {filename} not found.'
-    data_df = pd.read_csv(filename)
-    assert not data_df.isnull().values.any(), f'NaN found: {filename}'
-    return data_df
-
-
 def gen_random_tiles(
             image: cp.ndarray, label: cp.ndarray, num_classes: int,
             tile_size: int = 128, expand_dims: bool = True,
@@ -112,10 +102,15 @@ def modify_bands(
     return xraster.drop(dim="band", labels=drop_bands, drop=True)
 
 
-def modify_label_classes(mask: np.ndarray, expressions: List[dict]):
+def modify_label_classes(
+        mask: np.ndarray, expressions: List[dict],
+        substract_labels: bool = False
+    ):
     """
     Change pixel label values based on expression.
     """
+    if substract_labels:
+        mask = mask - 1
     if expressions is not None:
         for exp in expressions:
             [(k, v)] = exp.items()
@@ -138,3 +133,24 @@ def modify_roi(
     Crop ROI, from outside to inside based on pixel address
     """
     return img[ymin:ymax, xmin:xmax], mask[ymin:ymax, xmin:xmax]
+
+
+# excellent question, how do you normalize when you have many
+# vegetation indices to choose from????
+def normalize(img: np.ndarray, normalize: float):
+    """
+    Crop ROI, from outside to inside based on pixel address
+    """
+    if normalize:
+        img = img / normalize
+    return img
+
+
+def read_dataset_csv(filename: str) -> pd.core.frame.DataFrame:
+    """
+    Read dataset CSV from disk and load for preprocessing.
+    """
+    assert os.path.exists(filename), f'File {filename} not found.'
+    data_df = pd.read_csv(filename)
+    assert not data_df.isnull().values.any(), f'NaN found: {filename}'
+    return data_df
