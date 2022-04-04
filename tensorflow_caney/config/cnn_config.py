@@ -56,8 +56,8 @@ class Config:
     include_classes: bool = False
     augment: bool = True
     
-    normalize: float = None
-    standardize: bool = True
+    normalize: Optional[float] = None
+    standardize: Optional[bool] = True
     
     batch_size: int = 32
     n_classes: int = 1
