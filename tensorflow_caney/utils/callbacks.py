@@ -5,14 +5,15 @@ import tensorflow_addons as tfa
 
 from typing import Any, List
 
-def get_metrics(metrics: List[str]) -> Any:
+def get_callbacks(callbacks: List[str]) -> Any:
     """
-    Get metric functions from string evaluation.
+    Get callback functions from string evaluation.
     """
-    metric_functions = []
-    for metric in metrics:
+    callback_functions = []
+    for callback in callbacks:
         try:
-            metric_functions.append(eval(metric))#()
+            callback_functions.append(eval(callback))
         except NameError as err:
             sys.exit(f'Handling run-time error: {err}')
-    return metric_functions
+    return callback_functions
+

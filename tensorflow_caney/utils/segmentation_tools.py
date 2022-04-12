@@ -1,9 +1,11 @@
+import os
 import logging
 from sys import stdout
 import numpy as np
 from typing import Any
 import tensorflow as tf
 from sklearn.model_selection import train_test_split
+from .data import get_mean_std_metadata, standardize_image
 
 
 AUTOTUNE = tf.data.experimental.AUTOTUNE
@@ -23,62 +25,78 @@ class SegmentationDataLoader(object):
         self.conf = conf
         self.train_step = train_step
 
+        # Filename with mean and std metadata
+        self.metadata_output_filename = os.path.join(
+            self.conf.data_dir, f'mean-std-{self.conf.experiment_name}.csv')
+        self.mean = None
+        self.std = None
+
         # Set data filenames
         self.data_filenames = data_filenames
         self.label_filenames = label_filenames
 
         # Disable AutoShard, data lives in memory, use in memory options
-        options = tf.data.Options()
-        options.experimental_distribute.auto_shard_policy = \
+        self.options = tf.data.Options()
+        self.options.experimental_distribute.auto_shard_policy = \
             tf.data.experimental.AutoShardPolicy.OFF
 
-        # Get total and validation size
+        # Total size of the dataset
         total_size = len(data_filenames)
-        val_size = round(self.conf.test_size * total_size)
-        logging.info(f'Train: {total_size - val_size}, Val: {val_size}')
 
-        # Split training and validation dataset
-        self.train_x, self.val_x = train_test_split(
-            data_filenames, test_size=val_size, random_state=self.conf.seed)
-        self.train_y, self.val_y = train_test_split(
-            label_filenames, test_size=val_size, random_state=self.conf.seed)
+        # If this is not a training step (e.g preprocess, predict)
+        if not train_step:
+            
+            # Initialize training dataset
+            self.train_dataset = self.tf_dataset(
+                self.data_filenames, self.label_filenames,
+                read_func=self.tf_data_loader,
+                repeat=False, batch_size=conf.batch_size
+            )
+            self.train_dataset = self.train_dataset.with_options(self.options)
 
-        # Calculate training steps
-        self.train_steps = len(self.train_x) // self.conf.batch_size
-        self.val_steps = len(self.val_x) // self.conf.batch_size
+        # Else, if this is a training step (e.g. train)
+        else:
 
-        if len(self.train_x) % self.conf.batch_size != 0:
-            self.train_steps += 1
-        if len(self.val_x) % self.conf.batch_size != 0:
-            self.val_steps += 1
+            # Get total and validation size
+            val_size = round(self.conf.test_size * total_size)
+            logging.info(f'Train: {total_size - val_size}, Val: {val_size}')
 
-        # Read mean and std metrics
-        if train_step and self.conf.standardize:
+            # Split training and validation dataset
+            self.train_x, self.val_x = train_test_split(
+                data_filenames, test_size=val_size, random_state=self.conf.seed)
+            self.train_y, self.val_y = train_test_split(
+                label_filenames, test_size=val_size, random_state=self.conf.seed)
+
+            # Calculate training steps
+            self.train_steps = len(self.train_x) // self.conf.batch_size
+            self.val_steps = len(self.val_x) // self.conf.batch_size
+
+            if len(self.train_x) % self.conf.batch_size != 0:
+                self.train_steps += 1
+            if len(self.val_x) % self.conf.batch_size != 0:
+                self.val_steps += 1
+
+            # Initialize training dataset
+            self.train_dataset = self.tf_dataset(
+                self.train_x, self.train_y,
+                read_func=self.tf_data_loader,
+                repeat=True, batch_size=conf.batch_size
+            )
+            self.train_dataset = self.train_dataset.with_options(self.options)
+
+            # Initialize validation dataset
+            self.val_dataset = self.tf_dataset(
+                self.val_x, self.val_y,
+                read_func=self.tf_data_loader,
+                repeat=True, batch_size=conf.batch_size
+            )
+            self.val_dataset = self.val_dataset.with_options(self.options)
+
+        # Load mean and std metrics, only if training and fixed standardization
+        if train_step and self.conf.standardization in ['global', 'mixed']:
             logging.info('Loading mean and std values.')
-        #    self.conf.mean = np.load(
-        #        os.path.join(
-        #            self.conf.data_dir,
-        #            f'mean-{self.conf.experiment_name}.npy')).tolist()
-        #    self.conf.std = np.load(
-        #        os.path.join(
-        #            self.conf.data_dir,
-        #            f'std-{self.conf.experiment_name}.npy')).tolist()
-
-        # Initialize training dataset
-        self.train_dataset = self.tf_dataset(
-            self.train_x, self.train_y,
-            read_func=self.tf_data_loader,
-            repeat=True, batch_size=conf.batch_size
-        )
-        self.train_dataset = self.train_dataset.with_options(options)
-
-        # Initialize validation dataset
-        self.val_dataset = self.tf_dataset(
-            self.val_x, self.val_y,
-            read_func=self.tf_data_loader,
-            repeat=True, batch_size=conf.batch_size
-        )
-        self.val_dataset = self.val_dataset.with_options(options)
+            metadata = get_mean_std_metadata(self.metadata_output_filename)
+            # mean, std 
 
     def tf_dataset(
                 self, x: list, y: list,
@@ -112,7 +130,6 @@ class SegmentationDataLoader(object):
             self.conf.tile_size, self.conf.tile_size, self.conf.n_classes])
         return x, y
 
-
     def load_data(self, x, y):
         """
         Load data on training loop.
@@ -122,15 +139,8 @@ class SegmentationDataLoader(object):
         y = np.load(y)
 
         # Standardize
-        #if self.conf.standardize:
-        #    if np.random.random_sample() > 0.75:
-        #        for i in range(x.shape[-1]):  # for each channel in the image
-        #            x[:, :, i] = (x[:, :, i] - self.conf.mean[i]) / \
-        #                (self.conf.std[i] + 1e-8)
-        #    else:
-        #        for i in range(x.shape[-1]):  # for each channel in the image
-        #            x[:, :, i] = (x[:, :, i] - np.mean(x[:, :, i])) / \
-        #                (np.std(x[:, :, i]) + 1e-8)
+        if self.conf.standardization is not None:
+            x = standardize_image(x, self.conf.standardization, self.mean, self.std)
 
         # Augment
         if self.conf.augment:
@@ -152,16 +162,3 @@ class SegmentationDataLoader(object):
                 y = np.rot90(y, 3)
 
         return x, y
-
-    def get_preprocessing_metadata(self):
-        """
-        Get preprocessing metadat, mean and std values of d
-        """
-        preprocess_dataset = self.tf_dataset(
-            self.data_filenames, self.label_filenames,
-            read_func=self.tf_data_loader,
-            repeat=True, batch_size=conf.batch_size
-        )
-        self.train_dataset = self.train_dataset.with_options(options)
-
-        return mean, std

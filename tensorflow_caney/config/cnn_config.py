@@ -15,6 +15,9 @@ class Config:
     # directory to store all data files
     data_dir: str
 
+    # string with model function
+    model: str
+
     # directory to store inference output files
     inference_save_dir: str = 'results'
 
@@ -56,8 +59,8 @@ class Config:
     include_classes: bool = False
     augment: bool = True
     
-    normalize: Optional[float] = None
-    standardize: Optional[bool] = True
+    normalize: Optional[float] = 1.0
+    standardization: Optional[str] = None
     
     batch_size: int = 32
     n_classes: int = 1
@@ -69,18 +72,29 @@ class Config:
         default_factory=lambda: [])
 
     # loss function expression, expects a loss function
-    loss: str = 'tversky'
+    loss: str = 'tf.keras.losses.CategoricalCrossentropy'
 
-    learning_rate: float = 0.0001
-    max_epochs: int = 6000
+    # optimizer function expression, expects an optimizer function
+    optimizer: str = 'tf.keras.optimizers.Adam'
+
+    # metrics function expression, expects list of metrics
+    metrics: List[str] = field(
+        default_factory=lambda: ['tf.keras.metrics.Recall'])
+
+    # callbacks function expression, expects list of metrics
+    callbacks: List[str] = field(
+        default_factory=lambda: ['tf.keras.callbacks.ModelCheckpoint'])
+
+    learning_rate: Optional[float] = 0.0001
+    max_epochs: Optional[int] = 6000
     patience: int = 7
 
-    model_filename: str = 'model.h5'
+    model_filename: Optional[str] = None
     inference_regex: str = '*.tif'
-    window_size: int = 8120
-    inference_overlap: int = 2
-    inference_treshold: float = 0.5
-    pred_batch_size: int = 128
+    window_size: Optional[int] = 8120
+    inference_overlap: Optional[int] = 2
+    inference_treshold: Optional[float] = 0.5
+    pred_batch_size: Optional[int] = 128
 
     # logging files
     # self.logs_dir = os.path.join(self.data_output_dir, 'logs')

@@ -1,3 +1,4 @@
+from email.mime import image
 import os
 import random
 from typing import List
@@ -8,6 +9,8 @@ import cupy as cp
 import numpy as np
 import xarray as xr
 import pandas as pd
+
+import tensorflow as tf
 
 
 def gen_random_tiles(
@@ -86,6 +89,30 @@ def get_dataset_filenames(data_dir: str, ext: str = '*.npy') -> list:
     return data_filenames
 
 
+def get_mean_std_dataset(tf_dataset, output_filename: str = None):
+    """
+    Get general mean and std from tensorflow dataset.
+    Useful when reading from disk and not from memory.
+    """
+    for data, _ in tf_dataset:
+        channels_sum, channels_squared_sum, num_batches = 0, 0, 0
+        channels_sum += tf.reduce_mean(data, [0, 1, 2])
+        channels_squared_sum += tf.reduce_mean(data**2, [0, 1, 2])
+        num_batches += 1
+    mean = channels_sum / num_batches
+    std = (channels_squared_sum / num_batches - mean ** 2) ** 0.5
+
+    if output_filename is not None:
+        mean_std = np.stack([mean.numpy(), std.numpy()], axis=0)
+        pd.DataFrame(mean_std).to_csv(output_filename, header=None, index=None)
+    return mean, std
+
+
+def get_mean_std_metadata(output_filename):
+    metadata = pd.read_csv()
+    #.tolist()
+    return metadata
+
 def modify_bands(
         xraster: xr.core.dataarray.DataArray, input_bands: List[str],
         output_bands: List[str], drop_bands: List[str] = []):
@@ -130,16 +157,16 @@ def modify_roi(
         img: np.ndarray, mask: np.ndarray,
         ymin: int, ymax: int, xmin: int, xmax: int):
     """
-    Crop ROI, from outside to inside based on pixel address
+    Crop ROI, from outside to inside based on pixel address.
     """
     return img[ymin:ymax, xmin:xmax], mask[ymin:ymax, xmin:xmax]
 
 
-# excellent question, how do you normalize when you have many
+# TODO: excellent question, how do you normalize when you have many
 # vegetation indices to choose from????
-def normalize(img: np.ndarray, normalize: float):
+def normalize_image(img: np.ndarray, normalize: float):
     """
-    Crop ROI, from outside to inside based on pixel address
+    Normalize image within parameter, simple scaling of values.
     """
     if normalize:
         img = img / normalize
@@ -154,3 +181,41 @@ def read_dataset_csv(filename: str) -> pd.core.frame.DataFrame:
     data_df = pd.read_csv(filename)
     assert not data_df.isnull().values.any(), f'NaN found: {filename}'
     return data_df
+
+
+def standardize_image(image, standardization_type, mean: list = None, std: list = None):
+    """
+    Standardize image within parameter, simple scaling of values.
+    Loca, Global, and Mixed options.
+    """
+    if standardization_type == 'local':
+        for i in range(image.shape[-1]):  # for each channel in the image
+            image[:, :, i] = (image[:, :, i] - np.mean(image[:, :, i])) / \
+                (np.std(image[:, :, i]) + 1e-8)
+    elif standardization_type == 'global':
+        print("me")
+    else:
+        print("muh")
+        #    if np.random.random_sample() > 0.75:
+        #        for i in range(x.shape[-1]):  # for each channel in the image
+        #            x[:, :, i] = (x[:, :, i] - self.conf.mean[i]) / \
+        #                (self.conf.std[i] + 1e-8)
+        #    else:
+        #        for i in range(x.shape[-1]):  # for each channel in the image
+        #            x[:, :, i] = (x[:, :, i] - np.mean(x[:, :, i])) / \
+        #                (np.std(x[:, :, i]) + 1e-8)
+    return image
+
+
+def standardize_batch(image, standardization_type, mean: list = None, std: list = None):
+    """
+    Standardize image within parameter, simple scaling of values.
+    Loca, Global, and Mixed options.
+    """
+    if standardization_type == 'local':
+        print("me")
+    elif standardization_type == 'global':
+        print("me")
+    else:
+        print("muh")
+    return image

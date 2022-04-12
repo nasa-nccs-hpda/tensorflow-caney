@@ -4,6 +4,8 @@ import numpy as np
 import tqdm.auto as tqdm
 import math
 import tensorflow as tf
+from ..utils.data import standardize_image
+
 
 OVERLAP_FACTOR = 1
 FILL_MODE = 'constant'
@@ -64,6 +66,9 @@ class MightyMosaic(np.ndarray):
         nb_channels = shape[-1] if len(shape) == 3 else None
 
         mosaic_margins = -shape[0] % tile_shape[0], -shape[1] % tile_shape[1]
+
+        #print("-shape[0]", -shape[0], "tile_shape[0]", tile_shape[0], "-shape[1]", -shape[1], "tile_shape[1]", tile_shape[1])
+
         tile_margins = (int((0.5 - 0.5 / overlap_factor[0]) * tile_shape[0]),
                         int((0.5 - 0.5 / overlap_factor[1]) * tile_shape[1]))
         tile_center_dims = tile_shape[0] - 2 * tile_margins[0], tile_shape[1] - 2 * tile_margins[1]
@@ -96,7 +101,15 @@ class MightyMosaic(np.ndarray):
             for divisor in range(low, high, step))
         return best_divisor
 
-    def apply(self, function, progress_bar=False, batch_size=1, mean=[], std=[]):
+    def apply(
+            self,
+            function,
+            progress_bar: bool = False,
+            batch_size: int = 1,
+            standardization: str = None,
+            mean: list = [],
+            std: list = []
+        ):
         """
         Apply a function on each tile. Progress by batching the tiles.
         :param function: The function to apply on each batchs of tile.
@@ -146,10 +159,10 @@ class MightyMosaic(np.ndarray):
                 [self[i, j] for i, j in index[min_index:max_index]])
 
             # this needs to move away, preprocessing
-            # for item in range(batch.shape[0]):
-            #    for i in range(batch.shape[-1]):  # for each channel
-            #        batch[item, :, :, i] = (batch[item, :, :, i] - mean[i]) / \
-            #            (std[i] + 1e-8)
+            if standardization is not None:
+                for item in range(batch.shape[0]):
+                    batch[item, :, :, :] = standardize_image(
+                        batch[item, :, :, :], standardization, mean, std)
 
             batch = tf.data.Dataset.from_tensor_slices(
                 np.expand_dims(batch, axis=0))
@@ -245,6 +258,12 @@ def from_array(array, tile_shape, overlap_factor=OVERLAP_FACTOR,
                               array.shape[2]))
     new_array[mosaic.tile_margins[0]:array.shape[0] + mosaic.tile_margins[0],
     mosaic.tile_margins[1]:array.shape[1] + mosaic.tile_margins[1]] = array
+
+    #print("array.shape[0]", array.shape[0], "array.shape[1]", array.shape[1])
+
+    #print(array.shape[0] + mosaic.mosaic_margins[0] + 2 * mosaic.tile_margins[0], array.shape[1] + mosaic.mosaic_margins[1] + 2 * mosaic.tile_margins[1])
+    #print(mosaic.tile_margins, -mosaic.tile_margins[0] - mosaic.mosaic_margins[0], -mosaic.tile_margins[1] - mosaic.mosaic_margins[1])
+
     new_array = fill(new_array, fill_mode, cval=cval,
                      i_begin=mosaic.tile_margins[0], i_end=-mosaic.tile_margins[0] - mosaic.mosaic_margins[0],
                      j_begin=mosaic.tile_margins[1], j_end=-mosaic.tile_margins[1] - mosaic.mosaic_margins[1]

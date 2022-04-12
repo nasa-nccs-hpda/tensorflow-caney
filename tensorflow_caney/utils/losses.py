@@ -6,7 +6,6 @@ import tensorflow_addons as tfa
 from typing import Any
 
 
-
 class TverskyLoss(tf.keras.losses.Loss):
 
     def call(self, y_true, y_pred, beta=0.7):

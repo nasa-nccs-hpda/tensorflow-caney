@@ -2,6 +2,7 @@ import logging
 import numpy as np
 import scipy.signal.windows as w
 from .mosaic import from_array
+from ..utils.data import normalize_image
 
 
 def window2d(window_func, window_size, **kwargs):
@@ -88,8 +89,20 @@ def generate_patch_list(image_width, image_height, window_func, window_size, ove
 def sliding_window(
             xraster, model, window_size, tile_size,
             inference_overlap, inference_treshold, batch_size,
-            mean, std, n_classes, use_hanning=True
+            mean, std, n_classes, standardization, normalize,
+            use_hanning=True
         ):
+
+    original_shape = xraster[:, :, 0].shape
+
+    xsum = int(((-xraster[:, :, 0].shape[0] % tile_size) + (tile_size * 4)) / 2)
+    ysum = int(((-xraster[:, :, 0].shape[1] % tile_size) + (tile_size * 4)) / 2)
+    print("xsum", xsum, "ysum", ysum)
+
+    xraster = np.pad(xraster, ((ysum, ysum), (xsum, xsum), (0, 0)),
+       mode='symmetric')#'reflect')
+
+    print("RASTER SHAPE AFTER PAD", xraster.shape)
 
     # open rasters and get both data and coordinates
     rast_shape = xraster[:, :, 0].shape  # shape of the wider scene
@@ -126,9 +139,7 @@ def sliding_window(
         counter += 1
 
         logging.info(f'{counter} out of {pp}')
-        #patch_x, patch_y, patch_width, patch_height, window = patch
         patch_x, patch_y, patch_width, patch_height, window = patch
-
 
         #if patch_x + patch_width > rast_shape[1]:
         #    patch_width = 
@@ -142,37 +153,27 @@ def sliding_window(
         #print("firts", input_path.shape)
 
         if np.all(input_path == input_path[0, 0, 0]):
-            
-            #prediction[
-            #    patch_y:patch_y+patch_height,
-            #    patch_x:patch_x+patch_width] = input_path[:, :, 0]
-            input_path_shape = input_path.shape
-            #input_path = np.zeros((input_path_shape[0], input_path_shape[1]), dtype=int) #np.eye(n_classes)[np.zeros((input_path_shape[0], input_path_shape[1]))]
-            #input_path = np.eye(n_classes)[input_path]
-            #print("binary created", input_path.shape)
 
+            input_path_shape = input_path.shape
             prediction[
                 patch_x:patch_x+patch_width,
                 patch_y:patch_y+patch_height] = np.eye(n_classes)[
                     np.zeros((input_path_shape[0], input_path_shape[1]), dtype=int)]
-        
+
         else:
 
+            # Normalize values within [0, 1] range
+            input_path = normalize_image(input_path, normalize)
+
             input_path = from_array(
-                input_path/10000.0, (tile_size, tile_size),
+                input_path, (tile_size, tile_size),
                 overlap_factor=inference_overlap, fill_mode='reflect')
-            # print("After from_array", window.shape)
 
             input_path = input_path.apply(
                 model.predict, progress_bar=False,
-                batch_size=batch_size, mean=mean, std=std)
-            # print("After apply", window.shape)
-            #logging.info(f'{psutil.virtual_memory().percent}')
+                batch_size=batch_size, mean=mean, std=std, standardization=standardization)
 
             input_path = input_path.get_fusion()
-            #window_short = window[patch_y:patch_y+patch_height, patch_x:patch_x+patch_width]
-            #print("After fusion shape, and original window", input_path.shape, window.shape)
-            #print("yeah", window[patch_y:patch_y+patch_height, patch_x:patch_x+patch_width].shape)
 
             prediction[
                 patch_x:patch_x+patch_width,
@@ -187,4 +188,12 @@ def sliding_window(
             np.where(
                 prediction > inference_treshold, 1, 0).astype(np.int16)
             )
+
+    print("SHAPR PREDICTION", prediction.shape)
+
+    prediction = prediction[xsum:rast_shape[0] - xsum, ysum:rast_shape[1] - ysum]
+
+    print("SHAPR PREDICTION AFTER CROP", prediction.shape)
+
+
     return prediction
