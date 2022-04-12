@@ -97,12 +97,12 @@ def sliding_window(
 
     xsum = int(((-xraster[:, :, 0].shape[0] % tile_size) + (tile_size * 4)) / 2)
     ysum = int(((-xraster[:, :, 0].shape[1] % tile_size) + (tile_size * 4)) / 2)
-    print("xsum", xsum, "ysum", ysum)
+    #print("xsum", xsum, "ysum", ysum)
 
     xraster = np.pad(xraster, ((ysum, ysum), (xsum, xsum), (0, 0)),
        mode='symmetric')#'reflect')
 
-    print("RASTER SHAPE AFTER PAD", xraster.shape)
+    #print("RASTER SHAPE AFTER PAD", xraster.shape)
 
     # open rasters and get both data and coordinates
     rast_shape = xraster[:, :, 0].shape  # shape of the wider scene
