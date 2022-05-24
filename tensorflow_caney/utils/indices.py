@@ -20,12 +20,214 @@ __status__ = "Development"
 # 4 band: ['Red', 'Green', 'Blue', 'NIR1', 'HOM1', 'HOM2']
 # -------------------------------------------------------------------------------
 
-# -------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # Module Methods
-# -------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+
+__all__ = [
+    "cs1", "cs2", "dvi", "dwi", "fdi", "ndvi", "ndwi",
+    "si", "_get_band_locations", "get_indices", "add_indices"
+]
+
+# ---------------------------------------------------------------------------
+# Get Methods
+# ---------------------------------------------------------------------------
+def _get_band_locations(bands: list, requested_bands: list):
+    """
+    Get list indices for band locations.
+    """
+    locations = []
+    for b in requested_bands:
+        try:
+            locations.append(bands.index(b.lower()))
+        except ValueError:
+            raise ValueError(f'{b} not in raster bands {bands}')
+    return locations
+
+# ---------------------------------------------------------------------------
+# Indices Methods
+# ---------------------------------------------------------------------------
+def cs1(raster):
+    """
+    Cloud detection index (CS1), CS1 := (3. * NIR1) / (Blue + Green + Red)
+    :param raster: xarray or numpy array object in the form (c, h, w)
+    :return: new band with SI calculated
+    """
+    nir1, red, blue, green = _get_band_locations(
+        raster.attrs['band_names'], ['nir1', 'red', 'blue', 'green'])
+    index = (
+        (3. * raster[nir1, :, :]) /
+        (raster[blue, :, :] + raster[green, :, :] \
+            + raster[red, :, :])
+    )
+    return index.expand_dims(dim="band", axis=0)
 
 
-def addindices(rastarr, bands, indices, factor=1.0) -> np.array:
+def cs2(raster):
+    """
+    Cloud detection index (CS2), CS2 := (Blue + Green + Red + NIR1) / 4.
+    :param raster: xarray or numpy array object in the form (c, h, w)
+    :return: new band with CS2 calculated
+    """
+    nir1, red, blue, green = _get_band_locations(
+        raster.attrs['band_names'], ['nir1', 'red', 'blue', 'green'])
+    index = (
+        (raster[blue, :, :] + raster[green, :, :] \
+            + raster[red, :, :] + raster[nir1, :, :])
+        / 4.0
+    )
+    return index.expand_dims(dim="band", axis=0)
+
+
+def dvi(raster):
+    """
+    Difference Vegetation Index (DVI), DVI := NIR1 - Red
+    :param raster: xarray or numpy array object in the form (c, h, w)
+    :return: new band with DVI calculated
+    """
+    nir1, red = _get_band_locations(
+        raster.attrs['band_names'], ['nir1', 'red'])
+    index = (
+        raster[nir1, :, :] - raster[red, :, :]
+    )
+    return index.expand_dims(dim="band", axis=0)
+
+
+def dwi(raster):
+    """
+    Difference Water Index (DWI), DWI := Green - NIR1
+    :param raster: xarray or numpy array object in the form (c, h, w)
+    :return: new band with DWI calculated
+    """
+    nir1, green = _get_band_locations(
+        raster.attrs['band_names'], ['nir1', 'green'])
+    index = (
+        raster[green, :, :] - raster[nir1, :, :]
+    )
+    return index.expand_dims(dim="band", axis=0)
+
+
+def fdi(raster):
+    """
+    Forest Discrimination Index (FDI), type int16
+    8 band imagery: FDI := NIR2 - (RedEdge + Blue)
+    4 band imagery: FDI := NIR1 - (Red + Blue)
+    :param data: xarray or numpy array object in the form (c, h, w)
+    :return: new band with FDI calculated
+    """
+    bands = ['blue', 'nir2', 'rededge']
+    if not all(b in bands for b in raster.attrs['band_names']):
+        bands = ['blue', 'nir1', 'red']
+    blue, nir, red = _get_band_locations(
+        raster.attrs['band_names'], bands)
+    index = (
+        raster[nir, :, :] - \
+            (raster[red, :, :] + raster[blue, :, :])
+    )
+    return index.expand_dims(dim="band", axis=0)
+
+
+def gndvi(raster):
+    """
+    Difference Vegetation Index (DVI), GNDVI := (NIR - Green) / (NIR + Green)
+    :param raster: xarray or numpy array object in the form (c, h, w)
+    :return: new band with DVI calculated
+    """
+    nir1, green = _get_band_locations(
+        raster.attrs['band_names'], ['nir1', 'green'])
+    index = (
+        (raster[nir1, :, :] - raster[green, :, :]) /
+        (raster[nir1, :, :] + raster[green, :, :])
+    )
+    return index.expand_dims(dim="band", axis=0)
+
+
+def ndvi(raster):
+    """
+    Difference Vegetation Index (DVI), NDVI := (NIR - Red) / (NIR + RED)
+    :param raster: xarray or numpy array object in the form (c, h, w)
+    :return: new band with DVI calculated
+    """
+    nir1, red = _get_band_locations(
+        raster.attrs['band_names'], ['nir1', 'red'])
+    index = (
+        (raster[nir1, :, :] - raster[red, :, :]) /
+        (raster[nir1, :, :] + raster[red, :, :])
+    )
+    return index.expand_dims(dim="band", axis=0)
+
+
+def ndwi(raster):
+    """
+    Normalized Difference Water Index (NDWI)
+    NDWI := factor * (Green - NIR1) / (Green + NIR1)
+    :param raster: xarray or numpy array object in the form (c, h, w)
+    :return: new band with SI calculated
+    """
+    nir1, green = _get_band_locations(
+        raster.attrs['band_names'], ['nir1', 'green'])
+    index = (
+        (raster[green, :, :] - raster[nir1, :, :]) /
+        (raster[green, :, :] + raster[nir1, :, :])
+    )
+    return index.expand_dims(dim="band", axis=0)
+
+
+def si(raster):
+    """
+    Shadow Index (SI), SI := (Blue * Green * Red) ** (1.0 / 3)
+    :param raster: xarray or numpy array object in the form (c, h, w)
+    :return: new band with SI calculated
+    """
+    red, blue, green = _get_band_locations(
+        raster.attrs['band_names'], ['red', 'blue', 'green'])
+    index = (
+        (raster[blue, :, :] - raster[green, :, :] /
+            raster[red, :, :]) ** (1.0/3.0)
+    )
+    return index.expand_dims(dim="band", axis=0)
+
+
+def sr(raster):
+    """
+    SR := NIR / Red
+    :param raster: xarray or numpy array object in the form (c, h, w)
+    :return: new band with SI calculated
+    """
+    nir1, red = _get_band_locations(
+        raster.attrs['band_names'], ['nir1', 'red'])
+    index = (
+        raster[nir1, :, :] / raster[red, :, :]
+    )
+    return index.expand_dims(dim="band", axis=0)
+
+
+# ---------------------------------------------------------------------------
+# Modify Methods
+# ---------------------------------------------------------------------------
+indices_registry = {
+    'cs1': cs1,
+    'cs2': cs2,
+    'dvi': dvi,
+    'dwi': dwi,
+    'fdi': fdi,
+    'gndvi': gndvi,
+    'ndvi': ndvi,
+    'ndwi': ndwi,
+    'si': si,
+    'sr': sr
+}
+
+def _get_index_function(index_key):
+    """
+    Get index function from the indices registry.
+    """
+    try:
+        return indices_registry[index_key.lower()]
+    except KeyError:
+        raise ValueError(f'Invalid indices mapping: {index_key}.')
+
+def add_indices(xraster, input_bands, output_bands, factor=1.0):
     """
     :param rastarr: xarray or numpy array object in the form (c, h, w)
     :param bands: list with strings of bands in the raster
@@ -33,174 +235,32 @@ def addindices(rastarr, bands, indices, factor=1.0) -> np.array:
     :param factor: factor used for toa imagery
     :return: raster with updated bands list
     """
-    nbands = len(bands)  # get initial number of bands
-    for indices_function in indices:  # iterate over each new band
-        nbands += 1  # counter for number of bands
+    n_bands = len(input_bands)  # get number of input bands
 
-        # calculate band (indices)
-        band, bandid = indices_function(rastarr, bands=bands, factor=factor)
-        bands.append(bandid)  # append new band id to list of bands
-        band.coords['band'] = [nbands]  # add band indices to raster
-        rastarr = xr.concat([rastarr, band], dim='band')  # concat new band
+    # make band names uniform for easy of validation
+    input_bands = [s.lower() for s in input_bands]
+    output_bands = [s.lower() for s in output_bands]
+    
+    # add an attribute to the raster
+    xraster.attrs['band_names'] = input_bands
 
-    # update raster metadata, xarray attributes
-    rastarr.attrs['scales'] = [rastarr.attrs['scales'][0]] * nbands
-    rastarr.attrs['offsets'] = [rastarr.attrs['offsets'][0]] * nbands
-    return rastarr, bands
+    # iterate over each new band that needs to be included
+    for band_id in output_bands:
 
+        if band_id not in input_bands:
 
-# Difference Vegetation Index (DVI), type int16
-def dvi(data, bands, factor=1.0, vtype='int16') -> np.array:
-    """
-    :param data: xarray or numpy array object in the form (c, h, w)
-    :param bands: list with strings of bands in the raster
-    :param factor: factor used for toa imagery
-    :return: new band with DVI calculated
-    """
-    # 8 and 4 band imagery: DVI := NIR1 - Red
-    NIR1, Red = bands.index('NIR1'), bands.index('Red')
-    return ((data[NIR1, :, :] / factor) - (data[Red, :, :] / factor)
-            ).expand_dims(dim="band", axis=0).fillna(0).astype(vtype), "DVI"
+            # increase the number of input bands
+            n_bands += 1
 
+            # calculate band (indices)
+            index_function = _get_index_function(band_id)
+            new_index = index_function(xraster)
 
-# Normalized Difference Vegetation Index (NDVI)
-# range from +1.0 to -1.0, type float64
-def ndvi(data, bands, factor=1.0, vtype='float64') -> np.array:
-    """
-    :param data: xarray or numpy array object in the form (c, h, w)
-    :param bands: number of the original bands of the raster
-    :param factor: factor used for toa imagery
-    :return: new band with NDVI calculated
-    """
-    # 8 and 4 band imagery: NDVI := (NIR - Red) / (NIR + RED)
-    NIR1, Red = bands.index('NIR1'), bands.index('Red')
-    #return (((data[NIR1, :, :] / factor) - (data[Red, :, :] / factor)) /
-            #((data[NIR1, :, :] / factor) + (data[Red, :, :] / factor))
-            #).expand_dims(dim="band", axis=0).fillna(0).astype(vtype), "NDVI"
-            
-    ndvi = ((data[NIR1, :, :] / factor) - (data[Red, :, :] / factor)) / ((data[NIR1, :, :] / factor) + (data[Red, :, :] / factor))
-    ndvi = cp.nan_to_num(cp.expand_dims(ndvi, 0))
-            
-    return ndvi,"NDVI"
+            # Add band indices to raster, add future object
+            new_index.coords['band'] = [n_bands]
+            xraster = xr.concat([xraster, new_index], dim='band')
 
+            # Update raster metadata,
+            xraster.attrs['band_names'].append(band_id)
 
-# Forest Discrimination Index (FDI), type int16
-def fdi(data, bands, factor=1.0, vtype='int16', device='CPU') -> np.array:
-    """
-    GPU Support
-    :param data: xarray or numpy array object in the form (c, h, w)
-    :param bands: number of the original bands of the raster
-    :param factor: factor used for toa imagery
-    :return: new band with FDI calculated
-    """
-    # 8 band imagery: FDI := NIR2 - (RedEdge + Blue)
-    # 4 band imagery: FDI := NIR1 - (Red + Blue)
-    NIR = bands.index('NIR2') if 'NIR2' in bands else bands.index('NIR1')
-    RED = bands.index('RedEdge') if 'RedEdge' in bands else bands.index('Red')
-    BLUE = bands.index('Blue')
-
-
-    fdi = data[NIR, :, :] - (data[RED, :, :] + data[BLUE, :, :])
-    #if device == 'CPU':
-    #fdi = fdi.expand_dims(dim="band", axis=0).fillna(0).astype(vtype)
-    #elif device == 'GPU':
-    fdi = cp.nan_to_num(cp.expand_dims(fdi, 0))
-    #else:
-    #raise RuntimeError("{} device not supported".format(device))
-    return fdi, "FDI"
-
-
-# Shadow Index (SI), type int16
-def si(data, bands, factor=1.0, vtype='int16', device='CPU') -> np.array:
-    """
-    GPU Support
-    :param data: xarray or numpy array object in the form (c, h, w)
-    :param bands: number of the original bands of the raster
-    :param factor: factor used for toa imagery
-    :return: new band with SI calculated
-    """
-    # 8 and 4 band imagery:
-    # SI := ((factor - Blue) * (factor - Green) * (factor - Red)) ** (1.0 / 3)
-    BLUE, GREEN = bands.index('Blue'), bands.index('Green')
-    RED = bands.index('Red')
-
-    si = ((factor - data[BLUE, :, :]) * (factor - data[GREEN, :, :]) *
-          (factor - data[RED, :, :])) ** (1.0/3.0)
-
-    if device == 'CPU':
-        si = si.expand_dims(dim="band", axis=0).fillna(0).astype(vtype)
-    elif device == 'GPU':
-        si = cp.nan_to_num(cp.expand_dims(si, 0))
-    else:
-        raise RuntimeError("{} device not supported".format(device))
-    return si, "SI"
-
-
-# Normalized Difference Water Index (DWI), type int16
-def dwi(data, bands, factor=1.0, vtype='int16') -> np.array:
-    """
-    :param data: xarray or numpy array object in the form (c, h, w)
-    :param bands: number of the original bands of the raster
-    :param factor: factor used for toa imagery
-    :return: new band with DWI calculated
-    """
-    # 8 and 4 band imagery: DWI := factor * (Green - NIR1)
-    Green, NIR1 = bands.index('Green'), bands.index('NIR1')
-    return (factor * (data[Green, :, :] - data[NIR1, :, :])
-            ).expand_dims(dim="band", axis=0).fillna(0).astype(vtype), "DWI"
-
-
-# Normalized Difference Water Index (NDWI), type int16
-def ndwi(data, bands, factor=1.0, vtype='int16', device='CPU') -> np.array:
-    """
-    GPU Support
-    :param data: xarray or numpy array object in the form (c, h, w)
-    :param bands: number of the original bands of the raster
-    :param factor: factor used for toa imagery
-    :return: new band with SI calculated
-    """
-    # 8 and 4 band imagery: NDWI := factor * (Green - NIR1) / (Green + NIR1)
-    GREEN, NIR1 = bands.index('Green'), bands.index('NIR1')
-
-    ndwi = factor * ((data[GREEN, :, :] - data[NIR1, :, :])
-                     / (data[GREEN, :, :] + data[NIR1, :, :]))
-
-    #if device == 'CPU':
-    #ndwi = ndwi.expand_dims(dim="band", axis=0).fillna(0).astype(vtype)
-    #elif device == 'GPU':
-    ndwi = cp.nan_to_num(cp.expand_dims(ndwi, 0))
-    #else:
-    #raise RuntimeError("{} device not supported".format(device))
-    return ndwi, "NDWI"
-
-
-# Shadow Index (SI), type float64
-def cs1(data, bands, factor=1.0, vtype='float64') -> np.array:
-    """
-    :param data: xarray or numpy array object in the form (c, h, w)
-    :param bands: number of the original bands of the raster
-    :param factor: factor used for toa imagery
-    :return: new band with SI calculated
-    """
-    # 8 and 4 band imagery: CS1 := (3. * NIR1) / (Blue + Green + Red)
-    NIR1, Blue = bands.index('NIR1'), bands.index('Blue')
-    Green, Red = bands.index('Green'), bands.index('Red')
-    return ((3.0 * (data[NIR1, :, :]/factor)) / (data[Blue, :, :]
-            + data[Green, :, :] + data[Red, :, :])
-            ).expand_dims(dim="band", axis=0).fillna(0).astype(vtype), "CS1"
-
-
-# Shadow Index (SI)
-def cs2(data, bands, factor=1.0, vtype='int16') -> np.array:
-    """
-    :param data: xarray or numpy array object in the form (c, h, w)
-    :param bands: number of the original bands of the raster
-    :param factor: factor used for toa imagery
-    :return: new band with CS2 calculated
-    """
-    # 8 and 4 band imagery: CS2 := (Blue + Green + Red + NIR1) / 4.
-    NIR1, Blue = bands.index('NIR1'), bands.index('Blue')
-    Green, Red = bands.index('Green'), bands.index('Red')
-    return ((data[Blue, :, :] + data[Green, :, :] + data[Red, :, :]
-            + data[NIR1, :, :]) / 4.0
-            ).expand_dims(dim="band", axis=0).fillna(0).astype(vtype), "CS2"
+    return xraster
