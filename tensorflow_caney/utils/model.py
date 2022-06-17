@@ -9,6 +9,8 @@ import tensorflow_caney as tfc
 from typing import Any
 from glob import glob
 
+__all__ = ["get_model", "load_model"]
+
 
 def get_model(model: str) -> Any:
     """

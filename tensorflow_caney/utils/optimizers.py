@@ -4,6 +4,8 @@ import segmentation_models as sm
 import tensorflow_addons as tfa
 from typing import Any
 
+__all__ = ["get_optimizer"]
+
 
 def get_optimizer(optimizer: str) -> Any:
     """
