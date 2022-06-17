@@ -39,7 +39,7 @@ def bai(raster):
     Args:
         raster (list): xarray or numpy array object in the form (c, h, w)
     Returns:
-        new xarray.DataArray band with SI calculated
+        new xarray.DataArray band with index calculated
     """
     red, nir1 = _get_band_locations(
         raster.attrs['band_names'], ['red', 'nir1'])
@@ -54,8 +54,10 @@ def bai(raster):
 def cig(raster):
     """
     Chlorophyll Index - Green (CIg), CIRE := (NIR / Green) - 1
-    :param raster: xarray or numpy array object in the form (c, h, w)
-    :return: new band with SI calculated
+    Args:
+        raster (list): xarray or numpy array object in the form (c, h, w)
+    Returns:
+        new xarray.DataArray band with index calculated
     """
     nir1, green = _get_band_locations(
         raster.attrs['band_names'], ['nir1', 'green'])
@@ -66,8 +68,10 @@ def cig(raster):
 def cire(raster):
     """
     Chlorophyll Index - Red-Edge (CIre), CIRE := (NIR / RedEdge) - 1
-    :param raster: xarray or numpy array object in the form (c, h, w)
-    :return: new band with SI calculated
+    Args:
+        raster (list): xarray or numpy array object in the form (c, h, w)
+    Returns:
+        new xarray.DataArray band with index calculated
     """
     bands = ['nir1', 'rededge']
     if not all(b in bands for b in raster.attrs['band_names']):
@@ -81,8 +85,10 @@ def cire(raster):
 def cm(raster):
     """
     Clay Minerals (CM), CM := SWIR1 / SWIR2
-    :param raster: xarray or numpy array object in the form (c, h, w)
-    :return: new band with SI calculated
+    Args:
+        raster (list): xarray or numpy array object in the form (c, h, w)
+    Returns:
+        new xarray.DataArray band with index calculated
     """
     swir1, swir2 = _get_band_locations(
         raster.attrs['band_names'], ['swir1', 'swir2'])
@@ -93,8 +99,10 @@ def cm(raster):
 def cs1(raster):
     """
     Cloud detection index (CS1), CS1 := (3. * NIR1) / (Blue + Green + Red)
-    :param raster: xarray or numpy array object in the form (c, h, w)
-    :return: new band with SI calculated
+    Args:
+        raster (list): xarray or numpy array object in the form (c, h, w)
+    Returns:
+        new xarray.DataArray band with index calculated
     """
     nir1, red, blue, green = _get_band_locations(
         raster.attrs['band_names'], ['nir1', 'red', 'blue', 'green'])
@@ -108,8 +116,10 @@ def cs1(raster):
 def cs2(raster):
     """
     Cloud detection index (CS2), CS2 := (Blue + Green + Red + NIR1) / 4.
-    :param raster: xarray or numpy array object in the form (c, h, w)
-    :return: new band with CS2 calculated
+    Args:
+        raster (list): xarray or numpy array object in the form (c, h, w)
+    Returns:
+        new xarray.DataArray band with index calculated
     """
     nir1, red, blue, green = _get_band_locations(
         raster.attrs['band_names'], ['nir1', 'red', 'blue', 'green'])
@@ -124,8 +134,10 @@ def cs2(raster):
 def dvi(raster):
     """
     Difference Vegetation Index (DVI), DVI := NIR1 - Red
-    :param raster: xarray or numpy array object in the form (c, h, w)
-    :return: new band with DVI calculated
+    Args:
+        raster (list): xarray or numpy array object in the form (c, h, w)
+    Returns:
+        new xarray.DataArray band with index calculated
     """
     nir1, red = _get_band_locations(
         raster.attrs['band_names'], ['nir1', 'red'])
@@ -138,8 +150,10 @@ def dvi(raster):
 def dwi(raster):
     """
     Difference Water Index (DWI), DWI := Green - NIR1
-    :param raster: xarray or numpy array object in the form (c, h, w)
-    :return: new band with DWI calculated
+    Args:
+        raster (list): xarray or numpy array object in the form (c, h, w)
+    Returns:
+        new xarray.DataArray band with index calculated
     """
     nir1, green = _get_band_locations(
         raster.attrs['band_names'], ['nir1', 'green'])
@@ -151,9 +165,12 @@ def dwi(raster):
 
 def evi(raster):
     """
-    Shadow Index (SI), SI := (Blue * Green * Red) ** (1.0 / 3)
-    :param raster: xarray or numpy array object in the form (c, h, w)
-    :return: new band with SI calculated
+    Enhanced Vegetation Index (EVI)
+    EVI := 2.5 [(NIR1 - RE) / (NIR + 6 * RED - 7.5 * BLUE + 1) ]
+    Args:
+        raster (list): xarray or numpy array object in the form (c, h, w)
+    Returns:
+        new xarray.DataArray band with index calculated
     """
     red, blue, nir1 = _get_band_locations(
         raster.attrs['band_names'], ['red', 'blue', 'nir1'])
@@ -169,10 +186,10 @@ def evi(raster):
 def fdi(raster):
     """
     Forest Discrimination Index (FDI), type int16
-    8 band imagery: FDI := NIR2 - (RedEdge + Blue)
-    4 band imagery: FDI := NIR1 - (Red + Blue)
-    :param data: xarray or numpy array object in the form (c, h, w)
-    :return: new band with FDI calculated
+    Args:
+        raster (list): xarray or numpy array object in the form (c, h, w)
+    Returns:
+        new xarray.DataArray band with index calculated
     """
     bands = ['blue', 'nir2', 'rededge']
     if not all(b in bands for b in raster.attrs['band_names']):
@@ -187,9 +204,12 @@ def fdi(raster):
 
 def gndvi(raster):
     """
-    Difference Vegetation Index (DVI), GNDVI := (NIR - Green) / (NIR + Green)
-    :param raster: xarray or numpy array object in the form (c, h, w)
-    :return: new band with DVI calculated
+    Green Normalized Difference Vegetation Index (GNDVI)
+    GNDVI := (NIR - Green) / (NIR + Green)
+    Args:
+        raster (list): xarray or numpy array object in the form (c, h, w)
+    Returns:
+        new xarray.DataArray band with index calculated
     """
     nir1, green = _get_band_locations(
         raster.attrs['band_names'], ['nir1', 'green'])
@@ -202,9 +222,11 @@ def gndvi(raster):
 
 def ndvi(raster):
     """
-    Difference Vegetation Index (DVI), NDVI := (NIR - Red) / (NIR + RED)
-    :param raster: xarray or numpy array object in the form (c, h, w)
-    :return: new band with DVI calculated
+    Norm. Difference Vegetation Index (DVI), NDVI := (NIR - Red) / (NIR + RED)
+    Args:
+        raster (list): xarray or numpy array object in the form (c, h, w)
+    Returns:
+        new xarray.DataArray band with index calculated
     """
     nir1, red = _get_band_locations(
         raster.attrs['band_names'], ['nir1', 'red'])
@@ -219,8 +241,10 @@ def ndwi(raster):
     """
     Normalized Difference Water Index (NDWI)
     NDWI := factor * (Green - NIR1) / (Green + NIR1)
-    :param raster: xarray or numpy array object in the form (c, h, w)
-    :return: new band with SI calculated
+    Args:
+        raster (list): xarray or numpy array object in the form (c, h, w)
+    Returns:
+        new xarray.DataArray band with index calculated
     """
     nir1, green = _get_band_locations(
         raster.attrs['band_names'], ['nir1', 'green'])
@@ -234,8 +258,10 @@ def ndwi(raster):
 def si(raster):
     """
     Shadow Index (SI), SI := (Blue * Green * Red) ** (1.0 / 3)
-    :param raster: xarray or numpy array object in the form (c, h, w)
-    :return: new band with SI calculated
+    Args:
+        raster (list): xarray or numpy array object in the form (c, h, w)
+    Returns:
+        new xarray.DataArray band with index calculated
     """
     red, blue, green = _get_band_locations(
         raster.attrs['band_names'], ['red', 'blue', 'green'])
@@ -249,8 +275,10 @@ def si(raster):
 def sr(raster):
     """
     SR := NIR / Red
-    :param raster: xarray or numpy array object in the form (c, h, w)
-    :return: new band with SI calculated
+    Args:
+        raster (list): xarray or numpy array object in the form (c, h, w)
+    Returns:
+        new xarray.DataArray band with index calculated
     """
     nir1, red = _get_band_locations(
         raster.attrs['band_names'], ['nir1', 'red'])
@@ -281,9 +309,13 @@ indices_registry = {
 }
 
 
-def _get_index_function(index_key):
+def _get_index_function(index_key: str):
     """
     Get index function from the indices registry.
+    Args:
+        index_key (str): index key to mine callable index function
+    Returns:
+        index callable function
     """
     try:
         return indices_registry[index_key.lower()]
@@ -291,13 +323,21 @@ def _get_index_function(index_key):
         raise ValueError(f'Invalid indices mapping: {index_key}.')
 
 
-def add_indices(xraster, input_bands, output_bands, factor=1.0):
+def add_indices(
+            xraster,
+            input_bands: list,
+            output_bands: list,
+            factor: float = 1.0
+        ):
     """
-    :param rastarr: xarray or numpy array object in the form (c, h, w)
-    :param bands: list with strings of bands in the raster
-    :param indices: indices to calculate and append to the raster
-    :param factor: factor used for toa imagery
-    :return: raster with updated bands list
+    Add indices to a given xarray (appended as bands).
+    Args:
+        xraster (xarray.DataArray): index key to mine callable index function
+        input_bands (list): input bands given by the original raster
+        output_bands (list): output bands including new indices (order matters)
+        factor (float): factor used for toa imagery calculations
+    Returns:
+        xarray DataArray with updated bands list and indices
     """
 
     # make band names uniform for easy of validation
