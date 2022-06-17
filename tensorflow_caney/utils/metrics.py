@@ -5,6 +5,8 @@ import tensorflow_addons as tfa
 
 from typing import Any, List
 
+__all__ = ["get_metrics"]
+
 
 def get_metrics(metrics: List[str]) -> Any:
     """
