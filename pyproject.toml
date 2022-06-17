@@ -3,7 +3,7 @@ name = "tensorflow-caney"
 authors = [
     {name = "Jordan A. Caraballo-Vega", email = "jordan.a.caraballo-vega@nasa.gov"},
 ]
-readme = "README.rst"
+readme = "README.md"
 classifiers = [
     "License :: OSI Approved :: MIT License",
 ]
