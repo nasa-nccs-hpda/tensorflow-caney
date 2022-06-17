@@ -48,6 +48,7 @@ def load_model(
         models_list = glob(os.path.join(model_dir, model_extension))
         model_filename = max(models_list, key=os.path.getctime)
 
+    # Assert the existance of the model
     assert os.path.isfile(model_filename), \
         f'{model_filename} does not exist.'
     logging.info(f'Loading {model_filename}')
