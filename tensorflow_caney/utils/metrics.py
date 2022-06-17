@@ -9,6 +9,10 @@ from typing import Any, List
 def get_metrics(metrics: List[str]) -> Any:
     """
     Get metric functions from string evaluation.
+    Args:
+        model (str): string with metric callable.
+    Returns:
+        Callable.
     """
     metric_functions = []
     for metric in metrics:
