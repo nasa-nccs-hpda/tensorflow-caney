@@ -1,40 +1,25 @@
-import xarray as xr  # read rasters
-import numpy as np
-
-try:
-    import cupy as cp
-    HAS_GPU = True
-except ImportError:
-    HAS_GPU = False
-
-__author__ = "Jordan A Caraballo-Vega, Science Data Processing Branch"
-__email__ = "jordan.a.caraballo-vega@nasa.gov"
-__status__ = "Development"
-
-# -------------------------------------------------------------------------------
-# module indices
-# This class calculates remote sensing indices given xarray or numpy objects.
-# Note: Most of our imagery uses the following set of bands.
-# 8 band: ['CoastalBlue', 'Blue', 'Green', 'Yellow',
-#          'Red', 'RedEdge', 'NIR1', 'NIR2']
-# 4 band: ['Red', 'Green', 'Blue', 'NIR1', 'HOM1', 'HOM2']
-# -------------------------------------------------------------------------------
-
-# ----------------------------------------------------------------------------
-# Module Methods
-# ----------------------------------------------------------------------------
+import xarray as xr
+from typing import List
 
 __all__ = [
-    "cs1", "cs2", "dvi", "dwi", "fdi", "ndvi", "ndwi",
-    "si", "_get_band_locations", "get_indices", "add_indices"
+    "bai", "cig", "cire", "cm", "cs1", "cs2",
+    "dvi", "dwi", "fdi", "gndvi", "ndvi", "ndwi",
+    "si", "sr", "_get_band_locations", "_get_index_function",
+    "add_indices"
 ]
+
 
 # ---------------------------------------------------------------------------
 # Get Methods
 # ---------------------------------------------------------------------------
-def _get_band_locations(bands: list, requested_bands: list):
+def _get_band_locations(bands: list, requested_bands: list) -> List:
     """
     Get list indices for band locations.
+    Args:
+        bands (list): list of bands in the original raster
+        requested_bands (list): list of requested bands for indices
+    Returns:
+        List of band locations in the order received.
     """
     locations = []
     for b in requested_bands:
@@ -44,9 +29,67 @@ def _get_band_locations(bands: list, requested_bands: list):
             raise ValueError(f'{b} not in raster bands {bands}')
     return locations
 
+
 # ---------------------------------------------------------------------------
 # Indices Methods
 # ---------------------------------------------------------------------------
+def bai(raster):
+    """
+    Burn Area Index (BAI), BAI := 1/((0.1 -RED)^2 + (0.06 - NIR)^2)
+    Args:
+        raster (list): xarray or numpy array object in the form (c, h, w)
+    Returns:
+        new xarray.DataArray band with SI calculated
+    """
+    red, nir1 = _get_band_locations(
+        raster.attrs['band_names'], ['red', 'nir1'])
+    index = (
+        1 / (
+            (0.1 - raster[red, :, :]) ** 2 +
+            (0.06 - raster[nir1, :, :]) ** 2)
+    )
+    return index.expand_dims(dim="band", axis=0)
+
+
+def cig(raster):
+    """
+    Chlorophyll Index - Green (CIg), CIRE := (NIR / Green) - 1
+    :param raster: xarray or numpy array object in the form (c, h, w)
+    :return: new band with SI calculated
+    """
+    nir1, green = _get_band_locations(
+        raster.attrs['band_names'], ['nir1', 'green'])
+    index = (raster[nir1, :, :] / raster[green, :, :]) - 1
+    return index.expand_dims(dim="band", axis=0)
+
+
+def cire(raster):
+    """
+    Chlorophyll Index - Red-Edge (CIre), CIRE := (NIR / RedEdge) - 1
+    :param raster: xarray or numpy array object in the form (c, h, w)
+    :return: new band with SI calculated
+    """
+    bands = ['nir1', 'rededge']
+    if not all(b in bands for b in raster.attrs['band_names']):
+        bands = ['nir1', 'red']
+    nir1, rededge = _get_band_locations(
+        raster.attrs['band_names'], bands)
+    index = (raster[nir1, :, :] / raster[rededge, :, :]) - 1
+    return index.expand_dims(dim="band", axis=0)
+
+
+def cm(raster):
+    """
+    Clay Minerals (CM), CM := SWIR1 / SWIR2
+    :param raster: xarray or numpy array object in the form (c, h, w)
+    :return: new band with SI calculated
+    """
+    swir1, swir2 = _get_band_locations(
+        raster.attrs['band_names'], ['swir1', 'swir2'])
+    index = raster[swir1, :, :] / raster[swir2, :, :]
+    return index.expand_dims(dim="band", axis=0)
+
+
 def cs1(raster):
     """
     Cloud detection index (CS1), CS1 := (3. * NIR1) / (Blue + Green + Red)
@@ -57,8 +100,7 @@ def cs1(raster):
         raster.attrs['band_names'], ['nir1', 'red', 'blue', 'green'])
     index = (
         (3. * raster[nir1, :, :]) /
-        (raster[blue, :, :] + raster[green, :, :] \
-            + raster[red, :, :])
+        (raster[blue, :, :] + raster[green, :, :] + raster[red, :, :])
     )
     return index.expand_dims(dim="band", axis=0)
 
@@ -72,7 +114,7 @@ def cs2(raster):
     nir1, red, blue, green = _get_band_locations(
         raster.attrs['band_names'], ['nir1', 'red', 'blue', 'green'])
     index = (
-        (raster[blue, :, :] + raster[green, :, :] \
+        (raster[blue, :, :] + raster[green, :, :]
             + raster[red, :, :] + raster[nir1, :, :])
         / 4.0
     )
@@ -107,6 +149,23 @@ def dwi(raster):
     return index.expand_dims(dim="band", axis=0)
 
 
+def evi(raster):
+    """
+    Shadow Index (SI), SI := (Blue * Green * Red) ** (1.0 / 3)
+    :param raster: xarray or numpy array object in the form (c, h, w)
+    :return: new band with SI calculated
+    """
+    red, blue, nir1 = _get_band_locations(
+        raster.attrs['band_names'], ['red', 'blue', 'nir1'])
+    index = (
+        (2.5 * (raster[nir1, :, :] - raster[red, :, :])) /
+        (
+            raster[nir1, :, :] + 6 * raster[red, :, :]
+            - 7.5 * raster[blue, :, :] + 1)
+    )
+    return index.expand_dims(dim="band", axis=0)
+
+
 def fdi(raster):
     """
     Forest Discrimination Index (FDI), type int16
@@ -121,8 +180,7 @@ def fdi(raster):
     blue, nir, red = _get_band_locations(
         raster.attrs['band_names'], bands)
     index = (
-        raster[nir, :, :] - \
-            (raster[red, :, :] + raster[blue, :, :])
+        raster[nir, :, :] - (raster[red, :, :] + raster[blue, :, :])
     )
     return index.expand_dims(dim="band", axis=0)
 
@@ -206,6 +264,10 @@ def sr(raster):
 # Modify Methods
 # ---------------------------------------------------------------------------
 indices_registry = {
+    'bai': bai,
+    'cig': cig,
+    'cire': cire,
+    'cm': cm,
     'cs1': cs1,
     'cs2': cs2,
     'dvi': dvi,
@@ -218,6 +280,7 @@ indices_registry = {
     'sr': sr
 }
 
+
 def _get_index_function(index_key):
     """
     Get index function from the indices registry.
@@ -227,6 +290,7 @@ def _get_index_function(index_key):
     except KeyError:
         raise ValueError(f'Invalid indices mapping: {index_key}.')
 
+
 def add_indices(xraster, input_bands, output_bands, factor=1.0):
     """
     :param rastarr: xarray or numpy array object in the form (c, h, w)
@@ -235,14 +299,13 @@ def add_indices(xraster, input_bands, output_bands, factor=1.0):
     :param factor: factor used for toa imagery
     :return: raster with updated bands list
     """
-    n_bands = len(input_bands)  # get number of input bands
 
     # make band names uniform for easy of validation
     input_bands = [s.lower() for s in input_bands]
     output_bands = [s.lower() for s in output_bands]
-    
-    # add an attribute to the raster
+
     xraster.attrs['band_names'] = input_bands
+    n_bands = len(input_bands)  # get number of input bands
 
     # iterate over each new band that needs to be included
     for band_id in output_bands:
