@@ -4,7 +4,7 @@ import logging
 import tensorflow as tf
 import segmentation_models as sm
 import tensorflow_addons as tfa
-import tensorflow_caney
+import tensorflow_caney as tfc
 
 from typing import Any
 from glob import glob
@@ -13,22 +13,33 @@ from glob import glob
 def get_model(model: str) -> Any:
     """
     Get model function from string evaluation.
+    Args:
+        model (str): string with model callable.
+    Returns:
+        Callable.
     """
     try:
         model_function = eval(model)
     except NameError as err:
-        sys.exit(f'Handling run-time error: {err}')
+        sys.exit(f'{err}. Accepted models from {tf}, {sm}, {tfa}, {tfc}')
     return model_function
 
 
 def load_model(
-        model_filename: str = None,
-        model_dir: str = None,
-        custom_objects: dict = {'iou_score': sm.metrics.iou_score},
-        model_extension: str = '*.hdf5'
-    ) -> Any:
+            model_filename: str = None,
+            model_dir: str = None,
+            custom_objects: dict = {'iou_score': sm.metrics.iou_score},
+            model_extension: str = '*.hdf5'
+        ) -> Any:
     """
     Load model from filename, take the latest model if not given.
+    Args:
+        model_filename (str): string with model filename.
+        model_dir (str): string with model directory.
+        custom_objects (dict): dictionary with callable custom objects
+        model_extension (str): string with model extension
+    Returns:
+        Callable.
     """
     # Get the latest model from the directory if not given
     if model_filename is None:
