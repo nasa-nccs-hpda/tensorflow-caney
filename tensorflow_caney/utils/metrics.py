@@ -21,5 +21,5 @@ def get_metrics(metrics: List[str]) -> Any:
         try:
             metric_functions.append(eval(metric))
         except NameError as err:
-            sys.exit(f'{err}. Accepted optimizers from {tf}, {sm}, {tfa}')
+            sys.exit(f'{err}. Accepted metrics from {tf}, {sm}, {tfa}')
     return metric_functions
