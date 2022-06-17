@@ -9,6 +9,7 @@ try:
 except ImportError:
     HAS_GPU = False
 
+
 def seed_everything(seed: int = 42) -> None:
     """
     Seeds starting randomization from libraries.
