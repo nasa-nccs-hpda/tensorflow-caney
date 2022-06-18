@@ -4,6 +4,8 @@ import segmentation_models as sm
 import tensorflow_addons as tfa
 from typing import List
 
+__all__ = ["get_callbacks"]
+
 
 def get_callbacks(callbacks: List[str]) -> List:
     """
