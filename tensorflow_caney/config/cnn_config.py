@@ -77,8 +77,8 @@ class Config:
     optimizer: str = "tf.keras.optimizers.Adam"
 
     # metrics function expression, expects list of metrics
-    metrics: List[str] = field(default_factory=lambda: [
-        "tf.keras.metrics.Recall"])
+    metrics: List[str] = field(
+        default_factory=lambda: ["tf.keras.metrics.Recall"])
 
     # callbacks function expression, expects list of metrics
     callbacks: List[str] = field(
