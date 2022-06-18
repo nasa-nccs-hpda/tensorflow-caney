@@ -37,7 +37,7 @@ def gen_random_tiles(
                 > num_classes:
             continue
 
-        #if image[x: (x + tile_size), y: (y + tile_size)].min() < -100:
+        # if image[x: (x + tile_size), y: (y + tile_size)].min() < -100:
         if cp.any(image[x: (x + tile_size), y: (y + tile_size)] == no_data):
             continue
 
@@ -114,8 +114,9 @@ def get_mean_std_dataset(tf_dataset, output_filename: str = None):
 
 def get_mean_std_metadata(output_filename):
     metadata = pd.read_csv()
-    #.tolist()
+    # .tolist()
     return metadata
+
 
 def modify_bands(
         xraster: xr.core.dataarray.DataArray, input_bands: List[str],
@@ -134,9 +135,9 @@ def modify_bands(
 
 
 def modify_label_classes(
-        mask: np.ndarray, expressions: List[dict],
-        substract_labels: bool = False
-    ):
+            mask: np.ndarray, expressions: List[dict],
+            substract_labels: bool = False
+        ):
     """
     Change pixel label values based on expression.
     """
@@ -187,7 +188,10 @@ def read_dataset_csv(filename: str) -> pd.core.frame.DataFrame:
     return data_df
 
 
-def standardize_image(image, standardization_type, mean: list = None, std: list = None):
+def standardize_image(
+            image, standardization_type, mean: list = None,
+            std: list = None
+        ):
     """
     Standardize image within parameter, simple scaling of values.
     Loca, Global, and Mixed options.
@@ -211,7 +215,10 @@ def standardize_image(image, standardization_type, mean: list = None, std: list 
     return image
 
 
-def standardize_batch(image_batch, standardization_type, mean: list = None, std: list = None):
+def standardize_batch(
+            image_batch, standardization_type, mean: list = None,
+            std: list = None
+        ):
     """
     Standardize image within parameter, simple scaling of values.
     Loca, Global, and Mixed options.
@@ -219,7 +226,8 @@ def standardize_batch(image_batch, standardization_type, mean: list = None, std:
     if standardization_type == 'local':
         for item in range(image_batch.shape[0]):
             image_batch[item, :, :, :] = (
-                image_batch[item, :, :, :] - np.mean(image_batch[item, :, :, :])) / \
+                image_batch[item, :, :, :] - np.mean(
+                    image_batch[item, :, :, :])) / \
                     np.std(image_batch[item, :, :, :] + 1e-8)
     elif standardization_type == 'global':
         print("me")
@@ -237,7 +245,10 @@ def standardize_batch(image_batch, standardization_type, mean: list = None, std:
 
 
 @jit(nopython=True)
-def standardize_image_numba(image, standardization_type, mean: list = None, std: list = None):
+def standardize_image_numba(
+            image, standardization_type, mean: list = None,
+            std: list = None
+        ):
     """
     Standardize image within parameter, simple scaling of values.
     Loca, Global, and Mixed options.
@@ -261,7 +272,10 @@ def standardize_image_numba(image, standardization_type, mean: list = None, std:
     return image
 
 
-def standardize_batch_numba(image_batch, standardization_type, mean: list = None, std: list = None):
+def standardize_batch_numba(
+            image_batch, standardization_type, mean: list = None,
+            std: list = None
+        ):
     """
     Standardize image within parameter, simple scaling of values.
     Loca, Global, and Mixed options.
@@ -269,7 +283,8 @@ def standardize_batch_numba(image_batch, standardization_type, mean: list = None
     if standardization_type == 'local':
         for item in range(image_batch.shape[0]):
             image_batch[item, :, :, :] = (
-                image_batch[item, :, :, :] - np.mean(image_batch[item, :, :, :])) / \
+                image_batch[item, :, :, :] - np.mean(
+                    image_batch[item, :, :, :])) / \
                     np.std(image_batch[item, :, :, :])
     elif standardization_type == 'global':
         print("me")
@@ -284,7 +299,7 @@ if __name__ == "__main__":
     x = np.random.randint(10000, size=(256, 256, 256, 4))
 
     if experiment == 1:
-        # DO NOT REPORT THIS... COMPILATION TIME IS INCLUDED IN THE EXECUTION TIME!
+        # DO NOT REPORT THIS... COMPILATION TIME IS INCLUDED IN THE EXEC TIME!
         start = time.time()
         standardize_image_numba(x, 'local')
         end = time.time()
@@ -297,7 +312,7 @@ if __name__ == "__main__":
         print("Elapsed (after compilation) = %s" % (end - start))
 
     elif experiment == 2:
-        # DO NOT REPORT THIS... COMPILATION TIME IS INCLUDED IN THE EXECUTION TIME!
+        # DO NOT REPORT THIS... COMPILATION TIME IS INCLUDED IN THE EXEC TIME!
         start = time.time()
         for item in range(x.shape[0]):
             standardize_image_numba(x, 'local')
@@ -312,7 +327,7 @@ if __name__ == "__main__":
         print("Elapsed (after compilation) = %s" % (end - start))
 
     elif experiment == 3:
-        # DO NOT REPORT THIS... COMPILATION TIME IS INCLUDED IN THE EXECUTION TIME!
+        # DO NOT REPORT THIS... COMPILATION TIME IS INCLUDED IN THE EXEC TIME!
         start = time.time()
         standardize_batch_numba(x, 'local')
         end = time.time()
@@ -327,7 +342,9 @@ if __name__ == "__main__":
     if experiment == 4:
 
         # chunks={'band': 'auto', 'x': 'auto', 'y': 'auto'}
-        filename = '/adapt/nobackup/projects/ilab/projects/srlite/input/TOA_v2/Senegal/5-toas/WV02_20101020_M1BS_1030010007BBFA00-toa.tif'
+        filename = '/adapt/nobackup/projects/ilab/projects/srlite/' + \
+            'input/TOA_v2/Senegal/5-toas/' + \
+            'WV02_20101020_M1BS_1030010007BBFA00-toa.tif'
         start = time.time()
         x = rxr.open_rasterio(filename).load()
         x = x.values
