@@ -15,7 +15,8 @@ requires = [
     "setuptools >= 40.6.0",
     "setuptools_scm[toml] >= 4, <6",
     "setuptools_scm_git_archive",
-    "wheel"
+    "wheel",
+    "segmentation-models"
 ]
 build-backend = "setuptools.build_meta"
 
