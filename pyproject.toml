@@ -5,7 +5,7 @@ authors = [
 ]
 readme = "README.md"
 classifiers = [
-    "License :: OSI Approved :: MIT License",
+    "License :: OSI Approved :: Apache License",
 ]
 requires-python = ">=3.5"
 dynamic = ["version", "description"]
