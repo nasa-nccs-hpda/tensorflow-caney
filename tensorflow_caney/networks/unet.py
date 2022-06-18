@@ -1,14 +1,12 @@
 import logging
 from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, Dropout
-from tensorflow.keras.layers import concatenate, Input, UpSampling2D
-from tensorflow.keras.layers import BatchNormalization
+from tensorflow.keras.layers import Conv2D, MaxPooling2D
+from tensorflow.keras.layers import Dropout, Conv2DTranspose
+from tensorflow.keras.layers import concatenate, Input, UpSampling2D, add
+from tensorflow.keras.layers import BatchNormalization, Activation
+from tensorflow.keras.layers import GlobalAveragePooling2D
+from tensorflow.keras.layers import Dense, Multiply
 from tensorflow.keras.regularizers import l2
-
-
-__author__ = "Jordan A Caraballo-Vega, Science Data Processing Branch"
-__email__ = "jordan.a.caraballo-vega@nasa.gov"
-__status__ = "Production"
 
 # ---------------------------------------------------------------------------
 # module unet
@@ -158,6 +156,169 @@ def unet_batchnorm(nclass=19, input_size=(256, 256, 8), weight_file=None,
     return model
 
 
+def se_block(input, channels, r=8):
+    x = GlobalAveragePooling2D()(input)
+    x = Dense(channels//r, activation="relu", kernel_initializer='Ones')(x)
+    x = Dense(channels, activation="sigmoid", kernel_initializer='Ones')(x)
+    return Multiply()([input, x])
+
+
+def add_encoding_layer(filter_count, sequence, ds):
+
+    # Residual part
+    res_sequence = sequence
+
+    res_sequence = BatchNormalization()(res_sequence)
+    res_sequence = Activation(activation='relu')(res_sequence)
+    res_sequence = Conv2D(
+        filter_count, 3, strides=1, padding="same",
+        kernel_initializer='he_uniform')(res_sequence)
+
+    res_sequence = BatchNormalization()(res_sequence)
+    res_sequence = Activation(activation='relu')(res_sequence)
+    res_sequence = Conv2D(
+        filter_count, 3, strides=1, padding="same",
+        kernel_initializer='he_uniform')(res_sequence)
+
+    # SE block
+    res_sequence = se_block(res_sequence, filter_count)
+
+    # shortcut part
+    shortcut_sequence = sequence
+    # 1x1 projection
+    shortcut_sequence = Conv2D(
+        filter_count, 1, strides=1, padding="same")(shortcut_sequence)
+
+    # add & export
+    add_sequence = add([res_sequence, shortcut_sequence])
+    add_sequence = Activation(activation='relu')(add_sequence)
+
+    if ds:
+        # Downsampling with stride
+        new_sequence = Conv2D(
+            filter_count, 2, strides=2, padding="same")(add_sequence)
+    else:
+        new_sequence = Conv2D(
+            filter_count, 1, strides=1, padding="same")(add_sequence)
+    return new_sequence, add_sequence
+
+
+def add_decoding_layer(filter_count, add_drop_layer, sequence, res_enc, us):
+
+    # Residual part
+    res_sequence = sequence
+
+    # import & concatenate
+    res_sequence = concatenate([res_sequence, res_enc], axis=-1)
+
+    res_sequence = BatchNormalization()(res_sequence)
+    res_sequence = Activation(activation='relu')(res_sequence)
+    res_sequence = Conv2D(
+        int(filter_count*2), 3, strides=1, padding="same",
+        kernel_initializer='he_uniform')(res_sequence)
+
+    # In original papre, kernel size set to be  2, but in the author's
+    # github, the kernel size = 3.
+    res_sequence = BatchNormalization()(res_sequence)
+    res_sequence = Activation(activation='relu')(res_sequence)
+    res_sequence = Conv2D(
+        filter_count, 3, strides=1, padding="same",
+        kernel_initializer='he_uniform')(res_sequence)
+
+    # se
+    res_sequence = se_block(res_sequence, filter_count)
+
+    # shortcut part
+    shortcut_sequence = sequence
+
+    # 1x1 projection
+    shortcut_sequence = Conv2D(
+        filter_count, 1, strides=1, padding="same")(shortcut_sequence)
+
+    # add
+    add_sequence = add([res_sequence, shortcut_sequence])
+    add_sequence = Activation(activation='relu')(add_sequence)
+
+    # Dropout?
+    if add_drop_layer:
+        add_sequence = Dropout(0.2)(add_sequence)
+
+    if us:
+        # Replacing Upsampling with deconvolution, better ??
+        new_sequence = Conv2DTranspose(
+            filter_count, 2, strides=2, padding="same",
+            kernel_initializer='he_uniform')(add_sequence)
+
+        # Simple upsampling
+        # new_sequence = UpSampling2D(size=(2,2))(add_sequence)
+    else:
+        new_sequence = Conv2D(
+            filter_count, 1, strides=1, padding="same")(add_sequence)
+    return new_sequence
+
+
+def deep_unet(
+            nclass=1,
+            input_size=(256, 256, 8),
+            first_layer_filter_count=32
+        ):
+    # Referece: DeepUNet: A Deep Fully Convolutional Network for
+    # Pixel-level Sea-Land Segmentation, Li et al., 2017
+
+    inputs = Input(input_size, name='Input')
+
+    filter_count = first_layer_filter_count  # 32
+
+    # Encoder part:
+    enc1, res_enc1 = add_encoding_layer(
+        filter_count, inputs, True)  # 256 => 128
+    enc2, res_enc2 = add_encoding_layer(
+        filter_count, enc1, True)  # 128 =>  64
+    enc3, res_enc3 = add_encoding_layer(
+        filter_count*1, enc2, True)  # 64 =>  32
+    enc4, res_enc4 = add_encoding_layer(
+        filter_count*2, enc3, True)  # 32 =>  16
+    enc5, res_enc5 = add_encoding_layer(
+        filter_count*4, enc4, True)  # 16 =>   8
+    enc6, res_enc6 = add_encoding_layer(
+        filter_count*8, enc5, True)  # 8 =>   4
+    enc7, res_enc7 = add_encoding_layer(
+        filter_count*16, enc6, False)  # 4 =>   4
+    enc8, res_enc8 = add_encoding_layer(
+        filter_count*32, enc7, False)  # 4 =>   4
+
+    # Decoder part:
+    dec1 = add_decoding_layer(
+        filter_count*32, True, enc8, res_enc8, False)  # 4 => 4
+    dec2 = add_decoding_layer(
+        filter_count*16, True, dec1, res_enc7, True)  # 4 => 8
+    dec3 = add_decoding_layer(
+        filter_count*8, True, dec2, res_enc6, True)  # 8 => 16
+    dec4 = add_decoding_layer(
+        filter_count*4, True, dec3, res_enc5, True)  # 16 => 32
+    dec5 = add_decoding_layer(
+        filter_count*2, True, dec4, res_enc4, True)  # 32 => 64
+    dec6 = add_decoding_layer(
+        filter_count*1, True, dec5, res_enc3, True)  # 64 => 128
+    dec7 = add_decoding_layer(
+        filter_count, True, dec6, res_enc2, True)  # 128 => 256
+
+    # Output layer with softmax or sigmoid activation :
+    # This layer is simpler than original in the reference
+    dec8 = concatenate([dec7, res_enc1], axis=-1)
+    dec8 = Conv2D(
+        filter_count, 3, strides=1, padding="same",
+        kernel_initializer='he_uniform')(dec8)
+    dec8 = BatchNormalization()(dec8)
+    dec8 = Activation(activation='relu')(dec8)
+
+    dec8 = Conv2D(nclass, 1, strides=1, padding="same")(dec8)
+    dec8 = Activation(activation='sigmoid')(dec8)
+
+    model = Model(inputs=inputs, outputs=dec8)
+    return model
+
+
 # -------------------------------------------------------------------------------
 # module unet Unit Tests
 # -------------------------------------------------------------------------------
@@ -172,4 +333,8 @@ if __name__ == "__main__":
 
     # Batch Normalization UNet
     simple_unet = unet_batchnorm()
+    simple_unet.summary()
+
+    # DeepUNet
+    simple_unet = deep_unet()
     simple_unet.summary()
