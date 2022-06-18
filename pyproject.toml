@@ -20,13 +20,13 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools_scm]
-write_to = "tiler/version.py"
+write_to = "tensorflow_caney/version.py"
 
 [tool.coverage.run]
 branch = true
 relative_files = true
-source = ['tiler']
-omit = ['tiler/version.py']
+source = ['tensorflow_caney']
+omit = ['tensorflow_caney/version.py']
 
 [tool.coverage.report]
 show_missing = true

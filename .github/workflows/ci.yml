@@ -11,7 +11,7 @@ jobs:
       - uses: psf/black@stable
         with:
           options: "--check --diff"
-          src: "tiler tests"
+          src: "tensorflow_caney tests"
 
   test:
     runs-on: ubuntu-latest
