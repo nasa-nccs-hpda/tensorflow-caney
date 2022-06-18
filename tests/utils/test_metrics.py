@@ -1,8 +1,9 @@
 import pytest
-import logging
 import tensorflow as tf
 import segmentation_models as sm
 from tensorflow_caney.utils.metrics import get_metrics
+
+__all__ = ["tf", "sm"]
 
 
 @pytest.mark.parametrize(
@@ -23,8 +24,16 @@ from tensorflow_caney.utils.metrics import get_metrics
     ]
 )
 def test_get_metrics(metrics):
-    logging.info(f'TensorFlow version: {tf.__version__}, {sm.__version__}')
     evaluated_metrics = [eval(cb).__class__ for cb in metrics]
     callable_metrics = get_metrics(metrics)
     callable_metrics = [cb.__class__ for cb in callable_metrics]
     assert evaluated_metrics == callable_metrics
+
+
+@pytest.mark.parametrize(
+    "metrics",
+    [["tfc.my.unrealistic.metric()"]]
+)
+def test_get_metrics_exception(metrics):
+    with pytest.raises(SystemExit):
+        get_metrics(metrics)

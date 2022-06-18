@@ -19,6 +19,6 @@ def get_callbacks(callbacks: List[str]) -> List:
     for callback in callbacks:
         try:
             callback_functions.append(eval(callback))
-        except NameError as err:
+        except (NameError, AttributeError) as err:
             sys.exit(f'{err}. Accepted callbacks from {tf}, {sm}, {tfa}')
     return callback_functions

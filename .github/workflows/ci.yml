@@ -1,4 +1,4 @@
-name: Full CI Regression
+name: CI Regression
 
 on: [push, pull_request]
 
@@ -43,8 +43,4 @@ jobs:
         if: github.event_name != 'pull_request'
         run: coveralls --service=github
         env:
-          #COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        #uses: coverallsapp/github-action@master
-        #with:
-        #  github-token: ${{ secrets.GITHUB_TOKEN }}

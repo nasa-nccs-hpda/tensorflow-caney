@@ -67,6 +67,6 @@ def get_loss(loss: str) -> Any:
     """
     try:
         loss_function = eval(loss)
-    except NameError as err:
+    except (NameError, AttributeError) as err:
         sys.exit(f'{err}. Accepted loss from {tf}, {sm}, {tfa}')
     return loss_function

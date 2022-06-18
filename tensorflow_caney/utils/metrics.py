@@ -20,6 +20,6 @@ def get_metrics(metrics: List[str]) -> Any:
     for metric in metrics:
         try:
             metric_functions.append(eval(metric))
-        except NameError as err:
+        except (NameError, AttributeError) as err:
             sys.exit(f'{err}. Accepted metrics from {tf}, {sm}, {tfa}')
     return metric_functions

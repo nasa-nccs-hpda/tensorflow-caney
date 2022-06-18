@@ -17,6 +17,6 @@ def get_optimizer(optimizer: str) -> Any:
     """
     try:
         optimizer = eval(optimizer)
-    except NameError as err:
+    except (NameError, AttributeError) as err:
         sys.exit(f'{err}. Accepted optimizers from {tf}, {sm}, {tfa}')
     return optimizer
