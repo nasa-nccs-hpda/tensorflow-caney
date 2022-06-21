@@ -18,8 +18,7 @@ jobs:
         uses: py-actions/flake8@v2
 
   test:
-    #runs-on: osgeo/gdal:latest
-    container: osgeo/gdal:latest
+    runs-on: ubuntu-latest
     strategy:
       max-parallel: 4
       matrix:
@@ -35,6 +34,7 @@ jobs:
           architecture: x64
       - name: Install test dependencies
         run: |
+          apt-get install -y gdal-bin libgdal-dev
           python -m pip install --upgrade pip
           pip install .[test]
           pip install coveralls
