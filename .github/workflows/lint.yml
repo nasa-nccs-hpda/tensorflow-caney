@@ -1,4 +1,4 @@
-name: CI Regression
+name: Code style - PEP8
 
 on: [push, pull_request]
 
