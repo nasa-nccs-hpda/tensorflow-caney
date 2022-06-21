@@ -20,7 +20,7 @@ except ImportError:
 
 
 def gen_random_tiles(
-            image: cp.ndarray, label: cp.ndarray, num_classes: int,
+            image: np.ndarray, label: np.ndarray, num_classes: int,
             tile_size: int = 128, expand_dims: bool = True,
             max_patches: int = None, include: bool = False,
             augment: bool = True, output_filename: str = 'image',
@@ -147,7 +147,8 @@ def modify_bands(
 
 
 def modify_label_classes(
-            mask: np.ndarray, expressions: List[dict],
+            mask: np.ndarray,
+            expressions: List[dict],
             substract_labels: bool = False
         ):
     """
@@ -163,16 +164,30 @@ def modify_label_classes(
 
 
 def modify_pixel_extremity(
-        img: np.ndarray, xmin: int = 0, xmax: int = 10000):
+            array: np.ndarray,
+            xmin: int = 0,
+            xmax: int = 10000
+        ):
     """
-    Crop ROI, from outside to inside based on pixel address
+    Clip extremity of pixels in the array to given range.
+    Args:
+        array (np.ndarray): numpy array with image
+        xmin (int): minimum value allowed
+        xmax (max): maximum value allowed
+    Returns:
+        np.array mean, np.array std
     """
-    return np.clip(img, xmin, xmax)
+    return np.clip(array, xmin, xmax)
 
 
 def modify_roi(
-        img: np.ndarray, mask: np.ndarray,
-        ymin: int, ymax: int, xmin: int, xmax: int):
+            img: np.ndarray,
+            mask: np.ndarray,
+            ymin: int,
+            ymax: int,
+            xmin: int,
+            xmax: int
+        ):
     """
     Crop ROI, from outside to inside based on pixel address.
     """
