@@ -5,14 +5,18 @@ from typing import List
 from pathlib import Path
 from glob import glob
 
-import cupy as cp
 import numpy as np
-from numba import jit
 import xarray as xr
 import pandas as pd
 import rioxarray as rxr
-
 import tensorflow as tf
+from numba import jit
+
+try:
+    import cupy as cp
+    HAS_GPU = True
+except ImportError:
+    HAS_GPU = False
 
 
 def gen_random_tiles(
@@ -112,10 +116,18 @@ def get_mean_std_dataset(tf_dataset, output_filename: str = None):
     return mean, std
 
 
-def get_mean_std_metadata(output_filename):
-    metadata = pd.read_csv()
-    # .tolist()
-    return metadata
+def get_mean_std_metadata(filename):
+    """
+    Load mean and std from disk.
+    Args:
+        filename (str): csv filename path to load mean and std from
+    Returns:
+        np.array mean, np.array std
+    """
+    assert os.path.isfile(filename), \
+        f'{filename} does not exist.'
+    metadata = pd.read_csv(filename, header=None)
+    return metadata.loc[0].values, metadata.loc[1].values
 
 
 def modify_bands(
@@ -189,7 +201,9 @@ def read_dataset_csv(filename: str) -> pd.core.frame.DataFrame:
 
 
 def standardize_image(
-            image, standardization_type, mean: list = None,
+            image,
+            standardization_type: str,
+            mean: list = None,
             std: list = None
         ):
     """
@@ -201,9 +215,10 @@ def standardize_image(
             image[:, :, i] = (image[:, :, i] - np.mean(image[:, :, i])) / \
                 (np.std(image[:, :, i]) + 1e-8)
     elif standardization_type == 'global':
-        print("me")
-    else:
-        print("muh")
+        for i in range(image.shape[-1]):  # for each channel in the image
+            image[:, :, i] = (image[:, :, i] - mean[i]) / (std[i] + 1e-8)
+    elif standardization_type == 'mixed':
+        raise NotImplementedError
         #    if np.random.random_sample() > 0.75:
         #        for i in range(x.shape[-1]):  # for each channel in the image
         #            x[:, :, i] = (x[:, :, i] - self.conf.mean[i]) / \
@@ -216,31 +231,16 @@ def standardize_image(
 
 
 def standardize_batch(
-            image_batch, standardization_type, mean: list = None,
+            image_batch, standardization_type: str, mean: list = None,
             std: list = None
         ):
     """
     Standardize image within parameter, simple scaling of values.
     Loca, Global, and Mixed options.
     """
-    if standardization_type == 'local':
-        for item in range(image_batch.shape[0]):
-            image_batch[item, :, :, :] = (
-                image_batch[item, :, :, :] - np.mean(
-                    image_batch[item, :, :, :])) / \
-                    np.std(image_batch[item, :, :, :] + 1e-8)
-    elif standardization_type == 'global':
-        print("me")
-    else:
-        print("muh")
-        #    if np.random.random_sample() > 0.75:
-        #        for i in range(x.shape[-1]):  # for each channel in the image
-        #            x[:, :, i] = (x[:, :, i] - self.conf.mean[i]) / \
-        #                (self.conf.std[i] + 1e-8)
-        #    else:
-        #        for i in range(x.shape[-1]):  # for each channel in the image
-        #            x[:, :, i] = (x[:, :, i] - np.mean(x[:, :, i])) / \
-        #                (np.std(x[:, :, i]) + 1e-8)
+    for item in range(image_batch.shape[0]):
+        image_batch[item, :, :, :] = standardize_image(
+            image_batch[item, :, :, :], standardization_type, mean, std)
     return image_batch
 
 
@@ -250,6 +250,7 @@ def standardize_image_numba(
             std: list = None
         ):
     """
+    TODO: FIX STABILITY
     Standardize image within parameter, simple scaling of values.
     Loca, Global, and Mixed options.
     """
@@ -277,15 +278,15 @@ def standardize_batch_numba(
             std: list = None
         ):
     """
+    TODO: FIX STABILITY
     Standardize image within parameter, simple scaling of values.
     Loca, Global, and Mixed options.
     """
     if standardization_type == 'local':
         for item in range(image_batch.shape[0]):
-            image_batch[item, :, :, :] = (
-                image_batch[item, :, :, :] - np.mean(
-                    image_batch[item, :, :, :])) / \
-                    np.std(image_batch[item, :, :, :])
+            image_batch[item] = (
+                image_batch[item] - np.mean(image_batch[item], axis=(0, 1))) \
+                / (np.std(image_batch[item], axis=(0, 1)) + 1e-8)
     elif standardization_type == 'global':
         print("me")
     else:
