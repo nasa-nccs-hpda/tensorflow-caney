@@ -1,6 +1,8 @@
 import pytest
 import numpy as np
+import tensorflow as tf
 from tensorflow_caney.utils import system
+from tensorflow.python.distribute.mirrored_strategy import MirroredStrategy
 
 
 @pytest.mark.parametrize(
@@ -15,8 +17,12 @@ def test_seed_everything(seed):
     "gpu_devices", ["0,1,2,3", "0,1"]
 )
 def test_set_gpu_strategy(gpu_devices):
-    with pytest.raises(AssertionError):
-        system.set_gpu_strategy(gpu_devices)
+    if len(tf.config.list_physical_devices('GPU')) > 0:
+        gpu_strategy = system.set_gpu_strategy(gpu_devices)
+        assert gpu_strategy.__class__ == MirroredStrategy().__class__
+    else:
+        with pytest.raises(AssertionError):
+            system.set_gpu_strategy(gpu_devices)
 
 
 @pytest.mark.parametrize(
