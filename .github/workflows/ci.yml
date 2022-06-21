@@ -18,7 +18,7 @@ jobs:
         uses: py-actions/flake8@v2
 
   test:
-    runs-on: ubuntu-latest
+    runs-on: osgeo/gdal:latest
     strategy:
       max-parallel: 4
       matrix:
