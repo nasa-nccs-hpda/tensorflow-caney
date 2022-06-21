@@ -34,7 +34,7 @@ jobs:
           architecture: x64
       - name: Install test dependencies
         run: |
-          sudo apt-get install -y gdal-bin libgdal-dev
+          sudo apt-get install -y gdal-bin libgdal-dev build-essential
           python -m pip install --upgrade pip
           pip install .[test]
           pip install coveralls
