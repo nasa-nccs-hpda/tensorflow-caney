@@ -1,25 +1,25 @@
 import os
 import logging
-from sys import stdout
 import numpy as np
-from typing import Any
 import tensorflow as tf
+from typing import Any
 from sklearn.model_selection import train_test_split
 from .data import get_mean_std_metadata, standardize_image
 
-
 AUTOTUNE = tf.data.experimental.AUTOTUNE
+
+__all__ = ["SegmentationDataLoader"]
 
 
 class SegmentationDataLoader(object):
 
     def __init__(
-            self,
-            data_filenames: list,
-            label_filenames: list,
-            conf,
-            train_step: bool = True,
-        ):
+                self,
+                data_filenames: list,
+                label_filenames: list,
+                conf,
+                train_step: bool = True,
+            ):
 
         # Set configuration variables
         self.conf = conf
@@ -45,7 +45,7 @@ class SegmentationDataLoader(object):
 
         # If this is not a training step (e.g preprocess, predict)
         if not train_step:
-            
+
             # Initialize training dataset
             self.train_dataset = self.tf_dataset(
                 self.data_filenames, self.label_filenames,
@@ -63,9 +63,13 @@ class SegmentationDataLoader(object):
 
             # Split training and validation dataset
             self.train_x, self.val_x = train_test_split(
-                data_filenames, test_size=val_size, random_state=self.conf.seed)
+                data_filenames, test_size=val_size,
+                random_state=self.conf.seed
+            )
             self.train_y, self.val_y = train_test_split(
-                label_filenames, test_size=val_size, random_state=self.conf.seed)
+                label_filenames, test_size=val_size,
+                random_state=self.conf.seed
+            )
 
             # Calculate training steps
             self.train_steps = len(self.train_x) // self.conf.batch_size
@@ -94,9 +98,8 @@ class SegmentationDataLoader(object):
 
         # Load mean and std metrics, only if training and fixed standardization
         if train_step and self.conf.standardization in ['global', 'mixed']:
-            logging.info('Loading mean and std values.')
-            metadata = get_mean_std_metadata(self.metadata_output_filename)
-            # mean, std 
+            self.mean, self.std = get_mean_std_metadata(
+                self.metadata_output_filename)
 
     def tf_dataset(
                 self, x: list, y: list,
@@ -125,9 +128,15 @@ class SegmentationDataLoader(object):
             return x.astype(np.float32), y.astype(np.float32)
         x, y = tf.numpy_function(_loader, [x, y], [tf.float32, tf.float32])
         x.set_shape([
-            self.conf.tile_size, self.conf.tile_size, len(self.conf.output_bands)])
+            self.conf.tile_size,
+            self.conf.tile_size,
+            len(self.conf.output_bands)]
+        )
         y.set_shape([
-            self.conf.tile_size, self.conf.tile_size, self.conf.n_classes])
+            self.conf.tile_size,
+            self.conf.tile_size,
+            self.conf.n_classes]
+        )
         return x, y
 
     def load_data(self, x, y):
@@ -140,7 +149,8 @@ class SegmentationDataLoader(object):
 
         # Standardize
         if self.conf.standardization is not None:
-            x = standardize_image(x, self.conf.standardization, self.mean, self.std)
+            x = standardize_image(
+                x, self.conf.standardization, self.mean, self.std)
 
         # Augment
         if self.conf.augment:

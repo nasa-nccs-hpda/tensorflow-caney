@@ -1,9 +1,10 @@
 import os
 import time
 import random
+import logging
+from glob import glob
 from typing import List
 from pathlib import Path
-from glob import glob
 
 import numpy as np
 import xarray as xr
@@ -127,6 +128,7 @@ def get_mean_std_metadata(filename):
     assert os.path.isfile(filename), \
         f'{filename} does not exist.'
     metadata = pd.read_csv(filename, header=None)
+    logging.info('Loading mean and std values.')
     return metadata.loc[0].values, metadata.loc[1].values
 
 
@@ -246,7 +248,9 @@ def standardize_image(
 
 
 def standardize_batch(
-            image_batch, standardization_type: str, mean: list = None,
+            image_batch,
+            standardization_type: str,
+            mean: list = None,
             std: list = None
         ):
     """

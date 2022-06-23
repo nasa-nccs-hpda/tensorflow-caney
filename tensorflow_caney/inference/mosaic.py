@@ -4,7 +4,7 @@ import numpy as np
 import tqdm.auto as tqdm
 import math
 import tensorflow as tf
-from ..utils.data import standardize_image
+from ..utils.data import standardize_image, standardize_batch_numba
 
 
 OVERLAP_FACTOR = 1
@@ -160,6 +160,8 @@ class MightyMosaic(np.ndarray):
 
             # this needs to move away, preprocessing
             if standardization is not None:
+                #batch = standardize_batch_numba(
+                #    batch, standardization, mean, std)
                 for item in range(batch.shape[0]):
                     batch[item, :, :, :] = standardize_image(
                         batch[item, :, :, :], standardization, mean, std)
