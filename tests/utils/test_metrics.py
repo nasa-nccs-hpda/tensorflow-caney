@@ -3,7 +3,7 @@ import tensorflow as tf
 import segmentation_models as sm
 from tensorflow_caney.utils.metrics import get_metrics
 
-__all__ = ["tf", "sm"]
+__all__ = ["tf", "sm", "test_get_metrics", "test_get_metrics_exception"]
 
 
 @pytest.mark.parametrize(

@@ -4,7 +4,7 @@ import numpy as np
 import tqdm.auto as tqdm
 import math
 import tensorflow as tf
-from ..utils.data import standardize_image, standardize_batch_numba
+from ..utils.data import standardize_image
 
 
 OVERLAP_FACTOR = 1
@@ -26,16 +26,21 @@ class MightyMosaic(np.ndarray):
         :type shape: `list` or `tuple`, should be either of length `2` or `3`.
         :param tile_shape: Number of pixels on each axis of the tile.
         :type tile_shape: `list` or `tuple`, should be of length `2`.
-        :param overlap_factor: Overlapping of neighbor tiles. If iterable, the overlap can be different on the two axis.
-        :type overlap_factor: `int`, `list` or `tuple`. If iterable, should be of length 2.
-        :param fill_mode: Points outside the boundaries of the input are filled according to the given mode:
+        :param overlap_factor: Overlapping of neighbor tiles. If iterable,
+        the overlap can be different on the two axis.
+        :type overlap_factor: `int`, `list` or `tuple`. If iterable,
+        should be of length 2.
+        :param fill_mode: Points outside the boundaries of the input are
+        filled according to the given mode:
                             `constant`: kkkkkkkk|abcd|kkkkkkkk (cval=k)
                             `nearest`: aaaaaaaa|abcd|dddddddd
                             `reflect`: abcddcba|abcd|dcbaabcd
-        :type fill_mode: `str`, one of `constant`, `nearest` or `reflect`. Optional.
-        :param cval: Value used for points outside the boundaries when fill_mode = `constant`.
+        :type fill_mode: `str`, one of `constant`, `nearest` or `reflect`.
+        :param cval: Value used for points outside the boundaries when
+        fill_mode = `constant`.
         :type cval: `int`. Optional.
-        :return: A subclass of `np.ndarray`, with shape of length either `4` or `5`.
+        :return: A subclass of `np.ndarray`, with shape of length either
+        `4` or `5`.
         :rtype: `MightyMosaic`
         """
         assert isinstance(shape, tuple) or isinstance(shape, list), \
@@ -118,21 +123,20 @@ class MightyMosaic(np.ndarray):
         :type progress_bar: `bool`. Optional, default value is `False`.
         :param batch_size: Number of batchs to pass inside the function.
         :type batch_size: `int`. Optional, default value is `1`.
-        :return: A subclass of `np.ndarray`, with shape of length either `4` or `5`.
+        :return: A subclass of `np.ndarray`, with shape of length
+        either `4` or `5`.
         :rtype: `MightyMosaic`.
         """
         assert isinstance(progress_bar, bool), \
             f'cval {progress_bar} should be of type "bool" but is is of type "{type(progress_bar)}"'
-        assert callable(function), f'function should be callable but is of type {type(function)}'
-        assert isinstance(batch_size, int), f'batch_size should be of type "int" but is of type "{type(batch_size)}"'
+        assert callable(function), \
+            f'function should be callable but is of type {type(function)}'
+        assert isinstance(batch_size, int), \
+            f'batch_size should be of type "int" but is of type "{type(batch_size)}"'
 
-        #print(self.shape[0], self.shape[1], batch_size)
-        #print(self.shape[0] * self.shape[1] / batch_size)
-        #print(self.shape[0] * self.shape[1] // batch_size)
-
-        #8 8 128
-        #0.5
-        #0
+        # print(self.shape[0], self.shape[1], batch_size)
+        # print(self.shape[0] * self.shape[1] / batch_size)
+        # print(self.shape[0] * self.shape[1] // batch_size)
 
         if self.shape[0] * self.shape[1] / batch_size != \
                 self.shape[0] * self.shape[1] // batch_size:
@@ -160,7 +164,7 @@ class MightyMosaic(np.ndarray):
 
             # this needs to move away, preprocessing
             if standardization is not None:
-                #batch = standardize_batch_numba(
+                # batch = standardize_batch_numba(
                 #    batch, standardization, mean, std)
                 for item in range(batch.shape[0]):
                     batch[item, :, :, :] = standardize_image(
@@ -171,11 +175,11 @@ class MightyMosaic(np.ndarray):
             batch = batch.with_options(self.options)
             batch = function(batch, batch_size=batch_size)
 
-            #batch = np.moveaxis(batch, -1, 1)
-            #batch = torch.from_numpy(batch).float().to('cuda')
-            #batch = function(batch)
-            #batch = np.moveaxis(batch.detach().cpu().numpy(), 1, -1)
-            #print(type(batch))
+            # batch = np.moveaxis(batch, -1, 1)
+            # batch = torch.from_numpy(batch).float().to('cuda')
+            # batch = function(batch)
+            # batch = np.moveaxis(batch.detach().cpu().numpy(), 1, -1)
+            # print(type(batch))
 
             for element_index, (i, j) in enumerate(index[min_index:max_index]):
                 patchs.append((i, j, batch[element_index]))
@@ -184,7 +188,7 @@ class MightyMosaic(np.ndarray):
             self.original_shape[0] // (self.shape[2] // patchs[0][2].shape[0]),
             self.original_shape[1] // (self.shape[3] // patchs[0][2].shape[1])
         ]
- 
+
         if len(patchs[0][2].shape) == 3:
             new_shape.append(patchs[0][2].shape[-1])
         new_mosaic = MightyMosaic(
@@ -230,26 +234,38 @@ def from_array(array, tile_shape, overlap_factor=OVERLAP_FACTOR,
     """
     Create a instance of `MightyMosaic` from a `np.ndarray`
     :param array: The array on which to apply the tiling.
-    :type array: `np.ndarray`, it's shape should be of length either `2` or `3`.
+    :type array: `np.ndarray`, it's shape should be of length
+    either `2` or `3`.
     :param tile_shape: Number of pixels on each axis of the tile.
     :type tile_shape: `list` or `tuple`, should be of length `2`.
-    :param overlap_factor: Overlapping of neighbor tiles. If iterable, the overlap can be different on the two axis.
-    :type overlap_factor: `int`, `list` or `tuple`. If iterable, should be of length 2.
-    :param fill_mode: Points outside the boundaries of the input are filled according to the given mode:
+    :param overlap_factor: Overlapping of neighbor tiles. If iterable,
+    the overlap can be different on the two axis.
+    :type overlap_factor: `int`, `list` or `tuple`. If iterable,
+    should be of length 2.
+    :param fill_mode: Points outside the boundaries of the input are
+    filled according to the given mode:
                         `constant`: kkkkkkkk|abcd|kkkkkkkk (cval=k)
                         `nearest`: aaaaaaaa|abcd|dddddddd
                         `reflect`: abcddcba|abcd|dcbaabcd
-    :type fill_mode: `str`, one of `constant`, `nearest` or `reflect`. Optional.
-    :param cval: Value used for points outside the boundaries when fill_mode = `constant`.
+    :type fill_mode: `str`, one of `constant`, `nearest` or `reflect`.
+    :param cval: Value used for points outside the boundaries when
+    fill_mode = `constant`.
     :type cval: `int`. Optional.
-    :return: A subclass of `np.ndarray`, with shape of length either `4` or `5`.
+    :return: A subclass of `np.ndarray`, with shape of length either
+    `4` or `5`.
     :rtype: `MightyMosaic`
     """
-    assert isinstance(array, np.ndarray), f'array should be of type "np.ndarray" but is of type "{type(array)}"'
+    assert isinstance(array, np.ndarray), \
+        f'array should be of type "np.ndarray" but is of type "{type(array)}"'
     assert len(array.shape) in (2, 3), \
         f'Array has incorrect shape {array.shape} is incorrect ' \
             f'(length is {len(array.shape)} but should be either 2 or 3).'
-    mosaic = MightyMosaic(array.shape, tile_shape, overlap_factor=overlap_factor, fill_mode=fill_mode, cval=cval)
+    mosaic = MightyMosaic(
+        array.shape,
+        tile_shape,
+        overlap_factor=overlap_factor,
+        fill_mode=fill_mode, cval=cval
+    )
 
     if len(array.shape) == 2:
         new_array = np.zeros((array.shape[0] + mosaic.mosaic_margins[0] + 2 * mosaic.tile_margins[0],
@@ -261,10 +277,9 @@ def from_array(array, tile_shape, overlap_factor=OVERLAP_FACTOR,
     new_array[mosaic.tile_margins[0]:array.shape[0] + mosaic.tile_margins[0],
     mosaic.tile_margins[1]:array.shape[1] + mosaic.tile_margins[1]] = array
 
-    #print("array.shape[0]", array.shape[0], "array.shape[1]", array.shape[1])
-
-    #print(array.shape[0] + mosaic.mosaic_margins[0] + 2 * mosaic.tile_margins[0], array.shape[1] + mosaic.mosaic_margins[1] + 2 * mosaic.tile_margins[1])
-    #print(mosaic.tile_margins, -mosaic.tile_margins[0] - mosaic.mosaic_margins[0], -mosaic.tile_margins[1] - mosaic.mosaic_margins[1])
+    # print("array.shape[0]", array.shape[0], "array.shape[1]", array.shape[1])
+    # print(array.shape[0] + mosaic.mosaic_margins[0] + 2 * mosaic.tile_margins[0], array.shape[1] + mosaic.mosaic_margins[1] + 2 * mosaic.tile_margins[1])
+    # print(mosaic.tile_margins, -mosaic.tile_margins[0] - mosaic.mosaic_margins[0], -mosaic.tile_margins[1] - mosaic.mosaic_margins[1])
 
     new_array = fill(new_array, fill_mode, cval=cval,
                      i_begin=mosaic.tile_margins[0], i_end=-mosaic.tile_margins[0] - mosaic.mosaic_margins[0],
@@ -300,12 +315,17 @@ def fill(array, fill_mode, cval=CVAL, i_begin=0, i_end=-1, j_begin=0, j_end=-1):
     :return:
     """
     assert fill_mode in ALLOWED_FILL_MODE, \
-        f'fill_mode {fill_mode} is not allowed, should be one of {ALLOWED_FILL_MODE}'
-    assert isinstance(cval, int), f'cval {cval} should be of type "int" but is of type "{type(cval)}"'
-    assert isinstance(i_begin, int), f'i_begin {i_begin} should be of type but is of type "{type(i_begin)}"'
-    assert isinstance(i_end, int), f'i_end {i_end} should be of type but is of type "{type(i_end)}"'
-    assert isinstance(j_begin, int), f'j_begin {j_begin} should be of type but is of type "{type(j_begin)}"'
-    assert isinstance(j_end, int), f'j_end {j_end} should be of type but is of type "{type(j_end)}"'
+        f'fill_mode {fill_mode} not allowed, should be one of {ALLOWED_FILL_MODE}'
+    assert isinstance(cval, int), \
+        f'cval {cval} should be of type "int" but is of type "{type(cval)}"'
+    assert isinstance(i_begin, int), \
+        f'i_begin {i_begin} should be of type but is of type "{type(i_begin)}"'
+    assert isinstance(i_end, int), \
+        f'i_end {i_end} should be of type but is of type "{type(i_end)}"'
+    assert isinstance(j_begin, int), \
+        f'j_begin {j_begin} should be of type but is of type "{type(j_begin)}"'
+    assert isinstance(j_end, int), \
+        f'j_end {j_end} should be of type but is of type "{type(j_end)}"'
     assert i_begin % array.shape[0] < i_end % array.shape[0], \
         f"i_begin ({i_begin}) should be less than i_end ({i_end}) ({i_begin} < {i_end} is False)"
     assert j_begin % array.shape[1] < j_end % array.shape[1], \
@@ -317,7 +337,7 @@ def fill(array, fill_mode, cval=CVAL, i_begin=0, i_end=-1, j_begin=0, j_end=-1):
     assert -array.shape[1] < j_begin < array.shape[1], \
         f"j_begin {j_begin} is out of range (should be in ]-{array.shape[1]}, {array.shape[1]}[)"
     assert -array.shape[1] < j_end < array.shape[1], \
-        f"j_end {j_end} is out of range (should be in ]-{array.shape[1]}, {array.shape[1]}[)"
+        f"j_end {j_end} out of range (should be in ]-{array.shape[1]}, {array.shape[1]}[)"
 
     if i_end > 0:
         i_end -= array.shape[0]

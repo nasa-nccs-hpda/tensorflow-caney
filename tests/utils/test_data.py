@@ -2,6 +2,8 @@ import pytest
 import numpy as np
 from tensorflow_caney.utils.data import get_mean_std_metadata
 
+__all__ = ["test_get_mean_std_metadata"]
+
 
 @pytest.mark.parametrize(
     "filename, expected_mean, expected_std",

@@ -2,7 +2,7 @@ import pytest
 import tensorflow as tf
 from tensorflow_caney.utils.optimizers import get_optimizer
 
-__all__ = ["tf"]
+__all__ = ["tf", "test_get_optimizer", "test_get_metrics_exception"]
 
 
 @pytest.mark.parametrize(

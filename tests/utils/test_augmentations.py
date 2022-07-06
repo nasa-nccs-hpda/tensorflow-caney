@@ -2,6 +2,8 @@ import pytest
 import numpy as np
 from tensorflow_caney.utils import augmentations as tfc_aug
 
+__all__ = ["test_center_crop"]
+
 
 @pytest.mark.parametrize(
     "image, expected_shape",

@@ -2,7 +2,7 @@ import pytest
 import tensorflow as tf
 from tensorflow_caney.utils.callbacks import get_callbacks
 
-__all__ = ["tf"]
+__all__ = ["tf", "test_get_callbacks", "test_get_callbacks_exception"]
 
 
 @pytest.mark.parametrize(

@@ -4,6 +4,11 @@ import tensorflow as tf
 from tensorflow_caney.utils import system
 from tensorflow.python.distribute.mirrored_strategy import MirroredStrategy
 
+__all__ = [
+    "test_seed_everything", "test_set_gpu_strategy",
+    "test_set_mixed_precision", "test_set_xla"
+]
+
 
 @pytest.mark.parametrize(
     "seed", [10, 1024]

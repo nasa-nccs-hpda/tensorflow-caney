@@ -62,7 +62,7 @@ def generate_patch_list(
         step = window_size
         windows = np.ones((window_size, window_size))
         # max_height = int(image_height / step) * step
-        #  max_width = int(image_width / step) * step
+        # max_width = int(image_width / step) * step
         # print("else max_height, max_width", max_height, max_width)
 
     # for i in range(0, max_height, step):
