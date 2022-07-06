@@ -55,14 +55,14 @@ def generate_patch_list(
     if overlapping:
         step = window_size >> 1
         windows = generate_corner_windows(window_func, window_size)
-        max_height = int(image_height/step - 1)*step
-        max_width = int(image_width/step - 1)*step
+        # max_height = int(image_height/step - 1) * step
+        # max_width = int(image_width/step - 1) * step
         # print("max_height, max_width", max_height, max_width)
     else:
         step = window_size
         windows = np.ones((window_size, window_size))
-        max_height = int(image_height / step) * step
-        max_width = int(image_width / step) * step
+        # max_height = int(image_height / step) * step
+        #  max_width = int(image_width / step) * step
         # print("else max_height, max_width", max_height, max_width)
 
     # for i in range(0, max_height, step):
@@ -96,7 +96,8 @@ def generate_patch_list(
             if j+patch_width > image_width:
                 patch_width = image_width - j
 
-            # print(f'i {i} j {j} patch_height {patch_height} patch_width {patch_width}')
+            # print(f'i {i} j {j} patch_height {patch_height}
+            # patch_width {patch_width}')
 
             # Adding the patch
             patch_list.append(
@@ -119,8 +120,10 @@ def sliding_window(
         ):
 
     # original_shape = xraster[:, :, 0].shape
-    # xsum = int(((-xraster[:, :, 0].shape[0] % tile_size) + (tile_size * 4)) / 2)
-    # ysum = int(((-xraster[:, :, 0].shape[1] % tile_size) + (tile_size * 4)) / 2)
+    # xsum = int(((-xraster[:, :, 0].shape[0] % tile_size) + \
+    # (tile_size * 4)) / 2)
+    # ysum = int(((-xraster[:, :, 0].shape[1] % tile_size) + \
+    # (tile_size * 4)) / 2)
     # print("xsum", xsum, "ysum", ysum)
 
     # xraster = np.pad(xraster, ((ysum, ysum), (xsum, xsum), (0, 0)),
@@ -169,7 +172,8 @@ def sliding_window(
         # if patch_x + patch_width > rast_shape[1]:
         #    patch_width =
 
-        # logging.info(f'{patch_x}, {patch_width+patch_x}, {patch_y}, {patch_height+patch_y}')
+        # logging.info(f'{patch_x}, {patch_width+patch_x}, {patch_y},
+        # {patch_height+patch_y}')
         # logging.info(f'{psutil.virtual_memory().percent}')
 
         input_path = xraster[
@@ -183,7 +187,8 @@ def sliding_window(
             prediction[
                 patch_x:patch_x+patch_width,
                 patch_y:patch_y+patch_height] = np.eye(n_classes)[
-                    np.zeros((input_path_shape[0], input_path_shape[1]), dtype=int)]
+                    np.zeros(
+                        (input_path_shape[0], input_path_shape[1]), dtype=int)]
 
         else:
 
@@ -196,17 +201,19 @@ def sliding_window(
 
             input_path = input_path.apply(
                 model.predict, progress_bar=False,
-                batch_size=batch_size, mean=mean, std=std, standardization=standardization)
+                batch_size=batch_size, mean=mean, std=std,
+                standardization=standardization)
 
             input_path = input_path.get_fusion()
 
             prediction[
                 patch_x:patch_x+patch_width,
-                patch_y:patch_y+patch_height] += input_path * np.expand_dims(window, -1)
+                patch_y:patch_y+patch_height] += \
+                input_path * np.expand_dims(window, -1)
 
     if prediction.shape[-1] > 1:
         prediction = np.argmax(prediction, axis=-1)
-        # print('Window shape before spline', window.shape, window_spline.shape)
+        # print('Window shape bef. spline', window.shape, window_spline.shape)
         # window = window * window_spline
     else:
         prediction = np.squeeze(
@@ -229,19 +236,19 @@ def sliding_window(
 
 
 def sliding_window_tiler(
-        xraster,
-        model,
-        n_classes: int,
-        pad_style: str = 'reflect',
-        overlap: float = 0.50,
-        constant_value: int = 600,
-        batch_size: int = 1024,
-        threshold: float = 0.50,
-        standardization: str = None,
-        mean = None,
-        std = None,
-        window: str = 'triang'  # 'overlap-tile'
-    ):
+            xraster,
+            model,
+            n_classes: int,
+            pad_style: str = 'reflect',
+            overlap: float = 0.50,
+            constant_value: int = 600,
+            batch_size: int = 1024,
+            threshold: float = 0.50,
+            standardization: str = None,
+            mean=None,
+            std=None,
+            window: str = 'triang'  # 'overlap-tile'
+        ):
     """
     Sliding window using tiler.
     """
@@ -499,96 +506,104 @@ def sliding_window_tiler_multiclass(
 
 
 def get_extract_pred_scatter(
-        xraster,
-        model,
-        n_classes: int,
-        pad_style: str = 'reflect',
-        overlap: float = 0.50,
-        constant_value: int = 600,
-        batch_size: int = 1024,
-        threshold: float = 0.50,
-        standardization: str = None,
-        mean = None,
-        std = None,
-        window: str = 'triang'#'overlap-tile'
-    ):
+            xraster,
+            model,
+            n_classes: int,
+            pad_style: str = 'reflect',
+            overlap: float = 0.50,
+            constant_value: int = 600,
+            batch_size: int = 1024,
+            threshold: float = 0.50,
+            standardization: str = None,
+            mean=None,
+            std=None,
+            window: str = 'triang'  # 'overlap-tile'
+        ):
 
     with tf.device('/CPU:0'):
         tile_size = model.layers[0].input_shape[0][1]
         tile_stride = tile_size
-        tile_channels = model.layers[0].input_shape[0][-1]
-        PATCH_RATE  = 1
-        SIZES       = [1, tile_size, tile_size, 1] 
-        STRIDES     = [1, tile_stride, tile_stride, 1] 
-        RATES       = [1, PATCH_RATE, PATCH_RATE, 1] 
-        PADDING     = 'VALID'
+        # tile_channels = model.layers[0].input_shape[0][-1]
+        PATCH_RATE = 1
+        SIZES = [1, tile_size, tile_size, 1]
+        STRIDES = [1, tile_stride, tile_stride, 1]
+        RATES = [1, PATCH_RATE, PATCH_RATE, 1]
+        PADDING = 'VALID'
 
-        H,W,C = xraster.shape
-        # patch_number 
-        tile_PATCH_NUMBER = ((H - tile_size)//tile_stride + 1)*((W - tile_size)//tile_stride + 1)
-        #print(tile_PATCH_NUMBER)
+        H, W, C = xraster.shape
+        # patch_number
+        tile_PATCH_NUMBER = (
+            (H - tile_size) // tile_stride + 1) * \
+            ((W - tile_size) // tile_stride + 1)
+        # print(tile_PATCH_NUMBER)
         # the indices trick to reconstruct the tile
         x = tf.range(W)
         y = tf.range(H)
         x, y = tf.meshgrid(x, y)
         indices = tf.stack([y, x], axis=-1)
-        #print(indices)
+        # print(indices)
         # making patches, TensorShape([2, 17, 17, 786432])
-        img_patches = tf.image.extract_patches(images=tf.expand_dims(xraster, axis=0), sizes=SIZES, strides=STRIDES, rates=RATES, padding=PADDING)
-        ind_patches = tf.image.extract_patches(images=tf.expand_dims(indices, axis=0), sizes=SIZES, strides=STRIDES, rates=RATES, padding=PADDING) 
-        #print(img_patches)
+        img_patches = tf.image.extract_patches(
+            images=tf.expand_dims(xraster, axis=0),
+            sizes=SIZES, strides=STRIDES, rates=RATES, padding=PADDING)
+        ind_patches = tf.image.extract_patches(
+            images=tf.expand_dims(indices, axis=0),
+            sizes=SIZES, strides=STRIDES, rates=RATES, padding=PADDING)
+        # print(img_patches)
         # squeezing the shape (removing dimension of size 1)
         img_patches = tf.squeeze(img_patches)
         ind_patches = tf.squeeze(ind_patches)
         # reshaping
-        img_patches = tf.reshape(img_patches, [tile_PATCH_NUMBER, tile_size, tile_size, C])
-        ind_patches = tf.reshape(ind_patches, [tile_PATCH_NUMBER, tile_size, tile_size, 2])
-        
+        img_patches = tf.reshape(
+            img_patches, [tile_PATCH_NUMBER, tile_size, tile_size, C])
+        ind_patches = tf.reshape(
+            ind_patches, [tile_PATCH_NUMBER, tile_size, tile_size, 2])
+
         img_patches = img_patches / 10000
         img_patches = tf.image.per_image_standardization(img_patches)
         print(type(img_patches))
     # Now predict
-    #with tf.device('/GPU:0'):
+    # with tf.device('/GPU:0'):
     pred_patches = model.predict(img_patches, batch_size=batch_size)
     # stitch together the patch summing the overlapping patches probabilities
-    pred_tile    = tf.scatter_nd(indices=ind_patches, updates=pred_patches, shape=(H,W,n_classes))
+    pred_tile = tf.scatter_nd(
+        indices=ind_patches, updates=pred_patches, shape=(H, W, n_classes))
 
-    #pred_tile = pred_tile.numpy()
-
-    #pred_tile = np.squeeze(
+    # pred_tile = pred_tile.numpy()
+    # pred_tile = np.squeeze(
     #    np.where(pred_tile > threshold, 1, 0).astype(np.int16)
-    #)
-    #print("pred_tile", type(pred_tile), pred_tile.min(), pred_tile.max(), pred_tile.shape)
+    # )
+    # print("pred_tile", type(pred_tile), pred_tile.min(),
+    # pred_tile.max(), pred_tile.shape)
     return pred_tile
 
 
-#def get_tile_tta_pred(tile_path, model, from_disk=True):
 def get_tile_tta_pred(
-        xraster,
-        model,
-        n_classes: int,
-        pad_style: str = 'reflect',
-        overlap: float = 0.50,
-        constant_value: int = 600,
-        batch_size: int = 1024,
-        threshold: float = 0.50,
-        standardization: str = None,
-        mean = None,
-        std = None,
-        window: str = 'triang'#'overlap-tile'
-    ):
+            xraster,
+            model,
+            n_classes: int,
+            pad_style: str = 'reflect',
+            overlap: float = 0.50,
+            constant_value: int = 600,
+            batch_size: int = 1024,
+            threshold: float = 0.50,
+            standardization: str = None,
+            mean=None,
+            std=None,
+            window: str = 'triang'  # 'overlap-tile'
+        ):
     """ test time augmentation prediction """
     # reading the tile content
-    #if from_disk:
+    # if from_disk:
     #    img = imageio.imread(tile_path)
-    #else:
+    # else:
     #    img = tile_path
-    #img = tf.image.convert_image_dtype(img,tf.float32)
-    H,W,C = xraster.shape
-    pred_tile = tf.zeros(shape=(H,W,n_classes))
+    # img = tf.image.convert_image_dtype(img,tf.float32)
+    H, W, C = xraster.shape
+    pred_tile = tf.zeros(shape=(H, W, n_classes))
     for i in tqdm(tf.range(4)):
         rot_img = tf.image.rot90(xraster, k=i)
-        #pred_tmp = get_extract_pred_scatter(rot_img, model)
+        # pred_tmp = get_extract_pred_scatter(rot_img, model)
         pred_tmp = get_extract_pred_scatter(
                 rot_img,
                 model,
@@ -607,7 +622,7 @@ def get_tile_tta_pred(
     xraster = tf.image.flip_left_right(xraster)
     for i in tqdm(tf.range(4)):
         rot_img = tf.image.rot90(xraster, k=i)
-        #pred_tmp = get_extract_pred_scatter(rot_img,model)
+        # pred_tmp = get_extract_pred_scatter(rot_img, model)
         pred_tmp = get_extract_pred_scatter(
                 rot_img,
                 model,
@@ -622,30 +637,30 @@ def get_tile_tta_pred(
                 std,
                 window
             )
-        pred_tile += tf.image.flip_left_right(tf.image.rot90(pred_tmp,k=-i))
-    #pred_tile    = tf.argmax(pred_tile, axis=-1, output_type=tf.int32)
+        pred_tile += tf.image.flip_left_right(tf.image.rot90(pred_tmp, k=-i))
+    # pred_tile    = tf.argmax(pred_tile, axis=-1, output_type=tf.int32)
     # pred_tile    = label2mask(pred_tile)
     pred_tile = pred_tile.numpy()
     pred_tile = np.squeeze(
         np.where(pred_tile > threshold, 1, 0).astype(np.int16)
     )
-    return pred_tile  
+    return pred_tile
 
 
 def sliding_window_tiler_multiclass_v2(
-        xraster,
-        model,
-        n_classes: int,
-        pad_style: str = 'reflect',
-        overlap: float = 0.50,
-        constant_value: int = 600,
-        batch_size: int = 1024,
-        threshold: float = 0.50,
-        standardization: str = None,
-        mean = None,
-        std = None,
-        window: str = 'triang' #'overlap-tile'
-    ):
+            xraster,
+            model,
+            n_classes: int,
+            pad_style: str = 'reflect',
+            overlap: float = 0.50,
+            constant_value: int = 600,
+            batch_size: int = 1024,
+            threshold: float = 0.50,
+            standardization: str = None,
+            mean=None,
+            std=None,
+            window: str = 'triang'  # 'overlap-tile'
+        ):
     """
     Sliding window using tiler.
     """
@@ -653,67 +668,67 @@ def sliding_window_tiler_multiclass_v2(
     tile_size = model.layers[0].input_shape[0][1]
     tile_channels = model.layers[0].input_shape[0][-1]
 
-    #tiler_image = Tiler(
+    # tiler_image = Tiler(
     #    data_shape=xraster.shape,
     #    tile_shape=(tile_size, tile_size, tile_channels),
     #    channel_dimension=2,
     #    overlap=overlap,
     #    mode=pad_style,
     #    constant_value=600
-    #)
+    # )
     tiler = Tiler(
         data_shape=xraster.shape,
         tile_shape=(tile_size, tile_size, tile_channels),
         channel_dimension=-1,
         overlap=0.5,
-        #mode=pad_style,
-        #constant_value=600
+        # mode=pad_style,
+        # constant_value=600
     )
     merger = Merger(
         tiler,
         ignore_channels=True,  # this allows to "turn off" channels from Tiler
-        logits_n=n_classes,  # this specifies how many logits/segmentation classes there will be
+        logits_n=n_classes,  # this specifies logits/segmentation classes
         logits_dim=-1,  # and in which dimension
         window=window
     )
 
     # Define the tiler and merger based on the output size of the prediction
-    #tiler_mask = Tiler(
+    # tiler_mask = Tiler(
     #    data_shape=(xraster.shape[0], xraster.shape[1], n_classes),
     #    tile_shape=(tile_size, tile_size, n_classes),
     #    channel_dimension=2,
     #    overlap=overlap,
     #    mode=pad_style,
     #    constant_value=600
-    #)
+    # )
 
-    #new_shape_image, padding_image = tiler_image.calculate_padding()
-    #new_shape_mask, padding_mask = tiler_mask.calculate_padding()
-    #print(xraster.shape, new_shape_image, new_shape_mask)
-    
-    #tiler_image.recalculate(data_shape=new_shape_image)
-    #tiler_mask.recalculate(data_shape=new_shape_mask)
+    # new_shape_image, padding_image = tiler_image.calculate_padding()
+    # new_shape_mask, padding_mask = tiler_mask.calculate_padding()
+    # print(xraster.shape, new_shape_image, new_shape_mask)
 
-    #merger = Merger(tiler=tiler_mask, window=window, logits=4)
-    #merger = Merger(
+    # tiler_image.recalculate(data_shape=new_shape_image)
+    # tiler_mask.recalculate(data_shape=new_shape_mask)
+
+    # merger = Merger(tiler=tiler_mask, window=window, logits=4)
+    #  merger = Merger(
     #    tiler=tiler_mask, window=window)#, #logits=4,
     #    tile_shape_merge=(tile_size, tile_size))
     # print(merger)
-    #print("WEIGHTS SHAPE", merger.weights_sum.shape)
-    #print("WINDOW SHAPE", merger.window.shape)
+    # print("WEIGHTS SHAPE", merger.weights_sum.shape)
+    # print("WINDOW SHAPE", merger.window.shape)
 
-    #xraster = xraster.pad(
+    # xraster = xraster.pad(
     #    y=padding_image[0], x=padding_image[1],
     #    constant_values=constant_value)
-    #print("After pad", xraster.shape)
+    # print("After pad", xraster.shape)
 
     # Iterate over the data in batches
     for batch_id, batchi in tiler(xraster, batch_size=batch_size):
 
-        #print("AFTER SELECT", batch.shape)
+        # print("AFTER SELECT", batch.shape)
 
         # Standardize
-        batch = batchi.copy() #/ 10000.0
+        batch = batchi.copy()  # / 10000.0
 
         if standardization is not None:
             batch = standardize_batch(batch, standardization, mean, std)
@@ -729,7 +744,8 @@ def sliding_window_tiler_multiclass_v2(
         merger.add_batch(batch_id, batch_size, batch)
 
     # prediction = merger.merge(
-    #    extra_padding=padding_mask, unpad=True, dtype=xraster.dtype, normalize_by_weights=False)
+    #    extra_padding=padding_mask, unpad=True,
+    # dtype=xraster.dtype, normalize_by_weights=False)
     prediction = merger.merge(argmax=-1, unpad=True)
     print("MIN MAX", prediction.min(), prediction.max(), prediction.shape)
 
