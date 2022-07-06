@@ -17,10 +17,14 @@ def window2d(window_func, window_size, **kwargs):
 def generate_corner_windows(window_func, window_size, **kwargs):
     step = window_size >> 1
     window = window2d(window_func, window_size, **kwargs)
-    window_u = np.vstack([np.tile(window[step:step+1, :], (step, 1)), window[step:, :]])
-    window_b = np.vstack([window[:step, :], np.tile(window[step:step+1, :], (step, 1))])
-    window_l = np.hstack([np.tile(window[:, step:step+1], (1, step)), window[:, step:]])
-    window_r = np.hstack([window[:, :step], np.tile(window[:, step:step+1], (1, step))])
+    window_u = np.vstack(
+        [np.tile(window[step:step+1, :], (step, 1)), window[step:, :]])
+    window_b = np.vstack(
+        [window[:step, :], np.tile(window[step:step+1, :], (step, 1))])
+    window_l = np.hstack(
+        [np.tile(window[:, step:step+1], (1, step)), window[:, step:]])
+    window_r = np.hstack(
+        [window[:, :step], np.tile(window[:, step:step+1], (1, step))])
     window_ul = np.block([
         [np.ones((step, step)), window_u[:step, step:]],
         [window_l[step:, :step], window_l[step:, step:]]])
@@ -34,13 +38,19 @@ def generate_corner_windows(window_func, window_size, **kwargs):
         [window_r[:step, :step], window_r[:step, step:]],
         [window_b[step:, :step], np.ones((step, step))]])
     return np.array([
-        [ window_ul, window_u, window_ur ],
-        [ window_l,  window,   window_r  ],
-        [ window_bl, window_b, window_br ],
+        [window_ul, window_u, window_ur],
+        [window_l, window, window_r],
+        [window_bl, window_b, window_br],
     ])
 
 
-def generate_patch_list(image_width, image_height, window_func, window_size, overlapping=False):
+def generate_patch_list(
+            image_width,
+            image_height,
+            window_func,
+            window_size,
+            overlapping=False
+        ):
     patch_list = []
     if overlapping:
         step = window_size >> 1
@@ -51,11 +61,11 @@ def generate_patch_list(image_width, image_height, window_func, window_size, ove
     else:
         step = window_size
         windows = np.ones((window_size, window_size))
-        max_height = int(image_height/step)*step
-        max_width = int(image_width/step)*step
+        max_height = int(image_height / step) * step
+        max_width = int(image_width / step) * step
         # print("else max_height, max_width", max_height, max_width)
-    
-    #for i in range(0, max_height, step):
+
+    # for i in range(0, max_height, step):
     #    for j in range(0, max_width, step):
     for i in range(0, image_height-step, step):
         for j in range(0, image_width-step, step):
@@ -63,10 +73,14 @@ def generate_patch_list(image_width, image_height, window_func, window_size, ove
                 # Close to border and corner cases
                 # Default (1, 1) is regular center window
                 border_x, border_y = 1, 1
-                if i == 0: border_x = 0
-                if j == 0: border_y = 0
-                if i == image_height-step: border_x = 2
-                if j == image_width-step: border_y = 2
+                if i == 0:
+                    border_x = 0
+                if j == 0:
+                    border_y = 0
+                if i == image_height - step:
+                    border_x = 2
+                if j == image_width - step:
+                    border_y = 2
                 # Selecting the right window
                 current_window = windows[border_x, border_y]
             else:
@@ -77,18 +91,25 @@ def generate_patch_list(image_width, image_height, window_func, window_size, ove
             patch_height = window_size
             if i+patch_height > image_height:
                 patch_height = image_height - i
-            
+
             patch_width = window_size
             if j+patch_width > image_width:
                 patch_width = image_width - j
-            
-            #print(f'i {i} j {j} patch_height {patch_height} patch_width {patch_width}')
+
+            # print(f'i {i} j {j} patch_height {patch_height} patch_width {patch_width}')
 
             # Adding the patch
             patch_list.append(
-                (j, i, patch_width, patch_height, current_window[:patch_width, :patch_height])
+                (
+                    j,
+                    i,
+                    patch_width,
+                    patch_height,
+                    current_window[:patch_width, :patch_height]
+                )
             )
     return patch_list
+
 
 def sliding_window(
             xraster, model, window_size, tile_size,
@@ -97,15 +118,15 @@ def sliding_window(
             use_hanning=True
         ):
 
-    #original_shape = xraster[:, :, 0].shape
-    #xsum = int(((-xraster[:, :, 0].shape[0] % tile_size) + (tile_size * 4)) / 2)
-    #ysum = int(((-xraster[:, :, 0].shape[1] % tile_size) + (tile_size * 4)) / 2)
-    #print("xsum", xsum, "ysum", ysum)
+    # original_shape = xraster[:, :, 0].shape
+    # xsum = int(((-xraster[:, :, 0].shape[0] % tile_size) + (tile_size * 4)) / 2)
+    # ysum = int(((-xraster[:, :, 0].shape[1] % tile_size) + (tile_size * 4)) / 2)
+    # print("xsum", xsum, "ysum", ysum)
 
-    #xraster = np.pad(xraster, ((ysum, ysum), (xsum, xsum), (0, 0)),
+    # xraster = np.pad(xraster, ((ysum, ysum), (xsum, xsum), (0, 0)),
     #   mode='symmetric')#'reflect')
 
-    #print("RASTER SHAPE AFTER PAD", xraster.shape)
+    # print("RASTER SHAPE AFTER PAD", xraster.shape)
 
     # open rasters and get both data and coordinates
     rast_shape = xraster[:, :, 0].shape  # shape of the wider scene
@@ -128,32 +149,33 @@ def sliding_window(
     # print(rast_shape, wsy, wsx)
     prediction = np.zeros(rast_shape + (n_classes,))  # crop out the window
     logging.info(f'wsize: {wsy}x{wsx}. Prediction shape: {prediction.shape}')
-    # 2022-03-09 13:47:03; INFO; wsize: 10000x10000. Prediction shape: (38702, 71223, 2)
+    # 2022-03-09 13:47:03; INFO; wsize: 10000x10000.
+    # Prediction shape: (38702, 71223, 2)
 
     window_func = w.hann
     patch_list = generate_patch_list(
         rast_shape[0], rast_shape[1], window_func, wsy, use_hanning)
     pp = len(patch_list)
-    #logging.info(f'Patch list done {pp}')
+    # logging.info(f'Patch list done {pp}')
 
     counter = 0
     for patch in patch_list:
-        
+
         counter += 1
 
         logging.info(f'{counter} out of {pp}')
         patch_x, patch_y, patch_width, patch_height, window = patch
 
-        #if patch_x + patch_width > rast_shape[1]:
-        #    patch_width = 
+        # if patch_x + patch_width > rast_shape[1]:
+        #    patch_width =
 
-        #logging.info(f'{patch_x}, {patch_width+patch_x}, {patch_y}, {patch_height+patch_y}')
-        #logging.info(f'{psutil.virtual_memory().percent}')
-        
+        # logging.info(f'{patch_x}, {patch_width+patch_x}, {patch_y}, {patch_height+patch_y}')
+        # logging.info(f'{psutil.virtual_memory().percent}')
+
         input_path = xraster[
             patch_x:patch_x+patch_width, patch_y:patch_y+patch_height]
-        
-        #print("firts", input_path.shape)
+
+        # print("firts", input_path.shape)
 
         if np.all(input_path == input_path[0, 0, 0]):
 
@@ -184,28 +206,27 @@ def sliding_window(
 
     if prediction.shape[-1] > 1:
         prediction = np.argmax(prediction, axis=-1)
-        #print('Window shape before spline', window.shape, window_spline.shape)
-        #window = window * window_spline
+        # print('Window shape before spline', window.shape, window_spline.shape)
+        # window = window * window_spline
     else:
         prediction = np.squeeze(
             np.where(
                 prediction > inference_treshold, 1, 0).astype(np.int16)
             )
 
-    #print("SHAPR PREDICTION", prediction.shape)
-
-    #prediction = prediction[xsum:rast_shape[0] - xsum, ysum:rast_shape[1] - ysum]
-
-    #print("SHAPR PREDICTION AFTER CROP", prediction.shape)
-
-
+    # print("SHAPR PREDICTION", prediction.shape)
+    # prediction = prediction[
+    # xsum:rast_shape[0] - xsum, ysum:rast_shape[1] - ysum]
+    # print("SHAPR PREDICTION AFTER CROP", prediction.shape)
     return prediction
 
-#2022-04-18 13:13:08; INFO; Prediction shape: (51596, 9092, 8)
-#2022-04-18 13:13:55; INFO; Prediction shape after modf: (51596, 9092, 4)
-#2022-04-18 13:25:47; INFO; wsize: 10000x10000. Prediction shape: (52744, 10232, 1)
-#SHAPR PREDICTION (52744, 10232)
-#SHAPR PREDICTION AFTER CROP (51604, 9084)
+# 2022-04-18 13:13:08; INFO; Prediction shape: (51596, 9092, 8)
+# 2022-04-18 13:13:55; INFO; Prediction shape after modf: (51596, 9092, 4)
+# 2022-04-18 13:25:47; INFO; wsize: 10000x10000.
+# Prediction shape: (52744, 10232, 1)
+# SHAPR PREDICTION (52744, 10232)
+# SHAPR PREDICTION AFTER CROP (51604, 9084)
+
 
 def sliding_window_tiler(
         xraster,
@@ -219,18 +240,18 @@ def sliding_window_tiler(
         standardization: str = None,
         mean = None,
         std = None,
-        window: str = 'triang'#'overlap-tile'
+        window: str = 'triang'  # 'overlap-tile'
     ):
     """
     Sliding window using tiler.
     """
-    #options = tf.data.Options()
-    #options.experimental_distribute.auto_shard_policy = \
+    # options = tf.data.Options()
+    # options.experimental_distribute.auto_shard_policy = \
     #    tf.data.experimental.AutoShardPolicy.OFF
-    #batch = tf.data.Dataset.from_tensor_slices(
+    # batch = tf.data.Dataset.from_tensor_slices(
     #    np.expand_dims(batch, axis=0))
-    #batch = batch.with_options(self.options)
-    #batch = function(batch, batch_size=batch_size)
+    # batch = batch.with_options(self.options)
+    # batch = function(batch, batch_size=batch_size)
 
     tile_size = model.layers[0].input_shape[0][1]
     tile_channels = model.layers[0].input_shape[0][-1]
@@ -239,7 +260,7 @@ def sliding_window_tiler(
         data_shape=xraster.shape,
         tile_shape=(tile_size, tile_size, tile_channels),
         channel_dimension=2,
-        #overlap=overlap,
+        # overlap=overlap,
         mode=pad_style,
         constant_value=600
     )
@@ -249,54 +270,54 @@ def sliding_window_tiler(
         data_shape=(xraster.shape[0], xraster.shape[1], n_classes),
         tile_shape=(tile_size, tile_size, n_classes),
         channel_dimension=2,
-        #overlap=overlap,
+        # overlap=overlap,
         mode=pad_style,
         constant_value=600
     )
 
-    #new_shape_image, padding_image = tiler_image.calculate_padding()
-    #new_shape_mask, padding_mask = tiler_mask.calculate_padding()
-    #print(xraster.shape, new_shape_image, new_shape_mask)
-    
-    #tiler_image.recalculate(data_shape=new_shape_image)
-    #tiler_mask.recalculate(data_shape=new_shape_mask)
+    # new_shape_image, padding_image = tiler_image.calculate_padding()
+    # new_shape_mask, padding_mask = tiler_mask.calculate_padding()
+    # print(xraster.shape, new_shape_image, new_shape_mask)
+    # tiler_image.recalculate(data_shape=new_shape_image)
+    # tiler_mask.recalculate(data_shape=new_shape_mask)
 
-    #merger = Merger(tiler=tiler_mask, window=window, logits=4)
+    # merger = Merger(tiler=tiler_mask, window=window, logits=4)
     merger = Merger(
-        tiler=tiler_mask, window=window)#, #logits=4,
+        tiler=tiler_mask, window=window)  # #logits=4,
     #    tile_shape_merge=(tile_size, tile_size))
     # print(merger)
-    #print("WEIGHTS SHAPE", merger.weights_sum.shape)
-    #print("WINDOW SHAPE", merger.window.shape)
+    # print("WEIGHTS SHAPE", merger.weights_sum.shape)
+    # print("WINDOW SHAPE", merger.window.shape)
 
-    #xraster = xraster.pad(
+    # xraster = xraster.pad(
     #    y=padding_image[0], x=padding_image[1],
     #    constant_values=constant_value)
-    #print("After pad", xraster.shape)
+    # print("After pad", xraster.shape)
 
     # Iterate over the data in batches
     for batch_id, batch in tiler_image(xraster, batch_size=batch_size):
 
-        #print("AFTER SELECT", batch.shape)
+        # print("AFTER SELECT", batch.shape)
 
         # Standardize
         batch = batch / 10000.0
 
-        #if standardization is not None:
+        # if standardization is not None:
         #    batch = standardize_batch(batch, standardization, mean, std)
-        
-        #print("AFTER STD", batch.shape)
-        
+
+        # print("AFTER STD", batch.shape)
+
         # Predict
         batch = model.predict(batch, batch_size=batch_size)
-        #batch = np.moveaxis(batch, -1, 1)
-        #print("AFTER PREDICT", batch.shape, batch_id)
+        # batch = np.moveaxis(batch, -1, 1)
+        # print("AFTER PREDICT", batch.shape, batch_id)
 
         # Merge the updated data in the array
         merger.add_batch(batch_id, batch_size, batch)
 
-    #prediction = merger.merge(
-    #    extra_padding=padding_mask, unpad=True, dtype=xraster.dtype, normalize_by_weights=False)
+    # prediction = merger.merge(
+    # extra_padding=padding_mask, unpad=True, dtype=xraster.dtype,
+    # normalize_by_weights=False)
     prediction = merger.merge(unpad=True)
 
     if prediction.shape[-1] > 1:
@@ -339,10 +360,10 @@ def sliding_window_tiler(
 
     for batch_id, batch in tiler1(padded_image, batch_size=batch_size):
     #for batch_id, batch in tiler1(xraster, batch_size=batch_size):
-        
+
         # remove no-data
         batch[batch < 0] = constant_value
-        
+
         # Standardize
         if standardization is not None:
             print("STD")
@@ -357,8 +378,9 @@ def sliding_window_tiler(
         merger.add_batch(batch_id, batch_size, batch)
 
     #prediction = merger.merge(extra_padding=padding, dtype=xraster.dtype)
-    #prediction = merger.merge(
-    #    extra_padding=padding, dtype=xraster.dtype, normalize_by_weights=False)
+    # prediction = merger.merge(
+    #    extra_padding=padding, dtype=xraster.dtype,
+    # normalize_by_weights=False)
     #prediction = merger.merge(unpad=True)
     prediction = merger.merge(extra_padding=padding, dtype=padded_image.dtype)
 
@@ -368,8 +390,9 @@ def sliding_window_tiler(
         prediction = np.squeeze(
             np.where(prediction > threshold, 1, 0).astype(np.int16)
         )
-    
-    logging.info(f"Mask info: {prediction.shape}, {prediction.min()}, {prediction.max()}")
+
+    logging.info(f"Mask info: {prediction.shape}, {prediction.min()},
+    {prediction.max()}")
     """
     return prediction
 

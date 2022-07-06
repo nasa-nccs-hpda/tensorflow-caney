@@ -11,5 +11,5 @@ from tensorflow_caney.utils import augmentations as tfc_aug
     )]
 )
 def test_center_crop(image, expected_shape):
-    image = tfc_aug.center_crop(image)
+    image = tfc_aug.center_crop(image, expected_shape)
     assert image.shape == expected_shape
