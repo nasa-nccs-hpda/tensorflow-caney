@@ -1,4 +1,5 @@
 from tensorflow_caney.networks import unet
+from tensorflow_caney.networks import unet_regression
 from pkg_resources import get_distribution, DistributionNotFound
 
 try:
@@ -14,4 +15,4 @@ except DistributionNotFound:  # pragma: no cover
         )
 __version__ = VERSION
 
-__all__ = ["unet"]
+__all__ = ["unet", "unet_regression"]

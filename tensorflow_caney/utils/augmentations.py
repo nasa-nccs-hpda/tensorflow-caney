@@ -1,5 +1,6 @@
 __all__ = ["center_crop"]
 
+
 def center_crop(image, dim):
     """Returns center cropped image
     Args:
