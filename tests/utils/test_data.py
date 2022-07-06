@@ -1,10 +1,8 @@
 import pytest
 import numpy as np
-
 from tensorflow_caney.utils.data import get_mean_std_metadata
 
 
-# @pytest.mark.parametrize("filename", '../data/mean-std-landcover-test.csv')
 @pytest.mark.parametrize(
     "filename, expected_mean, expected_std",
     [(

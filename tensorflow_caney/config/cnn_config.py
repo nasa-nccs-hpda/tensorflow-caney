@@ -1,6 +1,4 @@
-import sys
 from typing import List, Optional
-from omegaconf import OmegaConf
 from dataclasses import dataclass, field
 
 
@@ -95,17 +93,3 @@ class Config:
     inference_overlap: Optional[int] = 2
     inference_treshold: Optional[float] = 0.5
     pred_batch_size: Optional[int] = 128
-
-
-# -----------------------------------------------------------------------------
-# Invoke the main
-# -----------------------------------------------------------------------------
-if __name__ == "__main__":
-
-    schema = OmegaConf.structured(Config)
-    conf = OmegaConf.load("../config/config_clouds/vietnam_clouds.yaml")
-    try:
-        conf = OmegaConf.merge(schema, conf)
-    except BaseException as err:
-        sys.exit(f"ERROR: {err}")
-    sys.exit(conf)
