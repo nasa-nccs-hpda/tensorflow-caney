@@ -207,6 +207,21 @@ def normalize_image(img: np.ndarray, normalize: float):
     return img
 
 
+def rescale(image: np.ndarray, rescale_type: str = 'per-image'):
+    """
+    Rescale image [0, 1] per-image or per-channel.
+    """
+    image = image.astype(np.float32)
+    if rescale_type == 'per-image':
+        image = (image - np.min(image)) / (np.max(image) - np.min(image))
+    elif rescale_type == 'per-channel':
+        for i in range(image.shape[-1]):
+            image[:, :, i] = (
+                image[:, :, i] - np.min(image[:, :, i])) / \
+                    (np.max(image[:, :, i]) - np.min(image[:, :, i]))
+    return image
+
+
 def read_dataset_csv(filename: str) -> pd.core.frame.DataFrame:
     """
     Read dataset CSV from disk and load for preprocessing.
@@ -227,23 +242,16 @@ def standardize_image(
     Standardize image within parameter, simple scaling of values.
     Loca, Global, and Mixed options.
     """
+    image = image.astype(np.float32)
     if standardization_type == 'local':
-        for i in range(image.shape[-1]):  # for each channel in the image
+        for i in range(image.shape[-1]):
             image[:, :, i] = (image[:, :, i] - np.mean(image[:, :, i])) / \
                 (np.std(image[:, :, i]) + 1e-8)
     elif standardization_type == 'global':
-        for i in range(image.shape[-1]):  # for each channel in the image
+        for i in range(image.shape[-1]):
             image[:, :, i] = (image[:, :, i] - mean[i]) / (std[i] + 1e-8)
     elif standardization_type == 'mixed':
         raise NotImplementedError
-        #    if np.random.random_sample() > 0.75:
-        #        for i in range(x.shape[-1]):  # for each channel in the image
-        #            x[:, :, i] = (x[:, :, i] - self.conf.mean[i]) / \
-        #                (self.conf.std[i] + 1e-8)
-        #    else:
-        #        for i in range(x.shape[-1]):  # for each channel in the image
-        #            x[:, :, i] = (x[:, :, i] - np.mean(x[:, :, i])) / \
-        #                (np.std(x[:, :, i]) + 1e-8)
     return image
 
 

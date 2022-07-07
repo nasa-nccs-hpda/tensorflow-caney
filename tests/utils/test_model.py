@@ -24,6 +24,15 @@ def test_get_model(model, expected_tile_shape, expected_channel_shape):
     assert tile_size == expected_tile_shape and \
         tile_channels == expected_channel_shape
 
+
+@pytest.mark.parametrize(
+    "model", ["tfc.my.unrealistic.Model", "tf.keras.model.FakeOp"]
+)
+def test_get_model_exception(model):
+    with pytest.raises(SystemExit):
+        tfc_model.get_model(model)
+
+
 # def load_model(
 #            model_filename: str = None,
 #            model_dir: str = None,
