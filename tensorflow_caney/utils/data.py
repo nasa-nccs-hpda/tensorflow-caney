@@ -196,20 +196,28 @@ def modify_roi(
     return img[ymin:ymax, xmin:xmax], mask[ymin:ymax, xmin:xmax]
 
 
-# TODO: excellent question, how do you normalize when you have many
-# vegetation indices to choose from????
-def normalize_image(img: np.ndarray, normalize: float):
+def normalize_image(image: np.ndarray, normalize: float):
     """
     Normalize image within parameter, simple scaling of values.
+    Args:
+        image (np.ndarray): array to normalize
+        normalize (float): float value to normalize with
+    Returns:
+        normalized np.ndarray
     """
-    if normalize:
-        img = img / normalize
-    return img
+    if normalize is not None:
+        image = image / normalize
+    return image
 
 
 def rescale(image: np.ndarray, rescale_type: str = 'per-image'):
     """
     Rescale image [0, 1] per-image or per-channel.
+    Args:
+        image (np.ndarray): array to rescale
+        rescale_type (str): rescaling strategy
+    Returns:
+        rescaled np.ndarray
     """
     image = image.astype(np.float32)
     if rescale_type == 'per-image':

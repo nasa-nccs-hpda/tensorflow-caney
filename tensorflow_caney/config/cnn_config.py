@@ -58,7 +58,8 @@ class Config:
     include_classes: bool = False
     augment: bool = True
 
-    normalize: Optional[float] = 1.0
+    normalize: Optional[float] = None
+    rescale: Optional[str] = None
     standardization: Optional[str] = None
 
     batch_size: int = 32
