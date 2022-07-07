@@ -225,6 +225,10 @@ def rescale(image: np.ndarray, rescale_type: str = 'per-image'):
 def read_dataset_csv(filename: str) -> pd.core.frame.DataFrame:
     """
     Read dataset CSV from disk and load for preprocessing.
+    Args:
+        filename (str): string dataset csv.
+    Returns:
+        pandas dataframe
     """
     assert os.path.exists(filename), f'File {filename} not found.'
     data_df = pd.read_csv(filename)

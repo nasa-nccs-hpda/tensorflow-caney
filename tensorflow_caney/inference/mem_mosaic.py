@@ -1,13 +1,12 @@
 #!/usr/bin/python3
-
-# Work in progress, doing in memory mapping of tiles for additional performance gains
+# Work in progress, doing in memory mapping of tiles for
+# additional performance gains
 # https://towardsdatascience.com/efficiently-splitting-an-image-into-tiles-in-python-using-numpy-d1bf0dd7b6f7
 
 import numpy as np
-from PIL import Image
-import matplotlib.pyplot as plt
-from time import time
 from sys import argv
+from time import time
+from PIL import Image
 
 
 def _time(f):
@@ -15,7 +14,7 @@ def _time(f):
         start = time()
         r = f(*args)
         end = time()
-        print("%s timed %f" % (f.__name__, end-start) )
+        print("%s timed %f" % (f.__name__, end-start))
         return r
     return wrapper
 

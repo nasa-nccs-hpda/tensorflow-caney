@@ -76,11 +76,14 @@ class MightyMosaic(np.ndarray):
 
         tile_margins = (int((0.5 - 0.5 / overlap_factor[0]) * tile_shape[0]),
                         int((0.5 - 0.5 / overlap_factor[1]) * tile_shape[1]))
-        tile_center_dims = tile_shape[0] - 2 * tile_margins[0], tile_shape[1] - 2 * tile_margins[1]
-        mosaic_shape = [math.ceil((shape[0] + mosaic_margins[0]) / tile_center_dims[0]),
-                        math.ceil((shape[1] + mosaic_margins[1]) / tile_center_dims[1]),
-                        tile_shape[0],
-                        tile_shape[1]]
+        tile_center_dims = tile_shape[0] - 2 * tile_margins[0], \
+            tile_shape[1] - 2 * tile_margins[1]
+        mosaic_shape = [
+            math.ceil((shape[0] + mosaic_margins[0]) / tile_center_dims[0]),
+            math.ceil((shape[1] + mosaic_margins[1]) / tile_center_dims[1]),
+            tile_shape[0],
+            tile_shape[1]
+        ]
         if nb_channels:
             mosaic_shape.append(nb_channels)
 
@@ -107,14 +110,14 @@ class MightyMosaic(np.ndarray):
         return best_divisor
 
     def apply(
-            self,
-            function,
-            progress_bar: bool = False,
-            batch_size: int = 1,
-            standardization: str = None,
-            mean: list = [],
-            std: list = []
-        ):
+                self,
+                function,
+                progress_bar: bool = False,
+                batch_size: int = 1,
+                standardization: str = None,
+                mean: list = [],
+                std: list = []
+            ):
         """
         Apply a function on each tile. Progress by batching the tiles.
         :param function: The function to apply on each batchs of tile.
@@ -141,10 +144,13 @@ class MightyMosaic(np.ndarray):
         if self.shape[0] * self.shape[1] / batch_size != \
                 self.shape[0] * self.shape[1] // batch_size:
             # batch_size = self.find_best_divisor(
-            #    size=self.shape[0] * self.shape[1], low=self.shape[0], high=batch_size, step=1)
+            # size=self.shape[0] * self.shape[1],
+            # low=self.shape[0], high=batch_size, step=1)
             batch_size = self.find_best_divisor(
-                size=self.shape[0] * self.shape[1], low=16, high=batch_size, step=1)
-            #print("batch_size", batch_size)
+                size=self.shape[0] * self.shape[1],
+                low=16, high=batch_size, step=1
+            )
+            # print("batch_size", batch_size)
 
         assert self.shape[0] * self.shape[1] / batch_size == self.shape[0] * self.shape[1] // batch_size, \
             f'You have {self.shape[0] * self.shape[1]} tiles but a batch_size of {batch_size}.' \
@@ -224,8 +230,11 @@ class MightyMosaic(np.ndarray):
         return array
 
     def __copy__(self):
-        new_mosaic = from_array(self, (self.shape[2], self.shape[3]), overlap_factor=self.overlap_factor,
-                                fill_mode=self.fill_mode, cval=self.cval)
+        new_mosaic = from_array(
+            self, (self.shape[2], self.shape[3]),
+            overlap_factor=self.overlap_factor,
+            fill_mode=self.fill_mode, cval=self.cval
+        )
         return new_mosaic
 
 
@@ -259,7 +268,7 @@ def from_array(array, tile_shape, overlap_factor=OVERLAP_FACTOR,
         f'array should be of type "np.ndarray" but is of type "{type(array)}"'
     assert len(array.shape) in (2, 3), \
         f'Array has incorrect shape {array.shape} is incorrect ' \
-            f'(length is {len(array.shape)} but should be either 2 or 3).'
+        f'(length is {len(array.shape)} but should be either 2 or 3).'
     mosaic = MightyMosaic(
         array.shape,
         tile_shape,
@@ -281,36 +290,57 @@ def from_array(array, tile_shape, overlap_factor=OVERLAP_FACTOR,
     # print(array.shape[0] + mosaic.mosaic_margins[0] + 2 * mosaic.tile_margins[0], array.shape[1] + mosaic.mosaic_margins[1] + 2 * mosaic.tile_margins[1])
     # print(mosaic.tile_margins, -mosaic.tile_margins[0] - mosaic.mosaic_margins[0], -mosaic.tile_margins[1] - mosaic.mosaic_margins[1])
 
-    new_array = fill(new_array, fill_mode, cval=cval,
-                     i_begin=mosaic.tile_margins[0], i_end=-mosaic.tile_margins[0] - mosaic.mosaic_margins[0],
-                     j_begin=mosaic.tile_margins[1], j_end=-mosaic.tile_margins[1] - mosaic.mosaic_margins[1]
-                     )
+    new_array = fill(
+        new_array, fill_mode, cval=cval,
+        i_begin=mosaic.tile_margins[0],
+        i_end=-mosaic.tile_margins[0] - mosaic.mosaic_margins[0],
+        j_begin=mosaic.tile_margins[1],
+        j_end=-mosaic.tile_margins[1] - mosaic.mosaic_margins[1]
+    )
     for i, j in [(i, j) for i in range(mosaic.shape[0]) for j in range(mosaic.shape[1])]:
         i_begin = i * mosaic.shape[2] // mosaic.overlap_factor[0]
         j_begin = j * mosaic.shape[3] // mosaic.overlap_factor[1]
-        mosaic[i][j] = new_array[i_begin:i_begin + mosaic.shape[2], j_begin:j_begin + mosaic.shape[3]]
+        mosaic[i][j] = new_array[
+            i_begin:i_begin + mosaic.shape[2],
+            j_begin:j_begin + mosaic.shape[3]
+        ]
     return mosaic
 
 
-def fill(array, fill_mode, cval=CVAL, i_begin=0, i_end=-1, j_begin=0, j_end=-1):
+def fill(
+            array,
+            fill_mode,
+            cval=CVAL,
+            i_begin=0,
+            i_end=-1,
+            j_begin=0,
+            j_end=-1
+        ):
     """
     Fill an array on the given indexes with respect to the `fill_mode`.
     :param array: Array to fill.
     :type array: `np.ndarray`.
-    :param fill_mode: Points outside the boundaries of the input are filled according to the given mode:
+    :param fill_mode: Points outside the boundaries of the input are
+    filled according to the given mode:
                         `constant`: kkkkkkkk|abcd|kkkkkkkk (cval=k)
                         `nearest`: aaaaaaaa|abcd|dddddddd
                         `reflect`: abcddcba|abcd|dcbaabcd
-    :type fill_mode: `str`, one of `constant`, `nearest` or `reflect`. Optional.
-    :param cval: Value used for points outside the boundaries when fill_mode = `constant`.
+    :type fill_mode: `str`, one of `constant`, `nearest` or
+    `reflect`. Optional.
+    :param cval: Value used for points outside the boundaries
+    when fill_mode = `constant`.
     :type cval: `int`. Optional.
-    :param i_begin: Index, on the first axis, of the real begin of the array. Index below are filled.
+    :param i_begin: Index, on the first axis, of the real begin
+    of the array. Index below are filled.
     :type i_begin: `int`. Optional, default value is `0`.
-    :param i_end: Index, on the first axis, of the real end of the array. Index above are filled.
+    :param i_end: Index, on the first axis, of the real end of
+    the array. Index above are filled.
     :type i_end: `int`. Optional, default value is `-1`.
-    :param j_begin: Index, on the second axis, of the real begin of the array. Index below are filled.
+    :param j_begin: Index, on the second axis, of the real begin
+    of the array. Index below are filled.
     :type j_begin: `int`. Optional, default value is `0`.
-    :param j_end: Index, on the second axis, of the real end of the array. Index above are filled.
+    :param j_end: Index, on the second axis, of the real end of
+    the array. Index above are filled.
     :type j_end: `int`. Optional, default value is `-1`.
     :return:
     """
