@@ -22,7 +22,7 @@ def get_model(model: str) -> Any:
     """
     try:
         model_function = eval(model)
-    except NameError as err:
+    except (NameError, AttributeError) as err:
         sys.exit(f'{err}. Accepted models from {tf}, {sm}, {tfa}, {tfc}')
     return model_function
 
