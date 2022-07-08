@@ -210,7 +210,7 @@ def normalize_image(image: np.ndarray, normalize: float):
     return image
 
 
-def rescale(image: np.ndarray, rescale_type: str = 'per-image'):
+def rescale_image(image: np.ndarray, rescale_type: str = 'per-image'):
     """
     Rescale image [0, 1] per-image or per-channel.
     Args:

@@ -33,9 +33,21 @@ def test_get_model_exception(model):
         tfc_model.get_model(model)
 
 
-# def load_model(
-#            model_filename: str = None,
-#            model_dir: str = None,
-#            custom_objects: dict = {'iou_score': sm.metrics.iou_score},
-#            model_extension: str = '*.hdf5'
-#        ) -> Any:
+@pytest.mark.parametrize(
+    "model_filename, expected_tile_shape, expected_channel_shape",
+    [
+        (
+            "tests/data/52-0.12.hdf5", 512, 8
+        )
+    ]
+)
+def test_load_model(
+            model_filename,
+            expected_tile_shape,
+            expected_channel_shape
+        ):
+    model = tfc_model.load_model(model_filename)
+    tile_size = model.layers[0].input_shape[0][1]
+    tile_channels = model.layers[0].input_shape[0][-1]
+    assert tile_size == expected_tile_shape and \
+        tile_channels == expected_channel_shape

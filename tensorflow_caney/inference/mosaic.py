@@ -44,35 +44,41 @@ class MightyMosaic(np.ndarray):
         :rtype: `MightyMosaic`
         """
         assert isinstance(shape, tuple) or isinstance(shape, list), \
-            f'shape {shape} should be of either a "tuple" or a "list" but is is of type "{type(shape)}"'
+            f'shape {shape} should be of either a "tuple" or a "list"' + \
+            f'but is is of type "{type(shape)}"'
         assert len(shape) in (2, 3), \
-            f'shape {shape} is incorrect (length is {len(shape)} but should be either 2 or 3).'
+            f'shape {shape} is incorrect (length is {len(shape)} but' + \
+            'should be either 2 or 3).'
 
         assert isinstance(tile_shape, tuple) or isinstance(tile_shape, list), \
-            f'shape {tile_shape} should be of either a "tuple" or a "list" but is is of type "{type(tile_shape)}"'
+            f'shape {tile_shape} should be of either a "tuple" or a ' + \
+            f'"list" but is is of type "{type(tile_shape)}"'
         assert len(tile_shape) == 2, \
-            f'tile_shape {tile_shape} is incorrect (length is {len(tile_shape)} but should be 2.'
+            f'tile_shape {tile_shape} is incorrect (length is ' + \
+            f'{len(tile_shape)} but should be 2.'
 
         assert type(overlap_factor) in (int, tuple, list), \
-            f'overlap_factor should be an int or a tuple/list but is {overlap_factor} of type "{type(overlap_factor)}"'
+            'overlap_factor should be an int or a tuple/list but is ' + \
+            f'{overlap_factor} of type "{type(overlap_factor)}"'
         if isinstance(overlap_factor, int):
             overlap_factor = (overlap_factor, overlap_factor)
         assert len(overlap_factor) == 2, \
-            f'When a list, overlap_factor should have a length of 2, ' \
-                f'but is {overlap_factor} with a length of {len(overlap_factor)}'
+            'When a list, overlap_factor should have a length of 2, ' + \
+            f'but is {overlap_factor} with length of {len(overlap_factor)}'
 
-        assert tile_shape[0] / overlap_factor[0] == tile_shape[0] // overlap_factor[0], \
-            f"The first dimension of the tile_shape {tile_shape} cannot be divided " \
-                f"by the overlap_factor {overlap_factor[0]}"
-        assert tile_shape[1] / overlap_factor[1] == tile_shape[1] // overlap_factor[1], \
-            f"The second dimension of the tile_shape {tile_shape} cannot be divided " \
-                f"by the overlap_factor {overlap_factor[1]}"
+        assert tile_shape[0] / overlap_factor[0] == \
+            tile_shape[0] // overlap_factor[0], \
+            f"The first dimension of tile_shape {tile_shape} cannot be " + \
+            f"divided by the overlap_factor {overlap_factor[0]}"
+
+        assert tile_shape[1] / overlap_factor[1] == \
+            tile_shape[1] // overlap_factor[1], \
+            f"The second dimension of tile_shape {tile_shape} cannot be " + \
+            f"divided by the overlap_factor {overlap_factor[1]}"
 
         nb_channels = shape[-1] if len(shape) == 3 else None
 
         mosaic_margins = -shape[0] % tile_shape[0], -shape[1] % tile_shape[1]
-
-        #print("-shape[0]", -shape[0], "tile_shape[0]", tile_shape[0], "-shape[1]", -shape[1], "tile_shape[1]", tile_shape[1])
 
         tile_margins = (int((0.5 - 0.5 / overlap_factor[0]) * tile_shape[0]),
                         int((0.5 - 0.5 / overlap_factor[1]) * tile_shape[1]))
@@ -152,7 +158,8 @@ class MightyMosaic(np.ndarray):
             )
             # print("batch_size", batch_size)
 
-        assert self.shape[0] * self.shape[1] / batch_size == self.shape[0] * self.shape[1] // batch_size, \
+        assert self.shape[0] * self.shape[1] / batch_size == \
+            self.shape[0] * self.shape[1] // batch_size, \
             f'You have {self.shape[0] * self.shape[1]} tiles but a batch_size of {batch_size}.' \
                 f'Please select a batch_size that divide the number of tiles'
 
@@ -218,15 +225,26 @@ class MightyMosaic(np.ndarray):
         if len(self.shape) == 5:
             shape.append(self.shape[-1])
         array = np.zeros(shape)
-        for i, j in [(i, j) for i in range(self.shape[0]) for j in range(self.shape[1])]:
+
+        for i, j in [
+                    (i, j)
+                    for i in range(self.shape[0])
+                    for j in range(self.shape[1])
+                ]:
             i_begin = i * self.tile_center_dims[0]
             i_end = i_begin + self.tile_center_dims[0]
             j_begin = j * self.tile_center_dims[1]
             j_end = j_begin + self.tile_center_dims[1]
-            array[i_begin:i_end, j_begin:j_end] = self[i, j,
-                                                  self.tile_margins[0]: self.tile_margins[0] + self.tile_center_dims[0],
-                                                  self.tile_margins[1]: self.tile_margins[1] + self.tile_center_dims[1]]
-        array = array[:array.shape[0] - self.mosaic_margins[0], :array.shape[1] - self.mosaic_margins[1]]
+            array[i_begin:i_end, j_begin:j_end] = self[
+                i, j,
+                self.tile_margins[0]: self.tile_margins[0]
+                + self.tile_center_dims[0],
+                self.tile_margins[1]: self.tile_margins[1]
+                + self.tile_center_dims[1]]
+        array = array[
+            :array.shape[0] - self.mosaic_margins[0],
+            :array.shape[1] - self.mosaic_margins[1]
+        ]
         return array
 
     def __copy__(self):
@@ -277,18 +295,21 @@ def from_array(array, tile_shape, overlap_factor=OVERLAP_FACTOR,
     )
 
     if len(array.shape) == 2:
-        new_array = np.zeros((array.shape[0] + mosaic.mosaic_margins[0] + 2 * mosaic.tile_margins[0],
-                              array.shape[1] + mosaic.mosaic_margins[1] + 2 * mosaic.tile_margins[1]))
+        new_array = np.zeros((
+            array.shape[0] + mosaic.mosaic_margins[0] + 2
+            * mosaic.tile_margins[0],
+            array.shape[1] + mosaic.mosaic_margins[1] + 2
+            * mosaic.tile_margins[1]))
     else:
-        new_array = np.zeros((array.shape[0] + mosaic.mosaic_margins[0] + 2 * mosaic.tile_margins[0],
-                              array.shape[1] + mosaic.mosaic_margins[1] + 2 * mosaic.tile_margins[1],
-                              array.shape[2]))
-    new_array[mosaic.tile_margins[0]:array.shape[0] + mosaic.tile_margins[0],
-    mosaic.tile_margins[1]:array.shape[1] + mosaic.tile_margins[1]] = array
-
-    # print("array.shape[0]", array.shape[0], "array.shape[1]", array.shape[1])
-    # print(array.shape[0] + mosaic.mosaic_margins[0] + 2 * mosaic.tile_margins[0], array.shape[1] + mosaic.mosaic_margins[1] + 2 * mosaic.tile_margins[1])
-    # print(mosaic.tile_margins, -mosaic.tile_margins[0] - mosaic.mosaic_margins[0], -mosaic.tile_margins[1] - mosaic.mosaic_margins[1])
+        new_array = np.zeros((
+            array.shape[0] + mosaic.mosaic_margins[0] + 2
+            * mosaic.tile_margins[0],
+            array.shape[1] + mosaic.mosaic_margins[1] + 2
+            * mosaic.tile_margins[1],
+            array.shape[2]))
+    new_array[
+        mosaic.tile_margins[0]:array.shape[0] + mosaic.tile_margins[0],
+        mosaic.tile_margins[1]:array.shape[1] + mosaic.tile_margins[1]] = array
 
     new_array = fill(
         new_array, fill_mode, cval=cval,
@@ -297,13 +318,15 @@ def from_array(array, tile_shape, overlap_factor=OVERLAP_FACTOR,
         j_begin=mosaic.tile_margins[1],
         j_end=-mosaic.tile_margins[1] - mosaic.mosaic_margins[1]
     )
-    for i, j in [(i, j) for i in range(mosaic.shape[0]) for j in range(mosaic.shape[1])]:
-        i_begin = i * mosaic.shape[2] // mosaic.overlap_factor[0]
-        j_begin = j * mosaic.shape[3] // mosaic.overlap_factor[1]
-        mosaic[i][j] = new_array[
-            i_begin:i_begin + mosaic.shape[2],
-            j_begin:j_begin + mosaic.shape[3]
-        ]
+    for i in range(mosaic.shape[0]):
+        for j in range(mosaic.shape[1]):
+            for i, j in (i, j):
+                i_begin = i * mosaic.shape[2] // mosaic.overlap_factor[0]
+                j_begin = j * mosaic.shape[3] // mosaic.overlap_factor[1]
+                mosaic[i][j] = new_array[
+                    i_begin:i_begin + mosaic.shape[2],
+                    j_begin:j_begin + mosaic.shape[3]
+                ]
     return mosaic
 
 
@@ -345,7 +368,8 @@ def fill(
     :return:
     """
     assert fill_mode in ALLOWED_FILL_MODE, \
-        f'fill_mode {fill_mode} not allowed, should be one of {ALLOWED_FILL_MODE}'
+        f'fill_mode {fill_mode} not allowed, should be one' + \
+        f'of {ALLOWED_FILL_MODE}'
     assert isinstance(cval, int), \
         f'cval {cval} should be of type "int" but is of type "{type(cval)}"'
     assert isinstance(i_begin, int), \
@@ -357,17 +381,23 @@ def fill(
     assert isinstance(j_end, int), \
         f'j_end {j_end} should be of type but is of type "{type(j_end)}"'
     assert i_begin % array.shape[0] < i_end % array.shape[0], \
-        f"i_begin ({i_begin}) should be less than i_end ({i_end}) ({i_begin} < {i_end} is False)"
+        f"i_begin ({i_begin}) should be less than i_end " + \
+        f"({i_end}) ({i_begin} < {i_end} is False)"
     assert j_begin % array.shape[1] < j_end % array.shape[1], \
-        f"j_begin ({j_begin}) should be less than j_end ({j_end}) ({j_begin} < {j_end} is False)"
+        f"j_begin ({j_begin}) should be less than j_end " + \
+        f"({j_end}) ({j_begin} < {j_end} is False)"
     assert -array.shape[0] < i_begin < array.shape[0], \
-        f"i_begin {i_begin} is out of range (should be in ]-{array.shape[0]}, {array.shape[0]}[)"
+        f"i_begin {i_begin} is out of range (should be in ]- " + \
+        f"{array.shape[0]}, {array.shape[0]}[)"
     assert -array.shape[0] < i_end < array.shape[0], \
-        f"i_end {i_end} is out of range (should be in ]-{array.shape[0]}, {array.shape[0]}[)"
+        f"i_end {i_end} is out of range (should be in ]- " + \
+        f"{array.shape[0]}, {array.shape[0]}[)"
     assert -array.shape[1] < j_begin < array.shape[1], \
-        f"j_begin {j_begin} is out of range (should be in ]-{array.shape[1]}, {array.shape[1]}[)"
+        f"j_begin {j_begin} is out of range (should be in ]- " + \
+        f"{array.shape[1]}, {array.shape[1]}[)"
     assert -array.shape[1] < j_end < array.shape[1], \
-        f"j_end {j_end} out of range (should be in ]-{array.shape[1]}, {array.shape[1]}[)"
+        f"j_end {j_end} out of range (should be in ]- " + \
+        f"{array.shape[1]}, {array.shape[1]}[)"
 
     if i_end > 0:
         i_end -= array.shape[0]
