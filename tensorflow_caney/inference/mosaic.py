@@ -111,8 +111,9 @@ class MightyMosaic(np.ndarray):
         return array
 
     def find_best_divisor(self, size, low, high, step=1):
-        minimal_truncation, best_divisor = min((size % divisor, divisor)
-            for divisor in range(low, high, step))
+        minimal_truncation, best_divisor = min(
+            (size % divisor, divisor) for divisor in range(low, high, step)
+        )
         return best_divisor
 
     def apply(
@@ -137,11 +138,12 @@ class MightyMosaic(np.ndarray):
         :rtype: `MightyMosaic`.
         """
         assert isinstance(progress_bar, bool), \
-            f'cval {progress_bar} should be of type "bool" but is is of type "{type(progress_bar)}"'
+            f'cval {progress_bar} should be of type "bool" but it ' + \
+            f'is of type "{type(progress_bar)}"'
         assert callable(function), \
             f'function should be callable but is of type {type(function)}'
         assert isinstance(batch_size, int), \
-            f'batch_size should be of type "int" but is of type "{type(batch_size)}"'
+            f'batch_size should be of type int but is: "{type(batch_size)}"'
 
         # print(self.shape[0], self.shape[1], batch_size)
         # print(self.shape[0] * self.shape[1] / batch_size)
@@ -160,10 +162,12 @@ class MightyMosaic(np.ndarray):
 
         assert self.shape[0] * self.shape[1] / batch_size == \
             self.shape[0] * self.shape[1] // batch_size, \
-            f'You have {self.shape[0] * self.shape[1]} tiles but a batch_size of {batch_size}.' \
-                f'Please select a batch_size that divide the number of tiles'
+            f'You have {self.shape[0] * self.shape[1]} tiles but a ' + \
+            f'batch_size of {batch_size}. Please select a batch_size ' + \
+            'that divide the number of tiles'
 
-        index = [(i, j) for i in range(self.shape[0]) for j in range(self.shape[1])]
+        index = [
+            (i, j) for i in range(self.shape[0]) for j in range(self.shape[1])]
         batch_indexes = range(math.ceil(len(index) / batch_size))
         if progress_bar:
             batch_indexes = tqdm.tqdm(batch_indexes)

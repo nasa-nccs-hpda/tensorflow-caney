@@ -5,7 +5,8 @@ import scipy.signal.windows as w
 from tqdm import tqdm
 # from .tiler.tiler import Tiler, Merger
 from .mosaic import from_array
-from ..utils.data import normalize_image, standardize_batch, standardize_image
+from ..utils.data import normalize_image, rescale_image, \
+    standardize_batch, standardize_image
 from tiler import Tiler, Merger
 
 
@@ -416,7 +417,8 @@ def sliding_window_tiler_multiclass(
             standardization: str = None,
             mean=None,
             std=None,
-            normalize=1.0,
+            normalize: float = 1.0,
+            rescale: str = None,
             window: str = 'triang'  # 'overlap-tile'
         ):
     """
@@ -466,6 +468,9 @@ def sliding_window_tiler_multiclass(
     # print("After pad", xraster.shape)
 
     xraster = normalize_image(xraster, normalize)
+
+    if rescale is not None:
+        xraster = rescale_image(xraster, rescale)
 
     # Iterate over the data in batches
     for batch_id, batch_i in tiler_image(xraster, batch_size=batch_size):

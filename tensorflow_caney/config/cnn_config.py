@@ -58,7 +58,7 @@ class Config:
     include_classes: bool = False
     augment: bool = True
 
-    normalize: Optional[float] = None
+    normalize: Optional[float] = 1.0
     rescale: Optional[str] = None
     standardization: Optional[str] = None
 

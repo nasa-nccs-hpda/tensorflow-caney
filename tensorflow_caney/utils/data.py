@@ -205,7 +205,7 @@ def normalize_image(image: np.ndarray, normalize: float):
     Returns:
         normalized np.ndarray
     """
-    if normalize is not None:
+    if normalize:
         image = image / normalize
     return image
 
@@ -227,6 +227,8 @@ def rescale_image(image: np.ndarray, rescale_type: str = 'per-image'):
             image[:, :, i] = (
                 image[:, :, i] - np.min(image[:, :, i])) / \
                     (np.max(image[:, :, i]) - np.min(image[:, :, i]))
+    else:
+        logging.info(f'Skipping based on invalid option: {rescale_type}')
     return image
 
 
