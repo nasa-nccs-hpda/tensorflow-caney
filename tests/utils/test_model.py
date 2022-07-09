@@ -37,7 +37,7 @@ def test_get_model_exception(model):
     "model_filename, expected_tile_shape, expected_channel_shape",
     [
         (
-            "tests/data/52-0.12.hdf5", 512, 8
+            "tests/data/categorical-0.12.hdf5", 512, 8
         )
     ]
 )
