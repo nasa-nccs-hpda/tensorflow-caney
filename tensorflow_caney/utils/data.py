@@ -31,7 +31,7 @@ def gen_random_tiles(
 ) -> None:
 
     generated_tiles = 0  # counter for generated tiles
-    metadata = {}
+    metadata = dict()
     while generated_tiles < max_patches:
 
         # Generate random integers from image
@@ -99,9 +99,11 @@ def gen_random_tiles(
         cp.save(os.path.join(out_image_dir, filename), image_tile)
         cp.save(os.path.join(out_label_dir, filename), label_tile)
 
-    json_name = os.path.join(out_image_dir, 'dataset_metadata.json')
+    json_name = \
+        os.path.join(out_image_dir, '{}_dataset_metadata.json'.format(
+            Path(output_filename).stem))
     with open(json_name, 'w') as metadata_outfile:
-        json.dumps(metadata, metadata_outfile)
+        json.dump(metadata, metadata_outfile)
 
     return
 
