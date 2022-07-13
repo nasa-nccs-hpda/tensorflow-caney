@@ -89,8 +89,15 @@ class Config:
     patience: int = 7
 
     model_filename: Optional[str] = None
-    inference_regex: str = "*.tif"
+    inference_regex: Optional[str] = "*.tif"
+    inference_regex_list: Optional[List[str]] = field(
+        default_factory=lambda: [])
     window_size: Optional[int] = 8120
-    inference_overlap: Optional[int] = 2
+    inference_overlap: Optional[float] = 0.5
     inference_treshold: Optional[float] = 0.5
     pred_batch_size: Optional[int] = 128
+
+    prediction_dtype: Optional[str] = 'uint8'
+    prediction_nodata: Optional[int] = 255
+    prediction_compress: Optional[str] = 'LZW'
+    prediction_driver: Optional[str] = 'COG'
