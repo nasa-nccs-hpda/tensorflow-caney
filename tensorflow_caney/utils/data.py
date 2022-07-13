@@ -99,9 +99,9 @@ def gen_random_tiles(
         cp.save(os.path.join(out_image_dir, filename), image_tile)
         cp.save(os.path.join(out_label_dir, filename), label_tile)
 
-        json_name = os.path.join(out_image_dir, 'dataset_metadata.json')
-        with open(json_name, 'w') as metadata_outfile:
-            json.dumps(metadata, metadata_outfile)
+    json_name = os.path.join(out_image_dir, 'dataset_metadata.json')
+    with open(json_name, 'w') as metadata_outfile:
+        json.dumps(metadata, metadata_outfile)
 
     return
 
