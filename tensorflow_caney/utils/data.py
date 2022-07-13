@@ -1,3 +1,4 @@
+import json
 import os
 import time
 import random
@@ -21,15 +22,16 @@ except ImportError:
 
 
 def gen_random_tiles(
-            image: np.ndarray, label: np.ndarray, num_classes: int,
-            tile_size: int = 128, expand_dims: bool = True,
-            max_patches: int = None, include: bool = False,
-            augment: bool = True, output_filename: str = 'image',
-            out_image_dir: str = 'image',  out_label_dir: str = 'label',
-            no_data=-10001
-        ) -> None:
+    image: np.ndarray, label: np.ndarray, num_classes: int,
+    tile_size: int = 128, expand_dims: bool = True,
+    max_patches: int = None, include: bool = False,
+    augment: bool = True, output_filename: str = 'image',
+    out_image_dir: str = 'image',  out_label_dir: str = 'label',
+    no_data=-10001
+) -> None:
 
     generated_tiles = 0  # counter for generated tiles
+    metadata = {}
     while generated_tiles < max_patches:
 
         # Generate random integers from image
@@ -53,6 +55,8 @@ def gen_random_tiles(
 
         # Add to the tiles counter
         generated_tiles += 1
+        filename = f'{Path(output_filename).stem}_{generated_tiles}.npy'
+        metadata[filename] = {'x': x, 'y': y}
 
         # Generate img and mask patches
         image_tile = image[x:(x + tile_size), y:(y + tile_size)]
@@ -62,18 +66,27 @@ def gen_random_tiles(
         if augment:
 
             if cp.random.random_sample() > 0.5:
+                metadata[filename]['fliplr'] = True
                 image_tile = cp.fliplr(image_tile)
                 label_tile = cp.fliplr(label_tile)
+
             if cp.random.random_sample() > 0.5:
+                metadata[filename]['flipud'] = True
                 image_tile = cp.flipud(image_tile)
                 label_tile = cp.flipud(label_tile)
+
             if cp.random.random_sample() > 0.5:
+                metadata[filename]['rot90'] = True
                 image_tile = cp.rot90(image_tile, 1)
                 label_tile = cp.rot90(label_tile, 1)
+
             if cp.random.random_sample() > 0.5:
+                metadata[filename]['rot180'] = True
                 image_tile = cp.rot90(image_tile, 2)
                 label_tile = cp.rot90(label_tile, 2)
+
             if cp.random.random_sample() > 0.5:
+                metadata[filename]['rot270'] = True
                 image_tile = cp.rot90(image_tile, 3)
                 label_tile = cp.rot90(label_tile, 3)
 
@@ -83,9 +96,13 @@ def gen_random_tiles(
             if expand_dims:
                 label_tile = cp.expand_dims(label_tile, axis=-1)
 
-        filename = f'{Path(output_filename).stem}_{generated_tiles}.npy'
         cp.save(os.path.join(out_image_dir, filename), image_tile)
         cp.save(os.path.join(out_label_dir, filename), label_tile)
+
+        json_name = os.path.join(out_image_dir, 'dataset_metadata.json')
+        with open(json_name, 'w') as metadata_outfile:
+            json.dumps(metadata, metadata_outfile)
+
     return
 
 
@@ -149,10 +166,10 @@ def modify_bands(
 
 
 def modify_label_classes(
-            mask: np.ndarray,
-            expressions: List[dict],
-            substract_labels: bool = False
-        ):
+    mask: np.ndarray,
+    expressions: List[dict],
+    substract_labels: bool = False
+):
     """
     Change pixel label values based on expression.
     """
@@ -166,10 +183,10 @@ def modify_label_classes(
 
 
 def modify_pixel_extremity(
-            array: np.ndarray,
-            xmin: int = 0,
-            xmax: int = 10000
-        ):
+    array: np.ndarray,
+    xmin: int = 0,
+    xmax: int = 10000
+):
     """
     Clip extremity of pixels in the array to given range.
     Args:
@@ -183,13 +200,13 @@ def modify_pixel_extremity(
 
 
 def modify_roi(
-            img: np.ndarray,
-            mask: np.ndarray,
-            ymin: int,
-            ymax: int,
-            xmin: int,
-            xmax: int
-        ):
+    img: np.ndarray,
+    mask: np.ndarray,
+    ymin: int,
+    ymax: int,
+    xmin: int,
+    xmax: int
+):
     """
     Crop ROI, from outside to inside based on pixel address.
     """
@@ -226,7 +243,7 @@ def rescale_image(image: np.ndarray, rescale_type: str = 'per-image'):
         for i in range(image.shape[-1]):
             image[:, :, i] = (
                 image[:, :, i] - np.min(image[:, :, i])) / \
-                    (np.max(image[:, :, i]) - np.min(image[:, :, i]))
+                (np.max(image[:, :, i]) - np.min(image[:, :, i]))
     else:
         logging.info(f'Skipping based on invalid option: {rescale_type}')
     return image
@@ -247,11 +264,11 @@ def read_dataset_csv(filename: str) -> pd.core.frame.DataFrame:
 
 
 def standardize_image(
-            image,
-            standardization_type: str,
-            mean: list = None,
-            std: list = None
-        ):
+    image,
+    standardization_type: str,
+    mean: list = None,
+    std: list = None
+):
     """
     Standardize image within parameter, simple scaling of values.
     Loca, Global, and Mixed options.
@@ -270,11 +287,11 @@ def standardize_image(
 
 
 def standardize_batch(
-            image_batch,
-            standardization_type: str,
-            mean: list = None,
-            std: list = None
-        ):
+    image_batch,
+    standardization_type: str,
+    mean: list = None,
+    std: list = None
+):
     """
     Standardize image within parameter, simple scaling of values.
     Loca, Global, and Mixed options.
@@ -287,9 +304,9 @@ def standardize_batch(
 
 @jit(nopython=True)
 def standardize_image_numba(
-            image, standardization_type, mean: list = None,
-            std: list = None
-        ):
+    image, standardization_type, mean: list = None,
+    std: list = None
+):
     """
     TODO: FIX STABILITY
     Standardize image within parameter, simple scaling of values.
@@ -315,9 +332,9 @@ def standardize_image_numba(
 
 
 def standardize_batch_numba(
-            image_batch, standardization_type, mean: list = None,
-            std: list = None
-        ):
+    image_batch, standardization_type, mean: list = None,
+    std: list = None
+):
     """
     TODO: FIX STABILITY
     Standardize image within parameter, simple scaling of values.
