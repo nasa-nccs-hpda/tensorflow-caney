@@ -57,6 +57,8 @@ class Config:
     tile_size: int = 256
     include_classes: bool = False
     augment: bool = True
+    json_tiles_dir: Optional[str] = None
+    dataset_from_json: bool = False
 
     normalize: Optional[float] = 1.0
     rescale: Optional[str] = None
@@ -101,4 +103,4 @@ class Config:
     prediction_dtype: Optional[str] = 'uint8'
     prediction_nodata: Optional[int] = 255
     prediction_compress: Optional[str] = 'LZW'
-    prediction_driver: Optional[str] = 'COG'
+    prediction_driver: Optional[str] = 'GTiff'  # 'COG'
