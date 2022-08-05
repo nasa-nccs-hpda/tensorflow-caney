@@ -22,13 +22,45 @@ except ImportError:
 
 
 def gen_random_tiles(
-    image: np.ndarray, label: np.ndarray, num_classes: int,
-    tile_size: int = 128, expand_dims: bool = True,
-    max_patches: int = None, include: bool = False,
-    augment: bool = True, output_filename: str = 'image',
-    out_image_dir: str = 'image',  out_label_dir: str = 'label',
-    no_data=-10001
-) -> None:
+            image: np.ndarray,
+            label: np.ndarray,
+            index_id: int,
+            num_classes: int,
+            tile_size: int = 128,
+            expand_dims: bool = True,
+            max_patches: int = None,
+            include: bool = False,
+            augment: bool = True,
+            output_filename: str = 'image',
+            out_image_dir: str = 'image',
+            out_label_dir: str = 'label',
+            no_data: int = -10001,
+            json_tiles_dir: str = None,
+            dataset_from_json: bool = False
+        ) -> None:
+
+    # verify the existance of json files to load dataset from
+    if json_tiles_dir is not None and dataset_from_json:
+
+        json_files = sorted(
+            glob(os.path.join(json_tiles_dir, '*.json')),
+            key=os.path.getmtime
+        )
+        logging.info(f'Found {len(json_files)} json dataset files.')
+
+        if len(json_files) > 0:
+            return gen_random_tiles_from_json(
+                json_files,
+                image,
+                label,
+                index_id,
+                num_classes,
+                tile_size,
+                augment,
+                expand_dims,
+                out_image_dir,
+                out_label_dir
+            )
 
     generated_tiles = 0  # counter for generated tiles
     metadata = dict()
@@ -96,15 +128,93 @@ def gen_random_tiles(
             if expand_dims:
                 label_tile = cp.expand_dims(label_tile, axis=-1)
 
+        # save tiles to disk
         cp.save(os.path.join(out_image_dir, filename), image_tile)
         cp.save(os.path.join(out_label_dir, filename), label_tile)
 
-    json_name = \
-        os.path.join(out_image_dir, '{}_dataset_metadata.json'.format(
-            Path(output_filename).stem))
-    with open(json_name, 'w') as metadata_outfile:
-        json.dump(metadata, metadata_outfile)
+    # set json name to store values of random tiles for reproducibility
+    if json_tiles_dir is not None:
 
+        # create output directory
+        os.makedirs(json_tiles_dir, exist_ok=True)
+
+        # set output filename
+        json_name = os.path.join(
+            json_tiles_dir,
+            f'{Path(output_filename).stem}_dataset_metadata.json')
+
+        # store dict output into json file
+        with open(json_name, 'w') as metadata_outfile:
+            json.dump(metadata, metadata_outfile)
+
+    return
+
+
+def gen_random_tiles_from_json(
+            json_metadata: list,
+            image: np.ndarray,
+            label: np.ndarray,
+            index_id: int,
+            num_classes: int,
+            tile_size: int = 128,
+            augment: bool = True,
+            expand_dims: bool = True,
+            out_image_dir: str = 'image',
+            out_label_dir: str = 'label',
+        ):
+    """
+    Precursor of gen_random_tiles, where a json file is accepted.
+    """
+    json_filename = json_metadata[index_id]
+    # data_basename = Path(output_filename).stem
+    # json_filename = [i for i in json_metadata if data_basename in i][0]
+
+    # load json filename
+    with open(json_filename, 'r') as j:
+        tiles_metadata = json.loads(j.read())
+
+    for tile_filename in tiles_metadata:
+
+        # Tile indices
+        x = tiles_metadata[tile_filename]['x']
+        y = tiles_metadata[tile_filename]['y']
+
+        # Generate img and mask patches
+        image_tile = image[x:(x + tile_size), y:(y + tile_size)]
+        label_tile = label[x:(x + tile_size), y:(y + tile_size)]
+
+        # Apply some random transformations
+        if augment:
+
+            if 'fliplr' in tiles_metadata[tile_filename]:
+                image_tile = cp.fliplr(image_tile)
+                label_tile = cp.fliplr(label_tile)
+
+            if 'flipud' in tiles_metadata[tile_filename]:
+                image_tile = cp.flipud(image_tile)
+                label_tile = cp.flipud(label_tile)
+
+            if 'rot90' in tiles_metadata[tile_filename]:
+                image_tile = cp.rot90(image_tile, 1)
+                label_tile = cp.rot90(label_tile, 1)
+
+            if 'rot180' in tiles_metadata[tile_filename]:
+                image_tile = cp.rot90(image_tile, 2)
+                label_tile = cp.rot90(label_tile, 2)
+
+            if 'rot270' in tiles_metadata[tile_filename]:
+                image_tile = cp.rot90(image_tile, 3)
+                label_tile = cp.rot90(label_tile, 3)
+
+        if num_classes >= 2:
+            label_tile = cp.eye(num_classes, dtype='uint8')[label_tile]
+        else:
+            if expand_dims:
+                label_tile = cp.expand_dims(label_tile, axis=-1)
+
+        # save tiles to disk
+        cp.save(os.path.join(out_image_dir, tile_filename), image_tile)
+        cp.save(os.path.join(out_label_dir, tile_filename), label_tile)
     return
 
 
