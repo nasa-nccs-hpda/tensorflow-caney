@@ -38,7 +38,7 @@ def test_get_model_exception(model):
     "model_filename, input_shape, expected_tile_shape, expected_channel_shape",
     [
         (
-            "categorical-0.12.hdf5", (256, 256, 1), 512, 1
+            "categorical-0.12.hdf5", (512, 512, 1), 512, 1
         )
     ]
 )
@@ -55,6 +55,10 @@ def test_load_model(
         4, (3, 3), activation='relu', padding='same')(inputs)
     model = tf.keras.models.Model(
         inputs=inputs, outputs=c1, name="UNetDropout")
+    model.compile(
+        optimizer='adam',
+        loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+        metrics=[tf.keras.metrics.SparseCategoricalAccuracy()])
     model.save(model_filename)
 
     # load model and test
