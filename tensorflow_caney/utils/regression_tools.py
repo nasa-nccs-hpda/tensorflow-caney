@@ -200,4 +200,4 @@ class RegressionDataLoader(object):
                 y = np.rot90(y, 3)
 
         # TODO, remove this 50 from the model
-        return x, y / 100
+        return x, y  # / 100
