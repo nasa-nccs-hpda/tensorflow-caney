@@ -1,4 +1,5 @@
 import pytest
+import tensorflow as tf
 from tensorflow_caney.utils import model as tfc_model
 
 __all__ = ["test_get_model"]
@@ -34,18 +35,29 @@ def test_get_model_exception(model):
 
 
 @pytest.mark.parametrize(
-    "model_filename, expected_tile_shape, expected_channel_shape",
+    "model_filename, input_shape, expected_tile_shape, expected_channel_shape",
     [
         (
-            "tests/data/categorical-0.12.hdf5", 512, 8
+            "categorical-0.12.hdf5", (256, 256, 1), 512, 1
         )
     ]
 )
 def test_load_model(
             model_filename,
+            input_shape,
             expected_tile_shape,
             expected_channel_shape
         ):
+
+    # generate small model on the fly and save it
+    inputs = tf.keras.layers.Input(input_shape)
+    c1 = tf.keras.layers.Conv2D(
+        4, (3, 3), activation='relu', padding='same')(inputs)
+    model = tf.keras.models.Model(
+        inputs=inputs, outputs=c1, name="UNetDropout")
+    model.save(model_filename)
+
+    # load model and test
     model = tfc_model.load_model(model_filename)
     tile_size = model.layers[0].input_shape[0][1]
     tile_channels = model.layers[0].input_shape[0][-1]
