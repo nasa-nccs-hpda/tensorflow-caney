@@ -1,6 +1,6 @@
 import pytest
 import tensorflow as tf
-from tensorflow_caney.utils.loss import get_loss
+from tensorflow_caney.utils.losses import get_loss
 
 __all__ = ["tf", "test_get_loss", "test_get_loss_exception"]
 
