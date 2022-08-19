@@ -29,3 +29,10 @@ are installed locally in the system if not using conda/mamba.
 ## Why Caney?
 
 "Caney" means longhouse in Taíno.
+
+## Contributors
+
+
+## References
+
+- [TensorFlow Advanced Segmentation Models](https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models)
