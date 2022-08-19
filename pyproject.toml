@@ -18,7 +18,7 @@ requires = [
     "wheel",
     "omegaconf",
     "segmentation-models",
-    "git+https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models.git"
+    "git+https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models.git",
     "xarray",
     "rioxarray",
     "numba"
