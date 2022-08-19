@@ -14,7 +14,7 @@ __all__ = ["tf", "sm", "test_get_loss", "test_get_loss_exception"]
 )
 def test_get_loss(loss):
     callable_loss = get_loss(loss)
-    assert callable_loss == eval(loss)
+    assert callable_loss.__class__ == eval(loss).__class__
 
 
 @pytest.mark.parametrize(

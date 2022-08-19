@@ -42,5 +42,5 @@ def test_set_mixed_precision(mixed_precision):
     "xla", [True, False]
 )
 def test_set_xla(xla):
-    xla = system.set_mixed_precision(xla)
+    xla = system.set_xla(xla)
     assert xla is None
