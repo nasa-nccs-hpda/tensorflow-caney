@@ -2,7 +2,6 @@ import sys
 import tensorflow as tf
 import tensorflow_addons as tfa
 import segmentation_models as sm
-import tensorflow_advanced_segmentation_models as tasm
 
 from typing import Any
 
@@ -20,5 +19,5 @@ def get_loss(loss: str) -> Any:
     try:
         loss_function = eval(loss)
     except (NameError, AttributeError) as err:
-        sys.exit(f'{err}. Accepted loss from {tf}, {sm}, {tfa}, {tasm}')
+        sys.exit(f'{err}. Accepted loss from {tf}, {sm}, {tfa}.')
     return loss_function
