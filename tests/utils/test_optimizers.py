@@ -2,7 +2,7 @@ import pytest
 import tensorflow as tf
 from tensorflow_caney.utils.optimizers import get_optimizer
 
-__all__ = ["tf", "test_get_optimizer", "test_get_metrics_exception"]
+__all__ = ["tf", "test_get_optimizer", "test_get_optimizer_exception"]
 
 
 @pytest.mark.parametrize(
@@ -16,6 +16,6 @@ def test_get_optimizer(optimizer):
 @pytest.mark.parametrize(
     "optimizer", ["tfc.my.unrealistic.Optimizer", "tf.keras.optimizers.FakeOp"]
 )
-def test_get_metrics_exception(optimizer):
+def test_get_optimizer_exception(optimizer):
     with pytest.raises(SystemExit):
         get_optimizer(optimizer)

@@ -2,7 +2,9 @@ import pytest
 import tensorflow as tf
 from tensorflow_caney.utils import model as tfc_model
 
-__all__ = ["test_get_model"]
+__all__ = [
+    "test_get_model", "test_get_model_exception", "test_load_model"
+]
 
 
 @pytest.mark.parametrize(
