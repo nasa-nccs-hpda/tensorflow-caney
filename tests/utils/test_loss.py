@@ -1,8 +1,9 @@
 import pytest
 import tensorflow as tf
+import segmentation_models as sm
 from tensorflow_caney.utils.losses import get_loss
 
-__all__ = ["tf", "test_get_loss", "test_get_loss_exception"]
+__all__ = ["tf", "sm", "test_get_loss", "test_get_loss_exception"]
 
 
 @pytest.mark.parametrize(
