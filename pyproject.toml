@@ -15,6 +15,7 @@ requires = [
     "setuptools >= 40.6.0",
     "setuptools_scm[toml] >= 4, <6",
     "setuptools_scm_git_archive",
+    "setuptools-git-versioning",
     "poetry",
     "wheel",
     "omegaconf",
@@ -24,9 +25,7 @@ requires = [
     "rioxarray",
     "numba"
 ]
-# build-backend = "setuptools.build_meta"
-# requires = ["poetry"]
-build-backend = "poetry.masonry.api"
+build-backend = "setuptools.build_meta"
 
 [tool.setuptools_scm]
 write_to = "tensorflow_caney/version.py"
