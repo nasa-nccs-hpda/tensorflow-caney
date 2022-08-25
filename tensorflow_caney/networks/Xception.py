@@ -262,7 +262,7 @@ class Xception(object):
             use_bias=False,
             name='block{id}_sepconv2'.format(id=id + 1))(x)
         x = layers.BatchNormalization(
-            axis=channel_axis, 
+            axis=channel_axis,
             name='block{id}_sepconv2_bn'.format(id=id + 1))(x)
         x = layers.Activation(
             'relu', name='block{id}_sepconv2_act'.format(id=id + 1))(x)
