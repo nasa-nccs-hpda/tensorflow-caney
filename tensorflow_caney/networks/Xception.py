@@ -34,7 +34,7 @@ class Xception(object):
         """
         call for Xception or Xception-DeepLab.
         :param inputs: a 4-D tensor.
-        :param output_stages: str or a list of str 
+        :param output_stages: str or a list of str
         containing the output stages.
         :param kwargs: other parameters.
         :return: the output of different stages.
