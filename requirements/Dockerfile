@@ -21,7 +21,7 @@ ARG gdalName=gdal-$gdalVersion
 # system dependencies
 RUN apt-get update && apt-get -y dist-upgrade && \
     apt-get -y install build-essential libsm6 libxext6 libxrender-dev libfontconfig1 \
-        bzip2 diffutils file gcc-c++ make swig wget libproj-dev libnetcdf-dev && \
+        bzip2 diffutils file build-essential make swig wget libproj-dev libnetcdf-dev && \
     apt-get -y autoremove && \
     rm -rf /var/cache/apt
 
@@ -48,9 +48,7 @@ RUN mkdir -p $dataStoreDir && \
 # Pip
 RUN pip --no-cache-dir install omegaconf rasterio rioxarray xarray geopandas \
     opencv-python opencv-python-headless opencv-contrib-python opencv-contrib-python-headless \
-    tifffile webcolors Pillow seaborn xgboost segmentation-models
-    #pip uninstall -y cupy-cuda114 && pip install cupy-cuda115
-
+    tifffile webcolors Pillow seaborn xgboost segmentation-models pytest 
 
 #ARG PROJ_INSTALL_PREFIX=/usr/local
 #COPY --from=builder  ${PROJ_INSTALL_PREFIX}/share/proj ${PROJ_INSTALL_PREFIX}/share/proj
