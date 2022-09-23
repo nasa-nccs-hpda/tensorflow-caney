@@ -92,6 +92,7 @@ class Config:
     # options: feature-extraction, fine-tuning
     transfer_learning: Optional[str] = None
     transfer_learning_weights: Optional[str] = None
+    transfer_learning_fine_tune_at: Optional[int] = None
 
     learning_rate: Optional[float] = 0.0001
     max_epochs: Optional[int] = 6000
