@@ -152,7 +152,7 @@ def unet_batchnorm(nclass=19, input_size=(256, 256, 8), weight_file=None,
     model = Model(inputs=inputs, outputs=c10, name="UNetBatchNorm")
 
     if weight_file:
-        model.load_weights(weight_file)
+        model.load_weights(weight_file).expect_partial()
     return model
 
 

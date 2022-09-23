@@ -419,7 +419,8 @@ def sliding_window_tiler_multiclass(
             std=None,
             normalize: float = 1.0,
             rescale: str = None,
-            window: str = 'triang'  # 'overlap-tile'
+            window: str = 'triang',  # 'overlap-tile'
+            probability_map: bool = False
         ):
     """
     Sliding window using tiler.
@@ -500,13 +501,15 @@ def sliding_window_tiler_multiclass(
     prediction = merger.merge(unpad=True)
     print("MIN MAX", prediction.min(), prediction.max())
 
-    if prediction.shape[-1] > 1:
-        prediction = np.argmax(prediction, axis=-1)
+    if not probability_map:
+        if prediction.shape[-1] > 1:
+            prediction = np.argmax(prediction, axis=-1)
+        else:
+            prediction = np.squeeze(
+                np.where(prediction > threshold, 1, 0).astype(np.int16)
+            )
     else:
-        prediction = np.squeeze(
-            np.where(prediction > threshold, 1, 0).astype(np.int16)
-        )
-    print("UNIQUE", np.unique(prediction))
+        prediction = np.squeeze(prediction)
     return prediction
 
 

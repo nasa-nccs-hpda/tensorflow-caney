@@ -159,8 +159,8 @@ class RegressionDataLoader(object):
         if extension == '.npy':
             # TODO: make channel dim more dynamic
             # if 0 < 1 then channel last, etc.
-            x = np.moveaxis(np.load(x), 0, -1)
-            y = np.moveaxis(np.load(y), 0, -1)
+            x = np.load(x)
+            y = np.load(y)
         elif extension == '.tif':
             x = np.moveaxis(rxr.open_rasterio(x).data, 0, -1)
             y = np.moveaxis(rxr.open_rasterio(y).data, 0, -1)
