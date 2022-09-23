@@ -1,11 +1,9 @@
 name: CI to Docker Hub 
 
-on: push
-
-#on:
-#  push:
-#    tags:
-#      - "*.*"
+on:
+  push:
+  schedule:
+    - cron: '30 5 * * 1,3'
 
 jobs:
 
