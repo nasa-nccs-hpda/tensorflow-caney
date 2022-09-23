@@ -10,11 +10,40 @@ FROM ${FROM_IMAGE}:${VERSION_DATE}-${TF_VER}-py3
 
 # Ubuntu needs noninteractive to be forced
 ENV DEBIAN_FRONTEND noninteractive
+ENV LD_LIBRARY_PATH="/mnt/data-store/FileGDB_API-64gcc51/lib/:/usr/local/lib"
+ENV PROJ_LIB="/usr/share/proj"
 
+# global definitions for gdal
+ARG dataStoreDir="/mnt/data-store/"
+ARG gdalVersion=3.2.0
+ARG gdalName=gdal-$gdalVersion
+
+# system dependencies
 RUN apt-get update && apt-get -y dist-upgrade && \
-    apt-get -y install build-essential libsm6 libxext6 libxrender-dev libfontconfig1 && \
+    apt-get -y install build-essential libsm6 libxext6 libxrender-dev libfontconfig1 \
+        bzip2 diffutils file gcc-c++ make swig wget libproj-dev libnetcdf-dev && \
     apt-get -y autoremove && \
     rm -rf /var/cache/apt
+
+# install geos, FileGDB, and gdal
+RUN mkdir -p $dataStoreDir && \
+    cd $dataStoreDir && \
+    wget http://download.osgeo.org/geos/geos-3.8.1.tar.bz2 && \
+    tar -xjf geos-3.8.1.tar.bz2 && \
+    rm geos-3.8.1.tar.bz2 && \
+    cd $dataStoreDir\geos-3.8.1 && \
+    ./configure --enable-python --enable-static --with-pic && \
+    make -j 10 && make install && \
+    cd $dataStoreDir && \
+    wget https://github.com/Esri/file-geodatabase-api/raw/master/FileGDB_API_1.5/FileGDB_API_1_5_64gcc51.tar.gz && \
+    tar -zxf FileGDB_API_1_5_64gcc51.tar.gz && rm FileGDB_API_1_5_64gcc51.tar.gz && \
+    cd $dataStoreDir && wget http://download.osgeo.org/gdal/${gdalVersion}/${gdalName}.tar.gz && \
+    tar -zxf ${gdalName}.tar.gz && rm ${gdalName}.tar.gz && \
+	cd $dataStoreDir/$gdalName && \
+    ./configure LIBTOOL='/usr/bin/libtool --tag=CC' --with-python --enable-static --with-pic -with-geos=yes \
+        --with-netcdf --with-fgdb=/mnt/data-store/FileGDB_API-64gcc51 && \
+	export LD_LIBRARY_PATH=/mnt/data-store/FileGDB_API-64gcc51/lib/:/usr/local/lib && \
+	make -j 10 && make install
 
 # Pip
 RUN pip --no-cache-dir install omegaconf rasterio rioxarray xarray geopandas \
@@ -22,15 +51,16 @@ RUN pip --no-cache-dir install omegaconf rasterio rioxarray xarray geopandas \
     tifffile webcolors Pillow seaborn xgboost segmentation-models
     #pip uninstall -y cupy-cuda114 && pip install cupy-cuda115
 
-ARG PROJ_INSTALL_PREFIX=/usr/local
-COPY --from=builder  ${PROJ_INSTALL_PREFIX}/share/proj ${PROJ_INSTALL_PREFIX}/share/proj
-COPY --from=builder  ${PROJ_INSTALL_PREFIX}/include/* ${PROJ_INSTALL_PREFIX}/include
-COPY --from=builder  ${PROJ_INSTALL_PREFIX}/bin/ ${PROJ_INSTALL_PREFIX}/bin/
-COPY --from=builder  ${PROJ_INSTALL_PREFIX}/lib/lib* ${PROJ_INSTALL_PREFIX}/lib
-COPY --from=builder  /usr/share/java /usr/share/java
-COPY --from=builder  /usr/share/gdal/ /usr/share/gdal/
-COPY --from=builder  /usr/include/ /usr/include/
-COPY --from=builder  /usr/ /usr/
+
+#ARG PROJ_INSTALL_PREFIX=/usr/local
+#COPY --from=builder  ${PROJ_INSTALL_PREFIX}/share/proj ${PROJ_INSTALL_PREFIX}/share/proj
+#COPY --from=builder  ${PROJ_INSTALL_PREFIX}/include/* ${PROJ_INSTALL_PREFIX}/include
+#COPY --from=builder  ${PROJ_INSTALL_PREFIX}/bin/ ${PROJ_INSTALL_PREFIX}/bin/
+#COPY --from=builder  ${PROJ_INSTALL_PREFIX}/lib/lib* ${PROJ_INSTALL_PREFIX}/lib
+#COPY --from=builder  /usr/share/java /usr/share/java
+#COPY --from=builder  /usr/share/gdal/ /usr/share/gdal/
+#COPY --from=builder  /usr/include/ /usr/include/
+#COPY --from=builder  /usr/ /usr/
 
 HEALTHCHECK NONE
 ENTRYPOINT []
