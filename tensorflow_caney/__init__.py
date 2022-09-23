@@ -1,5 +1,7 @@
 from tensorflow_caney.networks import unet
 from tensorflow_caney.networks import unet_regression
+from tensorflow_caney.networks import deeplabv3_plus
+
 from pkg_resources import get_distribution, DistributionNotFound
 
 try:
@@ -15,4 +17,4 @@ except DistributionNotFound:  # pragma: no cover
         )
 __version__ = VERSION
 
-__all__ = ["unet", "unet_regression"]
+__all__ = ["deeplabv3_plus", "unet", "unet_regression"]

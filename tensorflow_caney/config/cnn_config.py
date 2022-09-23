@@ -57,6 +57,9 @@ class Config:
     tile_size: int = 256
     include_classes: bool = False
     augment: bool = True
+    no_data: Optional[int] = 0
+    nodata_fractional: bool = False
+    nodata_fractional_tolerance: float = 0.75
     json_tiles_dir: Optional[str] = None
     dataset_from_json: bool = False
 
