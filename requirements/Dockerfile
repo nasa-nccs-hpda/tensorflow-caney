@@ -21,7 +21,8 @@ ENV C_INCLUDE_PATH="/usr/include/gdal"
 #ARG gdalName=gdal-$gdalVersion
 
 # system dependencies
-RUN add-apt-repository ppa:ubuntugis/ppa && \
+RUN apt-get -y install software-properties-common && \
+    add-apt-repository ppa:ubuntugis/ppa && \
     apt-get update && apt-get -y dist-upgrade && \
     apt-get -y install build-essential libsm6 libxext6 libxrender-dev libfontconfig1 \
         bzip2 diffutils file build-essential make swig wget libproj-dev libnetcdf-dev \
