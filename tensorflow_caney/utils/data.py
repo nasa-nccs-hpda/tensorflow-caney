@@ -35,6 +35,8 @@ def gen_random_tiles(
             out_image_dir: str = 'image',
             out_label_dir: str = 'label',
             no_data: int = -10001,
+            nodata_fractional: bool = False,
+            nodata_fractional_tolerance: float = 0.75,
             json_tiles_dir: str = None,
             dataset_from_json: bool = False
         ) -> None:
@@ -67,32 +69,39 @@ def gen_random_tiles(
     while generated_tiles < max_patches:
 
         # Generate random integers from image
-        x = random.randint(0, image.shape[0] - tile_size)
-        y = random.randint(0, image.shape[1] - tile_size)
+        y = random.randint(0, image.shape[0] - tile_size)
+        x = random.randint(0, image.shape[1] - tile_size)
+
+        # Generate img and mask patches
+        image_tile = image[y:(y + tile_size), x:(x + tile_size)]
+        label_tile = label[y:(y + tile_size), x:(x + tile_size)]
 
         # first condition, time must have valid classes
-        if label[x: (x + tile_size), y: (y + tile_size)].min() < 0 or \
-                label[x: (x + tile_size), y: (y + tile_size)].max() \
-                > num_classes:
+        if label_tile.min() < 0 or label_tile.max() > num_classes:
             continue
 
         # if image[x: (x + tile_size), y: (y + tile_size)].min() < -100:
-        if cp.any(image[x: (x + tile_size), y: (y + tile_size)] == no_data):
+        # second condition, if want zero nodata values, skip
+        if cp.any(image_tile == no_data) and not nodata_fractional:
             continue
 
-        # second condition, if include, number of labels must be at least 2
-        if include and cp.unique(
-                label[x: (x + tile_size), y: (y + tile_size)]).shape[0] < 2:
+        # third condition, if include, number of labels must be at least 2
+        if include and cp.unique(label_tile).shape[0] < 2:
+            continue
+
+        # ---
+        # fourth condition, If given a tolerance for nodata,
+        # check amount against tolerance
+        # ---
+        nodata_in_tile = cp.count_nonzero(image_tile == no_data)
+        nodata_frac = (nodata_in_tile / image_tile.size)
+        if nodata_frac >= nodata_fractional_tolerance and nodata_fractional:
             continue
 
         # Add to the tiles counter
         generated_tiles += 1
         filename = f'{Path(output_filename).stem}_{generated_tiles}.npy'
         metadata[filename] = {'x': x, 'y': y}
-
-        # Generate img and mask patches
-        image_tile = image[x:(x + tile_size), y:(y + tile_size)]
-        label_tile = label[x:(x + tile_size), y:(y + tile_size)]
 
         # Apply some random transformations
         if augment:
@@ -180,8 +189,8 @@ def gen_random_tiles_from_json(
         y = tiles_metadata[tile_filename]['y']
 
         # Generate img and mask patches
-        image_tile = image[x:(x + tile_size), y:(y + tile_size)]
-        label_tile = label[x:(x + tile_size), y:(y + tile_size)]
+        image_tile = image[y:(y + tile_size), x:(x + tile_size)]
+        label_tile = label[y:(y + tile_size), x:(x + tile_size)]
 
         # Apply some random transformations
         if augment:
@@ -215,6 +224,169 @@ def gen_random_tiles_from_json(
         # save tiles to disk
         cp.save(os.path.join(out_image_dir, tile_filename), image_tile)
         cp.save(os.path.join(out_label_dir, tile_filename), label_tile)
+    return
+
+
+def gen_augmented_tiles(
+            image: np.ndarray,
+            label: np.ndarray,
+            index_id: int,
+            num_classes: int,
+            tile_size: int = 128,
+            expand_dims: bool = True,
+            max_patches: int = None,
+            include: bool = False,
+            output_filename: str = 'image',
+            out_image_dir: str = 'image',
+            out_label_dir: str = 'label',
+            no_data: int = -10001,
+            nodata_fractional: bool = False,
+            nodata_fractional_tolerance: float = 0.75,
+            json_tiles_dir: str = None,
+            dataset_from_json: bool = False
+        ) -> None:
+    """
+    Function to generate all combinations of available augmentations
+    without generating an exact duplicate. The need for this was to
+    be able to add more specific data points to a set from a single
+    """
+
+    # verify the existance of json files to load dataset from
+    if json_tiles_dir is not None and dataset_from_json:
+
+        json_files = sorted(
+            glob(os.path.join(json_tiles_dir, '*.json')),
+            key=os.path.getmtime
+        )
+        logging.info(f'Found {len(json_files)} json dataset files.')
+
+        if len(json_files) > 0:
+            return gen_random_tiles_from_json(
+                json_files,
+                image,
+                label,
+                index_id,
+                num_classes,
+                tile_size,
+                True,
+                expand_dims,
+                out_image_dir,
+                out_label_dir
+            )
+
+    generated_tiles = 0  # counter for generated tiles
+    metadata = dict()
+
+    # ---
+    # You could put these in integer form.
+    # Keeping in bin for sanity check.
+    # ---
+    augmentation_dict = {
+        'fliplr': 0b00001,
+        'flipud': 0b00010,
+        'rot090': 0b00100,
+        'rot180': 0b01000,
+        'rot270': 0b10000,
+    }
+
+    augmentation_list = list(range(2**len(augmentation_dict.keys())))
+
+    while generated_tiles < max_patches:
+
+        # Expects exact tile size
+        y = 0
+        x = 0
+
+        # Generate img and mask patches
+        image_tile = image[y:(y + tile_size), x:(x + tile_size)]
+        label_tile = label[y:(y + tile_size), x:(x + tile_size)]
+
+        # first condition, time must have valid classes
+        if label_tile.min() < 0 or label_tile.max() > num_classes:
+            continue
+
+        # if image[x: (x + tile_size), y: (y + tile_size)].min() < -100:
+        # second condition, if want zero nodata values, skip
+        if cp.any(image_tile == no_data) and not nodata_fractional:
+            continue
+
+        # third condition, if include, number of labels must be at least 2
+        if include and cp.unique(label_tile).shape[0] < 2:
+            continue
+
+        # ---
+        # fourth condition, If given a tolerance for nodata,
+        # check amount against tolerance
+        # ---
+        nodata_in_tile = cp.count_nonzero(image_tile == no_data)
+        nodata_frac = (nodata_in_tile / image_tile.size)
+        if nodata_frac >= nodata_fractional_tolerance and nodata_fractional:
+            continue
+
+        # Add to the tiles counter
+        generated_tiles += 1
+        filename = f'{Path(output_filename).stem}_{generated_tiles}.npy'
+        metadata[filename] = {'x': x, 'y': y}
+
+        # Pop a random bitmask that represents a combination of augmentations.
+        tile_augmentation_index = random.randint(0, len(augmentation_list)-1)
+        tile_augmentation = augmentation_list.pop(tile_augmentation_index)
+
+        if tile_augmentation & augmentation_dict['fliplr'] \
+                == augmentation_dict['fliplr']:
+            metadata[filename]['fliplr'] = True
+            image_tile = cp.fliplr(image_tile)
+            label_tile = cp.fliplr(label_tile)
+
+        if tile_augmentation & augmentation_dict['flipud'] \
+                == augmentation_dict['flipud']:
+            metadata[filename]['flipud'] = True
+            image_tile = cp.flipud(image_tile)
+            label_tile = cp.flipud(label_tile)
+
+        if tile_augmentation & augmentation_dict['rot090'] \
+                == augmentation_dict['rot090']:
+            metadata[filename]['rot90'] = True
+            image_tile = cp.rot90(image_tile, 1)
+            label_tile = cp.rot90(label_tile, 1)
+
+        if tile_augmentation & augmentation_dict['rot180'] \
+                == augmentation_dict['rot180']:
+            metadata[filename]['rot180'] = True
+            image_tile = cp.rot90(image_tile, 2)
+            label_tile = cp.rot90(label_tile, 2)
+
+        if tile_augmentation & augmentation_dict['rot270'] \
+                == augmentation_dict['rot270']:
+            metadata[filename]['rot270'] = True
+            image_tile = cp.rot90(image_tile, 3)
+            label_tile = cp.rot90(label_tile, 3)
+
+        if num_classes >= 2:
+            label_tile = cp.eye(num_classes, dtype='uint8')[label_tile]
+        else:
+            if expand_dims:
+                label_tile = cp.expand_dims(label_tile, axis=-1)
+
+        # save tiles to disk
+        cp.save(os.path.join(out_image_dir, filename), image_tile)
+        cp.save(os.path.join(out_label_dir, filename), label_tile)
+
+    # set json name to store values of random tiles for reproducibility
+    if json_tiles_dir is not None:
+
+        # create output directory
+        os.makedirs(json_tiles_dir, exist_ok=True)
+
+        # set output filename
+        json_name = os.path.join(
+            json_tiles_dir,
+            f'{Path(output_filename).stem}_dataset_metadata.json')
+
+        # store dict output into json file
+        with open(json_name, 'w') as metadata_outfile:
+            json.dump(metadata, metadata_outfile)
+
     return
 
 
