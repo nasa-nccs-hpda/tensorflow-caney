@@ -89,6 +89,10 @@ class Config:
         default_factory=lambda: ["tf.keras.callbacks.ModelCheckpoint"]
     )
 
+    # options: feature-extraction, fine-tuning
+    transfer_learning: Optional[str] = None
+    transfer_learning_weights: Optional[str] = None
+
     learning_rate: Optional[float] = 0.0001
     max_epochs: Optional[int] = 6000
     patience: int = 7
