@@ -22,19 +22,15 @@ RUN pip --no-cache-dir install omegaconf rasterio rioxarray xarray geopandas \
     tifffile webcolors Pillow seaborn xgboost segmentation-models
     #pip uninstall -y cupy-cuda114 && pip install cupy-cuda115
 
-#COPY --from=builder  /build_thirdparty/usr/ /usr/
-
 ARG PROJ_INSTALL_PREFIX=/usr/local
 COPY --from=builder  ${PROJ_INSTALL_PREFIX}/share/proj ${PROJ_INSTALL_PREFIX}/share/proj
 COPY --from=builder  ${PROJ_INSTALL_PREFIX}/include/* ${PROJ_INSTALL_PREFIX}/include
 COPY --from=builder  ${PROJ_INSTALL_PREFIX}/bin/ ${PROJ_INSTALL_PREFIX}/bin/
 COPY --from=builder  ${PROJ_INSTALL_PREFIX}/lib/lib* ${PROJ_INSTALL_PREFIX}/lib
-
-#COPY --from=builder  /build/usr/share/java /usr/share/java
-#COPY --from=builder  /build/usr/share/gdal/ /usr/share/gdal/
-#COPY --from=builder  /build/usr/include/ /usr/include/
-#COPY --from=builder  /build_gdal_python/usr/ /usr/
-#COPY --from=builder  /build_gdal_version_changing/usr/ /usr/
+COPY --from=builder  /usr/share/java /usr/share/java
+COPY --from=builder  /usr/share/gdal/ /usr/share/gdal/
+COPY --from=builder  /usr/include/ /usr/include/
+COPY --from=builder  /usr/ /usr/
 
 HEALTHCHECK NONE
 ENTRYPOINT []
