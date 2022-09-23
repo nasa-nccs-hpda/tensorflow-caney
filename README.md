@@ -32,6 +32,12 @@ are installed locally in the system if not using conda/mamba.
 
 ## Contributors
 
+- Jordan Alexis Caraballo-Vega, jordan.a.caraballo-vega@nasa.gov
+- Caleb Spradlin, caleb.s.spradlin@nasa.gov
+
+## Contributing
+
+Please see our [guide for contributing to tensorflow-caney](CONTRIBUTING.md).
 
 ## References
 

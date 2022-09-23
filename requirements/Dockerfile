@@ -21,7 +21,8 @@ ENV C_INCLUDE_PATH="/usr/include/gdal"
 #ARG gdalName=gdal-$gdalVersion
 
 # system dependencies
-RUN apt-get -y install software-properties-common && \
+RUN apt-get update && \
+    apt-get -y install software-properties-common && \
     add-apt-repository ppa:ubuntugis/ppa && \
     apt-get update && apt-get -y dist-upgrade && \
     apt-get -y install build-essential libsm6 libxext6 libxrender-dev libfontconfig1 \
@@ -53,7 +54,7 @@ RUN apt-get -y install software-properties-common && \
 # Pip
 RUN pip --no-cache-dir install omegaconf rasterio rioxarray xarray geopandas \
     opencv-python opencv-python-headless opencv-contrib-python opencv-contrib-python-headless \
-    tifffile webcolors Pillow seaborn xgboost segmentation-models pytest \
+    tifffile webcolors Pillow seaborn xgboost segmentation-models pytest coveralls \
     GDAL==`ogrinfo --version | grep -Eo '[0-9]\.[0-9]\.[0-9]+'`
 
 #ARG PROJ_INSTALL_PREFIX=/usr/local
