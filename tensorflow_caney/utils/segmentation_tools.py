@@ -150,7 +150,7 @@ class SegmentationDataLoader(object):
         # TODO: fix or remove
         # Move axis if needed, move to channels last
         # if self.conf.train_moveaxis:
-        #if x.shape[0] < x.shape[1]:
+        # if x.shape[0] < x.shape[1]:
         #    x = np.moveaxis(x, 0, -1)
         if len(y.shape) < 3:
             y = np.expand_dims(y, axis=-1)
