@@ -439,14 +439,22 @@ def modify_bands(
     """
     Drop multiple bands to existing rasterio object
     """
-    # Do not modify if image has the same number of output bands
-    if xraster['band'].shape[0] == len(output_bands):
-        return xraster
-
     # Drop any bands from input that should not be on output
     for ind_id in list(set(input_bands) - set(output_bands)):
         drop_bands.append(input_bands.index(ind_id)+1)
-    return xraster.drop(dim="band", labels=drop_bands, drop=True)
+
+    if isinstance(xraster, (np.ndarray, np.generic)):
+        # Do not modify if image has the same number of output bands
+        if xraster.shape[-1] == len(output_bands):
+            return xraster
+        xraster = np.delete(
+            xraster[:][:], [x - 1 for x in drop_bands], axis=0)
+        return xraster
+    else:
+        # Do not modify if image has the same number of output bands
+        if xraster['band'].shape[0] == len(output_bands):
+            return xraster
+        return xraster.drop(dim="band", labels=drop_bands, drop=True)
 
 
 def modify_label_classes(
