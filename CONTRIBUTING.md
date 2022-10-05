@@ -100,8 +100,8 @@ This repository follows semi-automatic documentation generation. The following
 is an example of how to generate documentation for a single module.
 
 ```bash
-conda activate terragpu
-pdoc --html terragpu/raster.py --force
+conda activate tensorflow-caney
+pdoc --html tensorflow-caney/raster.py --force
 ```
 
 ### Linting
@@ -161,5 +161,5 @@ Approver Name, Email
 
 ```bash
 module load singularity
-singularity shell -B /att,/lscratch/jacaraba,/lscratch/jacaraba/singularity_tmp:/tmp,/adapt/nobackup/projects/ilab --nv terragpu/
+singularity shell -B $your_mounts --nv tensorflow-caney
 ```
