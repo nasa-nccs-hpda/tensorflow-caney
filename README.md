@@ -6,7 +6,7 @@ Python package for lots of TensorFlow tools.
 ![CI to DockerHub ](https://github.com/nasa-nccs-hpda/tensorflow-caney/actions/workflows/dockerhub.yml/badge.svg)
 ![Code style: PEP8](https://github.com/nasa-nccs-hpda/tensorflow-caney/actions/workflows/lint.yml/badge.svg)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Coverage Status](https://coveralls.io/repos/github/nasa-cisto-ai/tensorflow-caney/badge.svg?branch=main)](https://coveralls.io/github/nasa-nccs-hpda/tensorflow-caney?branch=main)
+[![Coverage Status](https://coveralls.io/repos/github/nasa-nccs-hpda/tensorflow-caney/badge.svg?branch=main)](https://coveralls.io/github/nasa-nccs-hpda/tensorflow-caney?branch=main)
 
 ## Objectives
 

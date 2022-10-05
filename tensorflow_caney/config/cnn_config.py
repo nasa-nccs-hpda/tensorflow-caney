@@ -112,4 +112,4 @@ class Config:
     prediction_dtype: Optional[str] = 'uint8'
     prediction_nodata: Optional[int] = 255
     prediction_compress: Optional[str] = 'LZW'
-    prediction_driver: Optional[str] = 'GTiff'  # 'COG'
+    prediction_driver: Optional[str] = 'GTiff'
