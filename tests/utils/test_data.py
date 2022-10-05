@@ -19,12 +19,3 @@ def test_get_mean_std_metadata(filename, expected_mean, expected_std):
     mean, std = get_mean_std_metadata(filename)
     assert np.array_equal(mean, expected_mean) and \
         np.array_equal(std, expected_std)
-
-
-# @pytest.mark.parametrize(
-#    "mask, expressions, substract_labels",
-#    [(
-#        np.array(), [x - 1], True
-#    )]
-# )
-# def test_modify_label_classes(mask, expressions, substract_labels):
