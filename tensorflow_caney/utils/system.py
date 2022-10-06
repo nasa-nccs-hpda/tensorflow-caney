@@ -50,7 +50,7 @@ def set_mixed_precision(mixed_precision: bool = True) -> None:
     Args:
         mixed_precision (bool): enable mixed precision.
     Returns:
-        None.
+        None
     """
     if mixed_precision:
         policy = tf.keras.mixed_precision.Policy('mixed_float16')
@@ -64,7 +64,7 @@ def set_xla(xla: bool = False) -> None:
     Args:
         xla (bool): enable xla.
     Returns:
-        None.
+        None
     """
     if xla:
         tf.config.optimizer.set_jit(True)

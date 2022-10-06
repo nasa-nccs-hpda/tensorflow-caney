@@ -13,7 +13,7 @@ def get_optimizer(optimizer: str) -> Any:
     Args:
         optimizer (str): string with optimizer callable.
     Returns:
-        Callable.
+        Callable
     """
     try:
         optimizer = eval(optimizer)
