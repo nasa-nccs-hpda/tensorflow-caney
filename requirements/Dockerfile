@@ -25,7 +25,7 @@ RUN apt-get update && \
     rm -rf /var/cache/apt
 
 # Pip
-RUN pip --no-cache-dir install omegaconf rasterio rioxarray xarray geopandas \
+RUN pip --no-cache-dir install omegaconf rasterio rioxarray xarray geopandas tensorflow_probability \
     opencv-python opencv-python-headless opencv-contrib-python opencv-contrib-python-headless \
     tifffile webcolors Pillow seaborn xgboost segmentation-models pytest coveralls \
     GDAL==`ogrinfo --version | grep -Eo '[0-9]\.[0-9]\.[0-9]+'`
