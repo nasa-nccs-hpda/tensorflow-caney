@@ -1,6 +1,7 @@
 from tensorflow_caney.networks import unet
-from tensorflow_caney.networks import unet_regression
+from tensorflow_caney.networks.regression import unet_regression
 from tensorflow_caney.networks import deeplabv3_plus
+from tensorflow_caney.utils import losses
 
 from pkg_resources import get_distribution, DistributionNotFound
 
