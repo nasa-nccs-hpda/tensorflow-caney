@@ -80,7 +80,6 @@ def gen_random_tiles(
         if label_tile.min() < 0 or label_tile.max() > num_classes:
             continue
 
-        # if image[x: (x + tile_size), y: (y + tile_size)].min() < -100:
         # second condition, if want zero nodata values, skip
         if cp.any(image_tile == no_data) and not nodata_fractional:
             continue
@@ -574,7 +573,8 @@ def read_metadata(filename_regex: str, input_bands, output_bands) -> dict:
         features_df = pd.read_csv(filename)
         print(features_df.index)
         print(features_df)
-        features_df = features_df.drop(features_df.index[[drop_bands]]).reset_index()
+        features_df = features_df.drop(
+            features_df.index[[drop_bands]]).reset_index()
         print(features_df)
         metadata[str(int(features_df['timestamp'][0]))] = features_df
     return metadata

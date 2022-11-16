@@ -151,8 +151,6 @@ class SegmentationDataLoader(object):
         if self.conf.metadata_regex is not None:
             year_match = re.search(r'(\d{4})(\d{2})(\d{2})', x)
             timestamp = str(int(year_match.group(2)))
-            #print(timestamp)
-            #print(x)
 
         # Read data
         x = np.load(x)
