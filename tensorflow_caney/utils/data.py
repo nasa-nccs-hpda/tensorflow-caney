@@ -555,6 +555,31 @@ def read_dataset_csv(filename: str) -> pd.core.frame.DataFrame:
     return data_df
 
 
+def read_metadata(filename_regex: str, input_bands, output_bands) -> dict:
+    """
+    Read list of CSV from disk and load for preprocessing.
+    Args:
+        filename_regex (str): string dataset csv.
+    Returns:
+        dict of pandas dataframes
+    """
+    drop_bands = []
+    for ind_id in list(set(input_bands) - set(output_bands)):
+        drop_bands.append(input_bands.index(ind_id))
+    print(drop_bands)
+    metadata = dict()
+    filenames = glob(filename_regex)
+    assert len(filenames) > 0, f'No filenames under {filename_regex}'
+    for filename in filenames:
+        features_df = pd.read_csv(filename)
+        print(features_df.index)
+        print(features_df)
+        features_df = features_df.drop(features_df.index[[drop_bands]]).reset_index()
+        print(features_df)
+        metadata[str(int(features_df['timestamp'][0]))] = features_df
+    return metadata
+
+
 def standardize_image(
     image,
     standardization_type: str,
@@ -594,6 +619,32 @@ def standardize_batch(
     return image_batch
 
 
+def normalize_meanstd(image, ds_keys: dict, subtract: str = 'mean') -> dict:
+    """
+    Help function to normalise the features by the mean and
+    standard deviation
+    """
+    # assert subtract in ['mean', 'median']
+    # feats = tf.math.subtract(
+    #    tf.cast(image, tf.float64), ds_keys[f'{subtract}'])
+    # feats = tf.math.divide(feats, ds_keys['std'])
+    mean = ds_keys[f'{subtract}'].to_numpy()
+    std = ds_keys['std'].to_numpy()
+    for i in range(image.shape[-1]):
+        image[:, :, i] = (image[:, :, i] - mean[i]) / (std[i] + 1e-8)
+    return image
+
+
+def normalize_perc(image, ds_keys: dict) -> dict:
+    """
+    Help function to normalise the features by the
+    99th percentile
+    """
+    feats = tf.math.divide(
+        tf.cast(image, tf.float64), ds_keys['perc_99'])
+    return feats
+
+
 @jit(nopython=True)
 def standardize_image_numba(
     image, standardization_type, mean: list = None,
@@ -608,18 +659,6 @@ def standardize_image_numba(
         for i in range(image.shape[-1]):  # for each channel in the image
             image[:, :, i] = (image[:, :, i] - np.mean(image[:, :, i])) / \
                 (np.std(image[:, :, i]) + 1e-8)
-    elif standardization_type == 'global':
-        print("me")
-    else:
-        print("muh")
-        #    if np.random.random_sample() > 0.75:
-        #        for i in range(x.shape[-1]):  # for each channel in the image
-        #            x[:, :, i] = (x[:, :, i] - self.conf.mean[i]) / \
-        #                (self.conf.std[i] + 1e-8)
-        #    else:
-        #        for i in range(x.shape[-1]):  # for each channel in the image
-        #            x[:, :, i] = (x[:, :, i] - np.mean(x[:, :, i])) / \
-        #                (np.std(x[:, :, i]) + 1e-8)
     return image
 
 
@@ -637,10 +676,6 @@ def standardize_batch_numba(
             image_batch[item] = (
                 image_batch[item] - np.mean(image_batch[item], axis=(0, 1))) \
                 / (np.std(image_batch[item], axis=(0, 1)) + 1e-8)
-    elif standardization_type == 'global':
-        print("me")
-    else:
-        print("muh")
     return image_batch
 
 
