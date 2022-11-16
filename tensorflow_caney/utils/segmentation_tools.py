@@ -1,10 +1,12 @@
 import os
+import re
 import logging
 import numpy as np
 import tensorflow as tf
 from typing import Any
 from sklearn.model_selection import train_test_split
-from .data import get_mean_std_metadata, standardize_image
+from .data import get_mean_std_metadata, standardize_image, \
+    read_metadata, normalize_meanstd
 
 AUTOTUNE = tf.data.experimental.AUTOTUNE
 
@@ -100,6 +102,9 @@ class SegmentationDataLoader(object):
         if train_step and self.conf.standardization in ['global', 'mixed']:
             self.mean, self.std = get_mean_std_metadata(
                 self.metadata_output_filename)
+        if conf.metadata_regex is not None:
+            self.metadata = read_metadata(
+                conf.metadata_regex, conf.input_bands, conf.output_bands)
 
     def tf_dataset(
                 self, x: list, y: list,
@@ -143,20 +148,25 @@ class SegmentationDataLoader(object):
         """
         Load data on training loop.
         """
+        if self.conf.metadata_regex is not None:
+            year_match = re.search(r'(\d{4})(\d{2})(\d{2})', x)
+            timestamp = str(int(year_match.group(2)))
+            #print(timestamp)
+            #print(x)
+
         # Read data
         x = np.load(x)
         y = np.load(y)
 
-        # TODO: fix or remove
-        # Move axis if needed, move to channels last
-        # if self.conf.train_moveaxis:
-        # if x.shape[0] < x.shape[1]:
-        #    x = np.moveaxis(x, 0, -1)
         if len(y.shape) < 3:
             y = np.expand_dims(y, axis=-1)
 
         # Standardize
-        if self.conf.standardization is not None:
+        if self.conf.metadata_regex is not None:
+            x = normalize_meanstd(
+                x, self.metadata[timestamp], subtract='median'
+            )
+        elif self.conf.standardization is not None:
             x = standardize_image(
                 x, self.conf.standardization, self.mean, self.std)
 

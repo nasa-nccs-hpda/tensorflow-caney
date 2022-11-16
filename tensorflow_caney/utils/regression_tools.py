@@ -167,9 +167,6 @@ class RegressionDataLoader(object):
         else:
             sys.exit(f'{extension} format not supported.')
 
-        # if self.conf.normalize:
-        #    x = normalize(x)
-
         # Standardize
         if self.conf.standardization is not None:
             x = standardize_image(
@@ -199,5 +196,4 @@ class RegressionDataLoader(object):
                 x = np.rot90(x, 3)
                 y = np.rot90(y, 3)
 
-        # TODO, remove this 50 from the model
         return x, y
