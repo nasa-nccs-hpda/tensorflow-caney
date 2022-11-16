@@ -8,108 +8,173 @@ class Config:
     CNN data configuration class (embedded with OmegaConf).
     """
 
-    # directory to store all data files
+    # Directory to store all data files
     data_dir: str
+
+    # Directory to store model artifacts
     model_dir: Optional[str]
 
-    # string with model function
+    # String with model function (e.g. tensorflow object)
     model: str
 
-    # directory to store inference output files
+    # Directory to store inference output files
     inference_save_dir: str = "results"
 
-    # experiment name to track
+    # Experiment name to track
     experiment_name: str = "unet-cnn"
 
-    # experiment type to track (normally embedded in the inference output)
+    # Experiment type to track (normally embedded in the inference output)
     experiment_type: str = "landcover"
 
     # seed to control the randomization
     seed: Optional[int] = 24
 
-    # gpu devices to utilize
+    # GPU devices to utilize
     gpu_devices: str = "0,1,2,3"
 
-    # bool to enable mixed_precision
+    # Bool to enable mixed_precision
     mixed_precision: Optional[bool] = True
 
-    # bool to enable linear acceleration
+    # Bool to enable linear acceleration
     xla: Optional[bool] = False
 
-    # input bands from the incoming dataset
+    # Input bands from the incoming dataset
     input_bands: List[str] = field(
         default_factory=lambda: [
             "Blue", "Green", "Red", "NIR1", "HOM1", "HOM2"]
     )
 
-    # output bands that will be used to train and predict from
+    # Output bands that will be used to train and predict from
     output_bands: List[str] = field(
         default_factory=lambda: ["Blue", "Green", "Red", "NIR1"]
     )
 
-    # list of strings to support the modification of labels
+    # List of strings to support the modification of labels
     modify_labels: Optional[List[str]] = None
 
-    # subtract 1 from labels
+    # Subtract 1 from labels
     substract_labels: Optional[bool] = False
 
+    # Expand dimensions of training data (useful for binary class)
     expand_dims: bool = True
+
+    # Tile size or chips to predict from
     tile_size: int = 256
+
+    # Force algorithm to include more than one class per tile
     include_classes: bool = False
+
+    # Perform data augmentation on the fly
     augment: bool = True
+
+    # Specify no-data value from labels
     no_data: Optional[int] = 0
+
+    # Specify wether or not we accept tiles with no-data values
     nodata_fractional: bool = False
+
+    # Specify the fraction on no-data values allowed
     nodata_fractional_tolerance: float = 0.75
+
+    # Directory to store json metadata for experiments reproducibility
     json_tiles_dir: Optional[str] = None
+
+    # Specify wether we upload the dataset from the json file
     dataset_from_json: bool = False
 
+    # Value to normalize data with
     normalize: Optional[float] = 1.0
+
+    # Determine if we rescale the data
     rescale: Optional[str] = None
+
+    # Specify standardization mechanism
     standardization: Optional[str] = None
 
+    # Specify CNN batch size for training
     batch_size: int = 32
+
+    # Specify number of classes to work with
     n_classes: int = 1
+
+    # Specify test size ratio
     test_size: float = 0.20
 
+    # List to store mean values per band
     mean: List[float] = field(default_factory=lambda: [])
+
+    # List to store std values per band
     std: List[float] = field(default_factory=lambda: [])
 
-    # loss function expression, expects a loss function
+    # Loss function expression, expects a loss function
     loss: str = "tf.keras.losses.CategoricalCrossentropy"
 
-    # optimizer function expression, expects an optimizer function
+    # Optimizer function expression, expects an optimizer function
     optimizer: str = "tf.keras.optimizers.Adam"
 
-    # metrics function expression, expects list of metrics
+    # Metrics function expression, expects list of metrics
     metrics: List[str] = field(
         default_factory=lambda: ["tf.keras.metrics.Recall"])
 
-    # callbacks function expression, expects list of metrics
+    # Callbacks function expression, expects list of metrics
     callbacks: List[str] = field(
         default_factory=lambda: ["tf.keras.callbacks.ModelCheckpoint"]
     )
 
-    # options: feature-extraction, fine-tuning
+    # Transfer learning components, options: feature-extraction, fine-tuning
     transfer_learning: Optional[str] = None
+
+    # Specify weights file for transfer learning
     transfer_learning_weights: Optional[str] = None
+
+    # Specify step to fine-tune model on
     transfer_learning_fine_tune_at: Optional[int] = None
 
+    # Model learning rate
     learning_rate: Optional[float] = 0.0001
+
+    # Maximum number of epochs to run the model
     max_epochs: Optional[int] = 6000
+
+    # Number of epochs to wait for the model to improve
     patience: int = 7
 
+    # Model filename for inference
     model_filename: Optional[str] = None
+
+    # String regex to find rasters to predict
     inference_regex: Optional[str] = "*.tif"
+
+    # List regex to find rasters to predict (multiple locations)
     inference_regex_list: Optional[List[str]] = field(
         default_factory=lambda: [])
+
+    # Window size for sliding window operations
     window_size: Optional[int] = 8120
+
+    # Overlap between the tiles to avoid artifacts
     inference_overlap: Optional[float] = 0.5
+
+    # Threshold used for binary classification
     inference_treshold: Optional[float] = 0.5
+
+    # Batch size for inference
     pred_batch_size: Optional[int] = 128
 
-    # Prediction options
+    # Output probability map with prediction
     probability_map: Optional[bool] = False
+
+    # Specify dtype of prediction
     prediction_dtype: Optional[str] = 'uint8'
+
+    # Specify no-data value for prediction
     prediction_nodata: Optional[int] = 255
+
+    # Specify compression for prediction
     prediction_compress: Optional[str] = 'LZW'
+
+    # Specify driver for prediction (COG and ZARR included)
     prediction_driver: Optional[str] = 'GTiff'
+
+    # Regex to find model metadata
+    metadata_regex: Optional[str] = None
