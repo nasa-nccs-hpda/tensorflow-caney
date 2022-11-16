@@ -3,13 +3,14 @@ import numpy as np
 import tensorflow as tf
 import tensorflow_addons as tfa
 import segmentation_models as sm
+import tensorflow_caney as tfc
 
 from typing import Any
 from tensorflow.keras.losses import Loss, Reduction
 
 
 __all__ = [
-    "get_loss", "dicece_loss", "cropped_loss",
+    "tfc", "get_loss", "dicece_loss", "cropped_loss",
     "CategoricalCrossEntropy", "CategoricalFocalLoss",
     "JaccardDistanceLoss", "TanimotoDistanceLoss"
 ]
@@ -295,7 +296,7 @@ class TanimotoDistanceLoss(Loss):
         n_classes = y_true.shape[-1]
 
         volume = tf.reduce_mean(tf.reduce_sum(y_true, axis=(1, 2)), axis=0) \
-            if self.normalise else tf.ones(n_classes, dtype=tf.float32)
+            if self.normalise else tf.ones(n_classes, dtype=tf.float16)
 
         weights = tf.math.reciprocal(tf.math.square(volume))
         new_weights = tf.where(
