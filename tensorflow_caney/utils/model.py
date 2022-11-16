@@ -5,6 +5,7 @@ import tensorflow as tf
 import segmentation_models as sm
 import tensorflow_addons as tfa
 import tensorflow_caney as tfc
+import tensorflow_caney
 
 from typing import Any
 from glob import glob
