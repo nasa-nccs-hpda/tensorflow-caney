@@ -453,7 +453,7 @@ def modify_bands(
         # Do not modify if image has the same number of output bands
         if xraster['band'].shape[0] == len(output_bands):
             return xraster
-        return xraster.drop(dim="band", labels=drop_bands, drop=True)
+        return xraster.drop(dim="band", labels=drop_bands)
 
 
 def modify_label_classes(
