@@ -21,7 +21,7 @@ RUN apt-get update && \
     apt-get -y install build-essential libsm6 libxext6 libxrender-dev libfontconfig1 \
         bzip2 diffutils file build-essential make swig wget libproj-dev libnetcdf-dev \
         gdal-bin libgdal-dev libacl1-dev libgeos++-dev libsqlite3-dev libx11-dev \
-        wget vim curl git procps gcc g++ bzip2 libssl-dev locales && \
+        libspatialindex-dev wget vim curl git procps gcc g++ bzip2 libssl-dev locales && \
     apt-get -y autoremove && \
     rm -rf /var/cache/apt /var/lib/apt/lists/*
 
@@ -46,7 +46,7 @@ RUN git clone --single-branch --branch master https://github.com/pkolano/shift.g
 RUN pip --no-cache-dir install omegaconf rasterio rioxarray xarray geopandas tensorflow_probability \
     opencv-python opencv-python-headless opencv-contrib-python opencv-contrib-python-headless \
     tifffile webcolors Pillow seaborn xgboost tiler segmentation-models pytest coveralls \
-    GDAL==`ogrinfo --version | grep -Eo '[0-9]\.[0-9]\.[0-9]+'`
+    GDAL==`ogrinfo --version | grep -Eo '[0-9]\.[0-9]\.[0-9]+'` rtree
 
 HEALTHCHECK NONE
 ENTRYPOINT []
