@@ -14,12 +14,13 @@ ENV CPLUS_INCLUDE_PATH="/usr/include/gdal"
 ENV C_INCLUDE_PATH="/usr/include/gdal"
 
 # System dependencies
+# libproj-dev 
 RUN apt-get update && \
     apt-get -y install software-properties-common && \
     add-apt-repository ppa:ubuntugis/ppa && \
     apt-get update && apt-get -y dist-upgrade && \
     apt-get -y install build-essential libsm6 libxext6 libxrender-dev libfontconfig1 \
-        bzip2 diffutils file build-essential make swig wget libproj-dev libnetcdf-dev \
+        bzip2 diffutils file build-essential make swig wget libnetcdf-dev \
         gdal-bin libgdal-dev libacl1-dev libgeos++-dev libsqlite3-dev libx11-dev \
         libspatialindex-dev wget vim curl git procps gcc g++ bzip2 libssl-dev locales && \
     apt-get -y autoremove && \

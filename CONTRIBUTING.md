@@ -163,3 +163,11 @@ Approver Name, Email
 module load singularity
 singularity shell -B $your_mounts --nv tensorflow-caney
 ```
+
+### Current Workflow
+
+```bash
+module load singularity
+singularity shell --nv -B /lscratch,/css,/explore/nobackup/projects/ilab,/explore/nobackup/people /explore/nobackup/projects/ilab/containers/tensorflow-caney-2022.12
+export PYTHONPATH="/explore/nobackup/people/jacaraba/development/tensorflow-caney:/adapt/nobackup/people/jacaraba/development/vhr-cnn-chm"
+```
