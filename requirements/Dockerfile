@@ -21,8 +21,9 @@ RUN apt-get update && \
     apt-get update && apt-get -y dist-upgrade && \
     apt-get -y install build-essential libsm6 libxext6 libxrender-dev libfontconfig1 \
         bzip2 diffutils file build-essential make swig wget libnetcdf-dev \
-        libacl1-dev libgeos++-dev libsqlite3-dev libx11-dev \
+        libacl1-dev libgeos++-dev libgeos-dev libsqlite3-dev libx11-dev libproj-dev proj-data proj-bin \
         libspatialindex-dev wget vim curl git procps gcc g++ bzip2 libssl-dev locales && \
+        apt-get -y install gdal-bin libgdal-dev && \
     apt-get -y autoremove && \
     rm -rf /var/cache/apt /var/lib/apt/lists/*
 
