@@ -2,6 +2,7 @@
 
 Python package for lots of TensorFlow tools.
 
+[![DOI](https://zenodo.org/badge/471512673.svg)](https://zenodo.org/badge/latestdoi/471512673)
 ![CI Workflow](https://github.com/nasa-nccs-hpda/tensorflow-caney/actions/workflows/ci.yml/badge.svg)
 ![CI to DockerHub ](https://github.com/nasa-nccs-hpda/tensorflow-caney/actions/workflows/dockerhub.yml/badge.svg)
 ![Code style: PEP8](https://github.com/nasa-nccs-hpda/tensorflow-caney/actions/workflows/lint.yml/badge.svg)
