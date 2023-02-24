@@ -9,7 +9,7 @@ FROM ${FROM_IMAGE}:${VERSION_DATE}-${TF_VER}-py3
 # Ubuntu needs noninteractive to be forced
 ENV DEBIAN_FRONTEND noninteractive
 ENV LD_LIBRARY_PATH="/mnt/data-store/FileGDB_API-64gcc51/lib/:/usr/local/lib"
-ENV PROJ_LIB="/usr/share/proj"
+#ENV PROJ_LIB="/usr/share/proj"
 ENV CPLUS_INCLUDE_PATH="/usr/include/gdal"
 ENV C_INCLUDE_PATH="/usr/include/gdal"
 ENV SM_FRAMEWORK="tf.keras"
