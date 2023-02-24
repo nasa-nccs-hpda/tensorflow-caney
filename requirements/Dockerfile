@@ -12,6 +12,7 @@ ENV LD_LIBRARY_PATH="/mnt/data-store/FileGDB_API-64gcc51/lib/:/usr/local/lib"
 ENV PROJ_LIB="/usr/share/proj"
 ENV CPLUS_INCLUDE_PATH="/usr/include/gdal"
 ENV C_INCLUDE_PATH="/usr/include/gdal"
+ENV SM_FRAMEWORK="tf.keras"
 
 # System dependencies
 # libproj-dev gdal-bin libgdal-dev
@@ -21,11 +22,12 @@ RUN apt-get update && \
     apt-get update && apt-get -y dist-upgrade && \
     apt-get -y install build-essential libsm6 libxext6 libxrender-dev libfontconfig1 \
         bzip2 diffutils file build-essential make swig wget libnetcdf-dev \
-        libacl1-dev libgeos++-dev libgeos-dev libsqlite3-dev libx11-dev libproj-dev proj-data proj-bin \
+        libacl1-dev libgeos++-dev libgeos-dev libsqlite3-dev libx11-dev libproj-dev \
         libspatialindex-dev wget vim curl git procps gcc g++ bzip2 libssl-dev locales && \
-        apt-get -y install gdal-bin libgdal-dev && \
+    apt-get -y install gdal-bin libgdal-dev && \
     apt-get -y autoremove && \
     rm -rf /var/cache/apt /var/lib/apt/lists/*
+    # proj-data proj-bin
 
 # Install shiftc
 WORKDIR /app
