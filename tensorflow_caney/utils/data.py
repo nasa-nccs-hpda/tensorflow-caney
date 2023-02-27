@@ -77,8 +77,16 @@ def gen_random_tiles(
         label_tile = label[y:(y + tile_size), x:(x + tile_size)]
 
         # first condition, time must have valid classes
-        if label_tile.min() < 0 or label_tile.max() > num_classes:
+        # TODO: this condition is not met on regression
+        if (image_tile.min() < 0 or label_tile.min() < 0):
             continue
+
+        if (label_tile.max() > num_classes and num_classes != 1):
+            continue
+
+        # for regression
+        # if (label_tile.min() < 0):
+        #    continue
 
         # second condition, if want zero nodata values, skip
         if cp.any(image_tile == no_data) and not nodata_fractional:
@@ -129,6 +137,8 @@ def gen_random_tiles(
                 metadata[filename]['rot270'] = True
                 image_tile = cp.rot90(image_tile, 3)
                 label_tile = cp.rot90(label_tile, 3)
+
+        print(label_tile.min(), label_tile.max() )
 
         if num_classes >= 2:
             label_tile = cp.eye(num_classes, dtype='uint8')[label_tile]
@@ -548,7 +558,10 @@ def read_dataset_csv(filename: str) -> pd.core.frame.DataFrame:
     Returns:
         pandas dataframe
     """
-    assert os.path.exists(filename), f'File {filename} not found.'
+    assert filename is not None, \
+        f'Invalid input. Variable $filename is {filename}.'
+    assert os.path.exists(filename) and filename.endswith('.csv'), \
+        f'File {filename} not found or has invalid extension (expected .csv).'
     data_df = pd.read_csv(filename)
     assert not data_df.isnull().values.any(), f'NaN found: {filename}'
     return data_df

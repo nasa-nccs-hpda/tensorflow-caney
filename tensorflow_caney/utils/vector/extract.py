@@ -10,13 +10,15 @@ from pathlib import Path
 from skimage.draw import polygon
 from skimage.filters import threshold_mean
 
+osgeo.gdal.UseExceptions()
+
 
 def filter_gdf_by_list(
             gdf: gpd.GeoDataFrame,
             gdf_key: str = 'acq_year',
             isin_list: list = [],
             reset_index: bool = True
-        ):
+        ) -> gpd.GeoDataFrame:
     """
     Filter GDF by list of values.
     Args:
@@ -34,7 +36,7 @@ def get_polygon_total_bounds(
             data_regex: str,
             date_column_name: str = 'acq_year',
             drop_column_names: list = ["DN", "PXLVAL"]
-        ) -> gpd.DataFrame:
+        ) -> gpd.GeoDataFrame:
     """
     Generate geodataframe from a list of GPKGs or shapefiles
     and take the geometries of the polygons as a geometry object.
@@ -87,6 +89,15 @@ def extract_window(
     Returns:
         np.ndarray
     """
+    # make sure x and y coordinates are not negative
+    if pixel_x < 0 or pixel_y < 0:
+        return
+
+    if pixel_x > image_dataset.RasterXSize or \
+            pixel_y > image_dataset.RasterYSize:
+        return
+
+    # print(pixel_x, pixel_y, pixel_width, pixel_height)
     if type(image_dataset) is np.ndarray:
         data = image_dataset[
             int(pixel_x):int(pixel_x+pixel_width),
@@ -144,7 +155,7 @@ def convert_coords_to_pixel_location(coords: list, transform: list = None):
     return int(round(x_pixel)), int(round(y_pixel))
 
 
-def extract_tiles(gpd_iter: gpd.GeoDataframe):
+def extract_tiles(gpd_iter: gpd.GeoDataFrame) -> None:
     """
     Extract and save tile from pandas dataframe metadata.
     Args:

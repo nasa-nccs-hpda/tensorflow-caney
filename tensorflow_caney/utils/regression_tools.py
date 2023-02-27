@@ -49,7 +49,7 @@ class RegressionDataLoader(object):
         total_size = len(data_filenames)
 
         # Checking some parameters
-        logging.info(f'Crop {self.conf.crop} Augment {self.conf.augment}')
+        logging.info(f'Crop {self.conf.center_crop} Augment {self.conf.augment}')
 
         # If this is not a training step (e.g preprocess, predict)
         if not train_step:
@@ -171,9 +171,10 @@ class RegressionDataLoader(object):
         if self.conf.standardization is not None:
             x = standardize_image(
                 x, self.conf.standardization, self.mean, self.std)
+            y = y / 500  #(8000.0)
 
         # Crop
-        if self.conf.crop:
+        if self.conf.center_crop:
             x = center_crop(x, (self.conf.tile_size, self.conf.tile_size))
             y = center_crop(y, (self.conf.tile_size, self.conf.tile_size))
 
@@ -195,5 +196,7 @@ class RegressionDataLoader(object):
             if np.random.random_sample() > 0.5:
                 x = np.rot90(x, 3)
                 y = np.rot90(y, 3)
+
+        #print(x.min(), y.min())
 
         return x, y

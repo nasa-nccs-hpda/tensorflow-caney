@@ -1,11 +1,18 @@
+import numpy as np
+
 __all__ = ["center_crop"]
 
 
-def center_crop(image, dim):
-    """Returns center cropped image
-    Args:
-    img: image to be center cropped
-    dim: dimensions (width, height) to be cropped
+def center_crop(image: np.array, dim):
+    """
+    Center crop numpy array.
+
+    :param image: image to be center cropped
+    :type image: np.array
+    :param dim: dimensions (width, height) to be cropped
+    :type dim: tuple
+    :return: center cropped image
+    :rtype: np.array
     """
     width, height = image.shape[1], image.shape[0]
 

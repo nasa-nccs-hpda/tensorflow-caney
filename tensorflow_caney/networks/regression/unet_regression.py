@@ -4,8 +4,8 @@ from tensorflow.keras.layers import MaxPooling2D
 from tensorflow.keras.layers import Input
 from tensorflow.keras.layers import concatenate, UpSampling2D
 from tensorflow.keras.regularizers import l2
-from tensorflow.python.keras import layers
-from tensorflow.python.keras import models
+from tensorflow.keras import layers
+from tensorflow.keras import models
 
 
 def unet_batchnorm_regression(
@@ -116,7 +116,7 @@ def decoder_block(input_tensor, concat_tensor, num_filters):
 
 
 def get_model_new():
-    inputs = layers.Input(shape=[None, None, 4])  # 256
+    inputs = layers.Input(shape=[64, 64, 2])  # 256
     encoder0_pool, encoder0 = encoder_block(inputs, 32)  # 128
     encoder1_pool, encoder1 = encoder_block(encoder0_pool, 64)  # 64
     encoder2_pool, encoder2 = encoder_block(encoder1_pool, 128)  # 32
@@ -128,8 +128,8 @@ def get_model_new():
     decoder2 = decoder_block(decoder3, encoder2, 128)  # 64
     decoder1 = decoder_block(decoder2, encoder1, 64)  # 128
     decoder0 = decoder_block(decoder1, encoder0, 32)  # 256
-    # outputs = layers.Conv2D(1, (1, 1), activation='sigmoid')(decoder0)
-    outputs = layers.Conv2D(1, (1, 1), activation='relu')(decoder0)
+    outputs = layers.Conv2D(1, (1, 1), activation='sigmoid')(decoder0)
+    #outputs = layers.Conv2D(1, (1, 1), activation='relu')(decoder0)
 
     model = models.Model(inputs=[inputs], outputs=[outputs])
     return model
