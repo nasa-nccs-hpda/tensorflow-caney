@@ -1,5 +1,6 @@
 from tensorflow_caney.networks import unet
 from tensorflow_caney.networks.regression import unet_regression, test
+from tensorflow_caney.model.networks.regression import regression_unet
 from tensorflow_caney.networks import deeplabv3_plus
 from tensorflow_caney.utils import losses
 
@@ -18,4 +19,4 @@ except DistributionNotFound:  # pragma: no cover
         )
 __version__ = VERSION
 
-__all__ = ["deeplabv3_plus", "unet", "unet_regression", "losses", "test"]
+__all__ = ["deeplabv3_plus", "unet", "unet_regression", "regression_unet", "losses", "test"]

@@ -87,6 +87,7 @@ class Config:
 
     # Value to normalize data with
     normalize: Optional[float] = 1.0
+    normalize_label: Optional[float] = 1.0
 
     # Determine if we rescale the data
     rescale: Optional[str] = None
@@ -160,6 +161,9 @@ class Config:
 
     # Threshold used for binary classification
     inference_treshold: Optional[float] = 0.5
+
+    # Window algorithm for smoothing prediction
+    window_algorithm: Optional[str] = 'triang'
 
     # Batch size for inference
     pred_batch_size: Optional[int] = 128
