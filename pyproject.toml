@@ -1,4 +1,5 @@
 [project]
+name = "tensorflow-caney"
 dynamic = ["version", "description"]
 
 [build-system]
