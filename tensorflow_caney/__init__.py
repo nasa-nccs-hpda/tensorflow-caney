@@ -1,5 +1,5 @@
 from tensorflow_caney.networks import unet
-from tensorflow_caney.networks.regression import unet_regression, test
+from tensorflow_caney.networks.regression import unet_regression
 from tensorflow_caney.model.networks.regression import regression_unet
 from tensorflow_caney.networks import deeplabv3_plus
 from tensorflow_caney.utils import losses
