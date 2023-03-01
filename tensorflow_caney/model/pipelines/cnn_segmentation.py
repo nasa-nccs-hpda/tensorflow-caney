@@ -331,7 +331,7 @@ class CNNSegmentation(object):
         logging.info(f'{len(data_filenames)} files to predict')
 
         # iterate files, create lock file to avoid predicting the same file
-        for filename in sorted(data_filenames)[:1]:
+        for filename in sorted(data_filenames):
 
             # start timer
             start_time = time.time()
