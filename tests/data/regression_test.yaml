@@ -1,0 +1,87 @@
+experiment_name: cnn-dem
+experiment_type: cnn-dem-v3
+
+data_dir: '/lscratch/jacaraba/cnn-dem/regression-test'
+model_dir: '/explore/nobackup/projects/ilab/projects/AIML_CHM/DEM_CHM/development/dem-test-v3'
+
+seed: 42
+gpu_devices: 0,1,2,3
+mixed_precision: True
+xla: False
+
+input_bands:
+  - Mosaic1
+  - Mosaic2
+
+output_bands:
+  - Mosaic1
+  - Mosaic2
+
+
+#substract_labels: True
+#normalize: 1.0
+
+#modify_labels:
+#  - "x < 0": 0
+#  - "x == 1": 9
+#  - "x == 4": 0
+#  - "x == 3": 0
+#  - "x == 2": 0
+#  - "x == 8": 1
+#  - "x == 9": 2
+
+expand_dims: True
+tile_size: 64
+include_classes: False
+augment: True
+
+# standardization functions: local, global, mixed
+# global standardization
+# mixed standardization
+standardization: 'local'
+batch_size: 32
+n_classes: 1
+test_size: 0.20
+learning_rate: 0.00001
+max_epochs: 6000
+patience: 10
+
+model: "tfc.networks.regression.unet_regression.unet_batchnorm_regression(nclass=1, input_size=(64, 64, 2),maps=[16, 32, 64, 128, 256])"
+#model: "tfc.networks.regression.test.get_model()"
+#model: "tfc.networks.regression.unet_regression.get_model_new()"
+
+#loss: 'tf.keras.losses.MeanAbsoluteError()'
+loss: 'tf.keras.losses.MeanSquaredError()'
+
+optimizer: tf.keras.optimizers.Adam
+#optimizer: tf.keras.optimizers.RMSprop
+
+metrics:
+  - 'tf.keras.metrics.MeanSquaredError()'
+  - 'tf.keras.metrics.RootMeanSquaredError()'
+  - 'tf.keras.metrics.MeanAbsoluteError()'
+  - 'tfa.metrics.RSquare()'
+  #- 'tf.keras.metrics.MeanAbsolutePercentageError()'
+  #- 'tf.keras.metrics.CosineSimilarity(axis=1)'
+
+callbacks:
+  - "tf.keras.callbacks.ModelCheckpoint(save_best_only=True, mode='min', monitor='val_loss', filepath='${model_dir}/{epoch:02d}-{val_loss:.2f}.hdf5')"
+  - "tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=20)"
+  - "tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=False)"
+  - "tf.keras.callbacks.TerminateOnNaN()"
+
+# window_size: 8192
+window_size: 10000
+pred_batch_size: 64
+inference_overlap: 0.50
+inference_treshold: 0.50
+prediction_dtype: float32
+prediction_nodata: -10001
+
+# Prediction location
+# model_filename: 03-0.37.hdf5
+# model_filename: /lscratch/jacaraba/cnn-dem/regression-test/model/407-0.00.hdf5
+model_filename: '/explore/nobackup/projects/ilab/projects/AIML_CHM/DEM_CHM/development/dem-test-v3/119-0.01.hdf5'
+#model_filename: '/explore/nobackup/projects/ilab/projects/AIML_CHM/DEM_CHM/development/dem-test-v3/121-0.00.hdf5'
+inference_regex: '/explore/nobackup/projects/ilab/projects/AIML_CHM/DEM_CHM/data/WV02_20120924_P1BS_103001001C087E00_103001001CB20900-toa-stacked-clipped.tif'
+inference_save_dir: /explore/nobackup/projects/ilab/projects/AIML_CHM/DEM_CHM/development/dem-test-v3/results
