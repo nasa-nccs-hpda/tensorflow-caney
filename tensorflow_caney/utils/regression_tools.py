@@ -7,8 +7,10 @@ import tensorflow as tf
 from typing import Any
 from pathlib import Path
 from sklearn.model_selection import train_test_split
-from .data import get_mean_std_metadata, standardize_image
+from .data import get_mean_std_metadata, standardize_image, \
+    normalize_image
 from .augmentations import center_crop
+from warnings import warn
 
 
 AUTOTUNE = tf.data.experimental.AUTOTUNE
@@ -25,6 +27,14 @@ class RegressionDataLoader(object):
                 conf,
                 train_step: bool = True,
             ):
+
+        # Deprecation warning
+        warn(
+            f'{self.__class__.__name__} will be deprecated.' +
+            'Replace with tensorflow_caney.model.dataloaders.regression',
+            DeprecationWarning,
+            stacklevel=2
+        )
 
         # Set configuration variables
         self.conf = conf
@@ -49,7 +59,8 @@ class RegressionDataLoader(object):
         total_size = len(data_filenames)
 
         # Checking some parameters
-        logging.info(f'Crop {self.conf.center_crop} Augment {self.conf.augment}')
+        logging.info(
+            f'Crop {self.conf.center_crop} Augment {self.conf.augment}')
 
         # If this is not a training step (e.g preprocess, predict)
         if not train_step:
@@ -157,8 +168,6 @@ class RegressionDataLoader(object):
 
         # Read data
         if extension == '.npy':
-            # TODO: make channel dim more dynamic
-            # if 0 < 1 then channel last, etc.
             x = np.load(x)
             y = np.load(y)
         elif extension == '.tif':
@@ -171,7 +180,8 @@ class RegressionDataLoader(object):
         if self.conf.standardization is not None:
             x = standardize_image(
                 x, self.conf.standardization, self.mean, self.std)
-            y = y / 500  #(8000.0)
+
+        y = normalize_image(y, self.conf.normalize_label)
 
         # Crop
         if self.conf.center_crop:
@@ -196,7 +206,5 @@ class RegressionDataLoader(object):
             if np.random.random_sample() > 0.5:
                 x = np.rot90(x, 3)
                 y = np.rot90(y, 3)
-
-        #print(x.min(), y.min())
 
         return x, y

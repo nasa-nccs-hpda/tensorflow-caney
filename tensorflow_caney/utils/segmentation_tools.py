@@ -7,6 +7,7 @@ from typing import Any
 from sklearn.model_selection import train_test_split
 from .data import get_mean_std_metadata, standardize_image, \
     read_metadata, normalize_meanstd
+from warnings import warn
 
 AUTOTUNE = tf.data.experimental.AUTOTUNE
 
@@ -22,6 +23,14 @@ class SegmentationDataLoader(object):
                 conf,
                 train_step: bool = True,
             ):
+
+        # Deprecation warning
+        warn(
+            f'{self.__class__.__name__} will be deprecated.' +
+            'Replace with tensorflow_caney.model.dataloaders.segmentation',
+            DeprecationWarning,
+            stacklevel=2
+        )
 
         # Set configuration variables
         self.conf = conf

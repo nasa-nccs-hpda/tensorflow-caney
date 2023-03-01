@@ -1,6 +1,8 @@
 import rioxarray as rxr
 
-# singularity shell --nv -B /lscratch,/css,/explore/nobackup/projects/ilab,/explore/nobackup/people /explore/nobackup/projects/ilab/containers/tensorflow-caney-2022.12
+# singularity shell --nv -B \
+# /lscratch,/css,/explore/nobackup/projects/ilab,/explore/nobackup/people \
+# /explore/nobackup/projects/ilab/containers/tensorflow-caney-2022.12
 
 
 class GeospatialFile(object):
@@ -39,5 +41,6 @@ class GeospatialFile(object):
 
 if __name__ == "__main__":
 
-    raster = GeospatialFile('/explore/nobackup/projects/ilab/data/AGB/Airborne_Hyperspectral/DP3.30006.001/neon-aop-products/2013/FullSite/D17/2013_SJER_1/L3/Spectrometer/Reflectance/2013_NEON_D17_SJER_DP3_257000_4105000_reflectance.h5')
+    raster = GeospatialFile(
+        '2013_NEON_D17_SJER_DP3_257000_4105000_reflectance.h5')
     print(raster.data[0].shape)

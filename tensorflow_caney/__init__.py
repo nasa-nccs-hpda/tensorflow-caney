@@ -19,4 +19,7 @@ except DistributionNotFound:  # pragma: no cover
         )
 __version__ = VERSION
 
-__all__ = ["deeplabv3_plus", "unet", "unet_regression", "regression_unet", "losses", "test"]
+__all__ = [
+    "deeplabv3_plus", "unet", "unet_regression",
+    "regression_unet", "losses"
+]
