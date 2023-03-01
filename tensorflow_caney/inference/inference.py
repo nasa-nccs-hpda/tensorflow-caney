@@ -306,7 +306,7 @@ def sliding_window_tiler_multiclass(
                     batch[item, :, :, :], standardization, mean, std)
 
         # Predict
-        batch = model.predict(batch, batch_size=batch_size)
+        batch = model.predict(batch, batch_size=batch_size, verbose=0)
 
         # Merge the updated data in the array
         merger.add_batch(batch_id, batch_size, batch)
