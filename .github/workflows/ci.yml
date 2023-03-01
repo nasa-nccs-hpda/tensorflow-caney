@@ -2,6 +2,9 @@ name: CI Regression
 
 on: [push, pull_request]
 
+env:
+  SM_FRAMEWORK: "tf.keras"
+
 jobs:
 
   test:
