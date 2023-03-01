@@ -5,7 +5,6 @@ import logging
 import argparse
 import omegaconf
 import rasterio
-import cupy as cp
 import numpy as np
 import xarray as xr
 import rioxarray as rxr
@@ -14,7 +13,7 @@ from glob import glob
 from pathlib import Path
 from omegaconf.listconfig import ListConfig
 
-from tensorflow_caney.config.cnn_config import Config
+from tensorflow_caney.model.config.cnn_config import Config
 from tensorflow_caney.utils.system import seed_everything, \
     set_gpu_strategy, set_mixed_precision, set_xla
 from tensorflow_caney.utils.data import read_dataset_csv, \
@@ -31,12 +30,13 @@ from tensorflow_caney.utils.callbacks import get_callbacks
 from tensorflow_caney.inference import regression_inference
 
 CHUNKS = {'band': 'auto', 'x': 'auto', 'y': 'auto'}
+xp = np
 
 __status__ = "Development"
 
 
 # -----------------------------------------------------------------------------
-# class RegressionCNN
+# class CNNRegression
 # -----------------------------------------------------------------------------
 class CNNRegression(object):
 
@@ -156,13 +156,11 @@ class CNNRegression(object):
                 output_bands=self.conf.output_bands)
             logging.info(f'Image: {image.shape}, Label: {label.shape}')
 
-            # Asarray option to force array type
-            image = cp.asarray(image.values)
-            label = cp.asarray(label)
+            image = image.values
 
             # Move from chw to hwc, squeze mask if required
-            image = cp.moveaxis(image, 0, -1)
-            label = cp.squeeze(label) if len(label.shape) != 2 else label
+            image = xp.moveaxis(image, 0, -1)
+            label = xp.squeeze(label) if len(label.shape) != 2 else label
             logging.info(f'Image: {image.shape}, Label: {label.shape}')
             logging.info(f'Label classes min {label.min()}, max {label.max()}')
 
@@ -192,7 +190,8 @@ class CNNRegression(object):
                 out_image_dir=self.images_dir,
                 out_label_dir=self.labels_dir,
                 json_tiles_dir=self.conf.json_tiles_dir,
-                dataset_from_json=self.conf.dataset_from_json
+                dataset_from_json=self.conf.dataset_from_json,
+                xp=xp
             )
 
         # Calculate mean and std values for training
@@ -398,7 +397,7 @@ class CNNRegression(object):
                     std=std,
                     normalize=self.conf.normalize,
                     window=self.conf.window_algorithm
-                )
+                ) * self.conf.normalize_label
                 prediction[prediction < 0] = 0
 
                 # Drop image band to allow for a merge of mask
@@ -456,7 +455,7 @@ class CNNRegression(object):
 # -----------------------------------------------------------------------------
 # main
 #
-# python cnn_regression.py -c config.yaml -s preprocess train
+# python cnn_regression.py -c config.yaml -d config.csv -s preprocess train
 # -----------------------------------------------------------------------------
 def main():
 
