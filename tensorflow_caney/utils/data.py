@@ -38,7 +38,9 @@ def gen_random_tiles(
             nodata_fractional: bool = False,
             nodata_fractional_tolerance: float = 0.75,
             json_tiles_dir: str = None,
-            dataset_from_json: bool = False
+            dataset_from_json: bool = False,
+            xp=np,
+            use_case: str = 'segmentation'
         ) -> None:
 
     # verify the existance of json files to load dataset from
@@ -81,7 +83,7 @@ def gen_random_tiles(
         if (image_tile.min() < 0 or label_tile.min() < 0):
             continue
 
-        if (label_tile.max() > num_classes and num_classes != 1):
+        if (label_tile.max() > num_classes and use_case == 'segmentation'):
             continue
 
         # for regression
@@ -89,18 +91,18 @@ def gen_random_tiles(
         #    continue
 
         # second condition, if want zero nodata values, skip
-        if cp.any(image_tile == no_data) and not nodata_fractional:
+        if xp.any(image_tile == no_data) and not nodata_fractional:
             continue
 
         # third condition, if include, number of labels must be at least 2
-        if include and cp.unique(label_tile).shape[0] < 2:
+        if include and xp.unique(label_tile).shape[0] < 2:
             continue
 
         # ---
         # fourth condition, If given a tolerance for nodata,
         # check amount against tolerance
         # ---
-        nodata_in_tile = cp.count_nonzero(image_tile == no_data)
+        nodata_in_tile = xp.count_nonzero(image_tile == no_data)
         nodata_frac = (nodata_in_tile / image_tile.size)
         if nodata_frac >= nodata_fractional_tolerance and nodata_fractional:
             continue
@@ -113,42 +115,42 @@ def gen_random_tiles(
         # Apply some random transformations
         if augment:
 
-            if cp.random.random_sample() > 0.5:
+            if xp.random.random_sample() > 0.5:
                 metadata[filename]['fliplr'] = True
-                image_tile = cp.fliplr(image_tile)
-                label_tile = cp.fliplr(label_tile)
+                image_tile = xp.fliplr(image_tile)
+                label_tile = xp.fliplr(label_tile)
 
-            if cp.random.random_sample() > 0.5:
+            if xp.random.random_sample() > 0.5:
                 metadata[filename]['flipud'] = True
-                image_tile = cp.flipud(image_tile)
-                label_tile = cp.flipud(label_tile)
+                image_tile = xp.flipud(image_tile)
+                label_tile = xp.flipud(label_tile)
 
-            if cp.random.random_sample() > 0.5:
+            if xp.random.random_sample() > 0.5:
                 metadata[filename]['rot90'] = True
-                image_tile = cp.rot90(image_tile, 1)
-                label_tile = cp.rot90(label_tile, 1)
+                image_tile = xp.rot90(image_tile, 1)
+                label_tile = xp.rot90(label_tile, 1)
 
-            if cp.random.random_sample() > 0.5:
+            if xp.random.random_sample() > 0.5:
                 metadata[filename]['rot180'] = True
-                image_tile = cp.rot90(image_tile, 2)
-                label_tile = cp.rot90(label_tile, 2)
+                image_tile = xp.rot90(image_tile, 2)
+                label_tile = xp.rot90(label_tile, 2)
 
-            if cp.random.random_sample() > 0.5:
+            if xp.random.random_sample() > 0.5:
                 metadata[filename]['rot270'] = True
-                image_tile = cp.rot90(image_tile, 3)
-                label_tile = cp.rot90(label_tile, 3)
+                image_tile = xp.rot90(image_tile, 3)
+                label_tile = xp.rot90(label_tile, 3)
 
-        print(label_tile.min(), label_tile.max() )
+        # print(label_tile.min(), label_tile.max() )
 
         if num_classes >= 2:
-            label_tile = cp.eye(num_classes, dtype='uint8')[label_tile]
+            label_tile = xp.eye(num_classes, dtype='uint8')[label_tile]
         else:
             if expand_dims:
-                label_tile = cp.expand_dims(label_tile, axis=-1)
+                label_tile = xp.expand_dims(label_tile, axis=-1)
 
         # save tiles to disk
-        cp.save(os.path.join(out_image_dir, filename), image_tile)
-        cp.save(os.path.join(out_label_dir, filename), label_tile)
+        xp.save(os.path.join(out_image_dir, filename), image_tile)
+        xp.save(os.path.join(out_label_dir, filename), label_tile)
 
     # set json name to store values of random tiles for reproducibility
     if json_tiles_dir is not None:
