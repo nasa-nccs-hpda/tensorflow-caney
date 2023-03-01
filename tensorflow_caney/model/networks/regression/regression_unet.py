@@ -13,7 +13,8 @@ def unet_batchnorm_regression(
             input_size=(256, 256, 8),
             weight_file=None,
             kr=l2(0.0001),
-            maps=[64, 128, 256, 512, 1024]
+            maps=[64, 128, 256, 512, 1024],
+            final_activation='linear'
         ):
     """
     UNet network using batch normalization features.
@@ -69,15 +70,8 @@ def unet_batchnorm_regression(
     u9 = concatenate([n9, n1], axis=3)
     c9 = Conv2D(maps[0], (3, 3), activation='relu', padding='same')(u9)
     c9 = Conv2D(maps[0], (3, 3), activation='relu', padding='same')(c9)
-
-    actv = 'sigmoid'  # 'relu' #  'softmax'
-    # if nclass == 1:
-    #    actv = 'sigmoid'
-
-    #c10 = Conv2D(nclass, (1, 1), activation=actv, kernel_regularizer=kr)(c9)
-    c10 = Conv2D(nclass, (1, 1), activation=actv, kernel_regularizer=kr)(c9)
-    # c10 = Conv2D(nclass, (1, 1))(c9)
-    # model = Model(inputs=inputs, outputs=c10, name="UNetBatchNorm")
+    c10 = Conv2D(
+        nclass, (1, 1), activation=final_activation, kernel_regularizer=kr)(c9)
     model = Model(inputs=inputs, outputs=c10, name="UNetBatchNormRegression")
 
     if weight_file:
@@ -130,8 +124,6 @@ def get_model_new():
     decoder1 = decoder_block(decoder2, encoder1, 64)  # 128
     decoder0 = decoder_block(decoder1, encoder0, 32)  # 256
     outputs = layers.Conv2D(1, (1, 1), activation='sigmoid')(decoder0)
-    # outputs = layers.Conv2D(1, (1, 1), activation='relu')(decoder0)
-
     model = models.Model(inputs=[inputs], outputs=[outputs])
     return model
 
