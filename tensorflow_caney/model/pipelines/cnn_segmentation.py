@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 import time
 import logging
@@ -19,7 +20,7 @@ from tensorflow_caney.utils.system import seed_everything, \
 from tensorflow_caney.utils.data import read_dataset_csv, \
     gen_random_tiles, modify_bands, normalize_image, rescale_image, \
     modify_label_classes, get_dataset_filenames, get_mean_std_dataset, \
-    get_mean_std_metadata
+    get_mean_std_metadata, read_metadata
 from tensorflow_caney.utils import indices
 from tensorflow_caney.utils.segmentation_tools import SegmentationDataLoader
 from tensorflow_caney.utils.losses import get_loss
@@ -256,15 +257,19 @@ class CNNSegmentation(object):
         # Set multi-GPU training strategy
         with gpu_strategy.scope():
 
-            if self.conf.transfer_learning == 'fine-tuning':
+            if self.conf.transfer_learning == 'feature-extraction':
+
+                # get full model for training
                 model = get_model(self.conf.model)
                 model.trainable = False
-                model_2 = load_model(
-                    model_filename=self.conf.model_filename,
+                pretrained = load_model(
+                    model_filename=self.conf.transfer_learning_weights,
                     model_dir=self.model_dir
                 )
+                model.set_weights(pretrained.get_weights())
+                logging.info(
+                    f"Load weights from {self.conf.transfer_learning_weights}")
 
-                model.set_weights(model_2.get_weights())
                 model.trainable = True
                 model.compile(
                     loss=get_loss(self.conf.loss),
@@ -272,6 +277,32 @@ class CNNSegmentation(object):
                         self.conf.optimizer)(self.conf.learning_rate),
                     metrics=get_metrics(self.conf.metrics)
                 )
+
+            elif self.conf.transfer_learning == 'fine-tuning':
+
+                # get full model for training
+                model = get_model(self.conf.model)
+                model.trainable = False
+                pretrained = load_model(
+                    model_filename=self.conf.transfer_learning_weights,
+                    model_dir=self.model_dir
+                )
+                model.set_weights(pretrained.get_weights())
+                logging.info(
+                    f"Load weights from {self.conf.transfer_learning_weights}")
+
+                # Freeze all the layers before the `fine_tune_at` layer
+                for layer in model.layers[
+                        :self.conf.transfer_learning_fine_tune_at]:
+                    layer.trainable = False
+
+                model.compile(
+                    loss=get_loss(self.conf.loss),
+                    optimizer=get_optimizer(
+                        self.conf.optimizer)(self.conf.learning_rate/10),
+                    metrics=get_metrics(self.conf.metrics)
+                )
+
             else:
                 # Get and compile the model
                 model = get_model(self.conf.model)
@@ -323,6 +354,14 @@ class CNNSegmentation(object):
             mean = None
             std = None
 
+        # gather metadata
+        if self.conf.metadata_regex is not None:
+            metadata = read_metadata(
+                self.conf.metadata_regex,
+                self.conf.input_bands,
+                self.conf.output_bands
+            )
+
         # Gather filenames to predict
         if len(self.conf.inference_regex_list) > 0:
             data_filenames = self.get_filenames(self.conf.inference_regex_list)
@@ -361,6 +400,19 @@ class CNNSegmentation(object):
                 try:
 
                     logging.info(f'Starting to predict {filename}')
+
+                    # if metadata is available
+                    if self.conf.metadata_regex is not None:
+
+                        # get timestamp from filename
+                        year_match = re.search(
+                            r'(\d{4})(\d{2})(\d{2})', filename)
+                        timestamp = str(int(year_match.group(2)))
+
+                        # get monthly values
+                        mean = metadata[timestamp]['median'].to_numpy()
+                        std = metadata[timestamp]['std'].to_numpy()
+                        self.conf.standardization = 'global'
 
                     # create lock file
                     open(lock_filename, 'w').close()
@@ -406,7 +458,6 @@ class CNNSegmentation(object):
                     window=self.conf.window_algorithm,
                     probability_map=self.conf.probability_map
                 )
-                # prediction[prediction < 0] = 0
 
                 # Drop image band to allow for a merge of mask
                 image = image.drop(

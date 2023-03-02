@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 import logging
 import numpy as np
@@ -8,7 +9,7 @@ from typing import Any
 from pathlib import Path
 from sklearn.model_selection import train_test_split
 from ...utils.data import get_mean_std_metadata, \
-    standardize_image, normalize_image
+    standardize_image, normalize_image, normalize_meanstd
 from ...utils.augmentations import center_crop
 
 
@@ -157,6 +158,10 @@ class RegressionDataLoader(object):
         """
         extension = Path(x).suffix
 
+        if self.conf.metadata_regex is not None:
+            year_match = re.search(r'(\d{4})(\d{2})(\d{2})', x)
+            timestamp = str(int(year_match.group(2)))
+
         # Read data
         if extension == '.npy':
             # TODO: make channel dim more dynamic
@@ -169,12 +174,19 @@ class RegressionDataLoader(object):
         else:
             sys.exit(f'{extension} format not supported.')
 
+        if len(y.shape) < 3:
+            y = np.expand_dims(y, axis=-1)
+
         # Normalize labels, default is diving by 1.0
         x = normalize_image(x, self.conf.normalize)
         y = normalize_image(y, self.conf.normalize_label)
 
         # Standardize
-        if self.conf.standardization is not None:
+        if self.conf.metadata_regex is not None:
+            x = normalize_meanstd(
+                x, self.metadata[timestamp], subtract='median'
+            )
+        elif self.conf.standardization is not None:
             x = standardize_image(
                 x, self.conf.standardization, self.mean, self.std)
 
