@@ -1,10 +1,18 @@
 [project]
 name = "tensorflow-caney"
-dynamic = ["version", "description"]
+authors = [
+    {name = "Jordan A. Caraballo-Vega", email = "jordan.a.caraballo-vega@nasa.gov"},
+    {name = "Caleb S. Spradlin", email = "caleb.s.spradlin@nasa.gov"}
+]
+description = "Methods for tensorflow deep learning applications"
+readme = "README.md"
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
 ]
+requires-python = ">=3.7"
+keywords = ["deep-learning", "machine-learning"]
+dynamic = ["version"]
 
 [build-system]
 requires = [
@@ -22,6 +30,12 @@ requires = [
 ]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools]
+packages = ["tensorflow_caney"]
+
+[tool.setuptools_scm]
+write_to = "tensorflow_caney/version.py"
+
 [tool.coverage.run]
 branch = true
 relative_files = true
@@ -35,3 +49,11 @@ fail_under = 95
 [tool.black]
 line-length = 88
 target-version = ['py38']
+
+[project.scripts]
+cnn_segmentation_cli = 'tensorflow_caney.view.cnn_segmentation_cli:main'
+cnn_regression_cli = 'tensorflow_caney.view.cnn_regression_cli:main'
+
+[project.optional-dependencies]
+test = ['pytest', 'coverage[toml]', 'black']
+docs = ['pdoc==8.0.1']
