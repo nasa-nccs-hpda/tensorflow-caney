@@ -8,10 +8,10 @@ import tensorflow as tf
 from typing import Any
 from pathlib import Path
 from sklearn.model_selection import train_test_split
-from ...utils.data import get_mean_std_metadata, \
+from tensorflow_caney.utils.data import get_mean_std_metadata, \
     standardize_image, normalize_image, read_metadata, \
     normalize_meanstd
-from ...utils.augmentations import center_crop
+from tensorflow_caney.utils.augmentations import center_crop
 
 
 AUTOTUNE = tf.data.experimental.AUTOTUNE
