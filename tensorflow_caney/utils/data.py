@@ -530,7 +530,11 @@ def normalize_image(image: np.ndarray, normalize: float):
     return image
 
 
-def rescale_image(image: np.ndarray, rescale_type: str = 'per-image'):
+def rescale_image(
+            image: np.ndarray,
+            rescale_type: str = 'per-image',
+            highest_value: int = 10000
+        ):
     """
     Rescale image [0, 1] per-image or per-channel.
     Args:
@@ -540,13 +544,20 @@ def rescale_image(image: np.ndarray, rescale_type: str = 'per-image'):
         rescaled np.ndarray
     """
     image = image.astype(np.float32)
+    mask = np.where(image[:, :, 0] >= 0, True, False)
+
     if rescale_type == 'per-image':
-        image = (image - np.min(image)) / (np.max(image) - np.min(image))
+        image = (image - np.min(image, initial=highest_value, where=mask)) \
+            / (np.max(image, initial=highest_value, where=mask)
+                - np.min(image, initial=highest_value, where=mask))
     elif rescale_type == 'per-channel':
         for i in range(image.shape[-1]):
             image[:, :, i] = (
-                image[:, :, i] - np.min(image[:, :, i])) / \
-                (np.max(image[:, :, i]) - np.min(image[:, :, i]))
+                image[:, :, i]
+                - np.min(image[:, :, i], initial=highest_value, where=mask)) \
+                / (np.max(image[:, :, i], initial=highest_value, where=mask)
+                    - np.min(image[:, :, i], initial=highest_value, where=mask)
+            )
     else:
         logging.info(f'Skipping based on invalid option: {rescale_type}')
     return image
@@ -606,10 +617,13 @@ def standardize_image(
     Loca, Global, and Mixed options.
     """
     image = image.astype(np.float32)
+    mask = np.where(image[:, :, 0] >= 0, True, False)
+
     if standardization_type == 'local':
         for i in range(image.shape[-1]):
-            image[:, :, i] = (image[:, :, i] - np.mean(image[:, :, i])) / \
-                (np.std(image[:, :, i]) + 1e-8)
+            image[:, :, i] = (
+                image[:, :, i] - np.mean(image[:, :, i], where=mask)) / \
+                (np.std(image[:, :, i], where=mask) + 1e-8)
     elif standardization_type == 'global':
         for i in range(image.shape[-1]):
             image[:, :, i] = (image[:, :, i] - mean[i]) / (std[i] + 1e-8)
