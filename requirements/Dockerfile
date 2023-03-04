@@ -67,8 +67,7 @@ RUN pip --no-cache-dir install omegaconf \
     sphinx \
     sphinx_rtd_theme \
     GDAL==`ogrinfo --version | grep -Eo '[0-9]\.[0-9]\.[0-9]+'` \
-    git+https://github.com/dshean/pygeotools.git@master \
-    git+https://github.com/nasa-nccs-hpda/vhr-cnn-chm.git@main
+    git+https://github.com/dshean/pygeotools.git@master
 
 HEALTHCHECK NONE
 ENTRYPOINT []

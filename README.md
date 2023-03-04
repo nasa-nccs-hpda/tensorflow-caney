@@ -5,6 +5,7 @@ Python package for lots of TensorFlow tools.
 [![DOI](https://zenodo.org/badge/471512673.svg)](https://zenodo.org/badge/latestdoi/471512673)
 ![CI Workflow](https://github.com/nasa-nccs-hpda/tensorflow-caney/actions/workflows/ci.yml/badge.svg)
 ![CI to DockerHub ](https://github.com/nasa-nccs-hpda/tensorflow-caney/actions/workflows/dockerhub.yml/badge.svg)
+![CI to DockerHub Dev ](https://github.com/nasa-nccs-hpda/tensorflow-caney/actions/workflows/dockerhub-dev.yml/badge.svg)
 ![Code style: PEP8](https://github.com/nasa-nccs-hpda/tensorflow-caney/actions/workflows/lint.yml/badge.svg)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Coverage Status](https://coveralls.io/repos/github/nasa-nccs-hpda/tensorflow-caney/badge.svg?branch=main)](https://coveralls.io/github/nasa-nccs-hpda/tensorflow-caney?branch=main)
