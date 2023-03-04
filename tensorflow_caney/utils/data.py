@@ -556,8 +556,8 @@ def rescale_image(
                 image[:, :, i]
                 - np.min(image[:, :, i], initial=highest_value, where=mask)) \
                 / (np.max(image[:, :, i], initial=highest_value, where=mask)
-                    - np.min(image[:, :, i], initial=highest_value, where=mask)
-            )
+                    - np.min(
+                        image[:, :, i], initial=highest_value, where=mask))
     else:
         logging.info(f'Skipping based on invalid option: {rescale_type}')
     return image
