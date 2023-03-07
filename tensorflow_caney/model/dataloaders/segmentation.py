@@ -3,7 +3,7 @@ import re
 import sys
 import logging
 import numpy as np
-import rioxarry as rxr
+import rioxarray as rxr
 import tensorflow as tf
 from typing import Any
 from pathlib import Path
