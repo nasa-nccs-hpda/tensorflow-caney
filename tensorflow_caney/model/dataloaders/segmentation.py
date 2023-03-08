@@ -35,7 +35,7 @@ class SegmentationDataLoader(object):
 
         # Filename with mean and std metadata
         self.metadata_output_filename = os.path.join(
-            self.conf.data_dir, f'mean-std-{self.conf.experiment_name}.csv')
+            self.conf.model_dir, f'mean-std-{self.conf.experiment_name}.csv')
         self.mean = None
         self.std = None
 
