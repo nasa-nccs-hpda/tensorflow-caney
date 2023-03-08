@@ -22,7 +22,8 @@ from tensorflow_caney.utils.data import read_dataset_csv, \
     modify_label_classes, get_dataset_filenames, get_mean_std_dataset, \
     get_mean_std_metadata, read_metadata
 from tensorflow_caney.utils import indices
-from tensorflow_caney.utils.segmentation_tools import SegmentationDataLoader
+from tensorflow_caney.model.dataloaders.segmentation import \
+    SegmentationDataLoader
 from tensorflow_caney.utils.losses import get_loss
 from tensorflow_caney.utils.model import load_model, get_model
 from tensorflow_caney.utils.optimizers import get_optimizer
