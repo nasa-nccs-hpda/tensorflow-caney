@@ -64,6 +64,7 @@ RUN pip --no-cache-dir install omegaconf \
     pytest \
     coveralls \
     rtree \
+    rasterstats \
     sphinx \
     sphinx_rtd_theme \
     GDAL==`ogrinfo --version | grep -Eo '[0-9]\.[0-9]\.[0-9]+'` \
