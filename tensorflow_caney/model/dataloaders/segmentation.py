@@ -181,7 +181,8 @@ class SegmentationDataLoader(object):
         x = normalize_image(x, self.conf.normalize)
 
         # Standardize
-        if self.conf.metadata_regex is not None:
+        if self.conf.metadata_regex is not None and \
+                self.conf.standardization is not None:
             x = normalize_meanstd(
                 x, self.metadata[timestamp], subtract='median'
             )
