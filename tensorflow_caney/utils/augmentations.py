@@ -4,8 +4,7 @@ __all__ = ["center_crop"]
 
 
 def center_crop(image: np.array, dim):
-    """
-    Center crop numpy array.
+    """Center crop numpy array
 
     :param image: image to be center cropped
     :type image: np.array
@@ -15,7 +14,6 @@ def center_crop(image: np.array, dim):
     :rtype: np.array
     """
     width, height = image.shape[1], image.shape[0]
-
     # process crop width and height for max available dimension
     crop_width = dim[0] if dim[0] < image.shape[1] else image.shape[1]
     crop_height = dim[1] if dim[1] < image.shape[0] else image.shape[0]
