@@ -3,7 +3,7 @@ import numpy as np
 __all__ = ["center_crop"]
 
 
-def center_crop(image: np.array, dim):
+def center_crop(image: np.array, dim: tuple) -> np.array:
     """Center crop numpy array
 
     :param image: image to be center cropped
