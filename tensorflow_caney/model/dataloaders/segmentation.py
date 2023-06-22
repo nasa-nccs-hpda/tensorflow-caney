@@ -9,8 +9,7 @@ from typing import Any
 from pathlib import Path
 from sklearn.model_selection import train_test_split
 from tensorflow_caney.utils.data import get_mean_std_metadata, \
-    standardize_image, normalize_image, read_metadata, \
-    normalize_meanstd
+    standardize_image, read_metadata, normalize_meanstd
 from tensorflow_caney.utils.augmentations import center_crop
 
 
@@ -178,7 +177,8 @@ class SegmentationDataLoader(object):
             y = np.expand_dims(y, axis=-1)
 
         # Normalize labels, default is diving by 1.0
-        x = normalize_image(x, self.conf.normalize)
+        # Normalization should be done at preprocessing step
+        # x = normalize_image(x, self.conf.normalize)
 
         # Standardize
         if self.conf.metadata_regex is not None and \

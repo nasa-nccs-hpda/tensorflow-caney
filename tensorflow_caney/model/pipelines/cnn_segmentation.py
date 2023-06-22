@@ -6,12 +6,15 @@ import logging
 import argparse
 import omegaconf
 import rasterio
+import cupy as cp
 import numpy as np
 import xarray as xr
 import rioxarray as rxr
 
 from glob import glob
 from pathlib import Path
+from omegaconf import OmegaConf
+from multiprocessing import Pool, cpu_count
 from omegaconf.listconfig import ListConfig
 
 from tensorflow_caney.model.config.cnn_config import Config
@@ -32,7 +35,7 @@ from tensorflow_caney.utils.callbacks import get_callbacks
 from tensorflow_caney.inference import inference
 
 CHUNKS = {'band': 'auto', 'x': 'auto', 'y': 'auto'}
-xp = np
+xp = cp
 
 
 __status__ = "Development"
@@ -71,6 +74,9 @@ class CNNSegmentation(object):
 
         self.model_dir = self.conf.model_dir
         os.makedirs(self.model_dir, exist_ok=True)
+
+        # save configuration into the model directory
+        OmegaConf.save(self.conf, os.path.join(self.model_dir, 'config.yaml'))
 
         # Seed everything
         seed_everything(self.conf.seed)
@@ -124,9 +130,89 @@ class CNNSegmentation(object):
         return sorted(filenames)
 
     # -------------------------------------------------------------------------
+    # preprocess_subprocess
+    # -------------------------------------------------------------------------
+    def _preprocess_subprocess(
+                self,
+                index_id: int,
+                data_filename: str,
+                label_filename: str,
+                n_tiles: int
+            ) -> None:
+        """
+        Preprocess subprocess for parallelization.
+        """
+        logging.info(f'Processing {Path(data_filename).stem}')
+
+        # Read imagery from disk and process both image and mask
+        image = rxr.open_rasterio(data_filename, chunks=CHUNKS).load()
+        label = rxr.open_rasterio(label_filename, chunks=CHUNKS).values
+        logging.info(f'Image: {image.shape}, Label: {label.shape}')
+
+        # Calculate indices and append to the original raster
+        image = indices.add_indices(
+            xraster=image, input_bands=self.conf.input_bands,
+            output_bands=self.conf.output_bands)
+        logging.info(f'Image: {image.shape}, Label: {label.shape}')
+
+        # Lower the number of bands if required
+        image = modify_bands(
+            xraster=image, input_bands=self.conf.input_bands,
+            output_bands=self.conf.output_bands)
+        logging.info(f'Image: {image.shape}, Label: {label.shape}')
+
+        logging.info(
+            f'Image min={image.min().values}, max={image.max().values}')
+
+        # convert imagery to array
+        image = image.values
+
+        # Move from chw to hwc, squeze mask if required
+        image = np.moveaxis(image, 0, -1)
+        label = np.squeeze(label) if len(label.shape) != 2 else label
+        logging.info(f'Image: {image.shape}, Label: {label.shape}')
+        logging.info(f'Label classes min {label.min()}, max {label.max()}')
+
+        # Normalize values within [0, 1] range
+        image = normalize_image(image, self.conf.normalize)
+
+        # Rescale values within [0, 1] range
+        image = rescale_image(image, self.conf.rescale)
+
+        # Modify labels, sometimes we need to merge some training classes
+        label = modify_label_classes(
+            label, self.conf.modify_labels, self.conf.substract_labels)
+        logging.info(f'Label classes min {label.min()}, max {label.max()}')
+
+        # Making labels int type and grabbing some information
+        label = label.astype(np.uint8)
+        logging.info(f'Label classes min {label.min()}, max {label.max()}')
+
+        # generate random tiles
+        gen_random_tiles(
+            image=image,
+            label=label,
+            expand_dims=self.conf.expand_dims,
+            tile_size=self.conf.tile_size,
+            index_id=index_id,
+            num_classes=self.conf.n_classes,
+            max_patches=n_tiles,
+            include=self.conf.include_classes,
+            augment=self.conf.augment,
+            output_filename=data_filename,
+            out_image_dir=self.images_dir,
+            out_label_dir=self.labels_dir,
+            json_tiles_dir=self.conf.json_tiles_dir,
+            dataset_from_json=self.conf.dataset_from_json,
+            xp=np
+        )
+
+        return
+
+    # -------------------------------------------------------------------------
     # preprocess
     # -------------------------------------------------------------------------
-    def preprocess(self) -> None:
+    def preprocess(self, enable_multiprocessing: bool = True) -> None:
         """
         Perform general preprocessing.
         """
@@ -136,70 +222,29 @@ class CNNSegmentation(object):
         data_df = read_dataset_csv(self.data_csv)
         self.logger.info(data_df)
 
-        # iterate over each file and generate dataset
-        for index_id, (data_filename, label_filename, n_tiles) \
-                in enumerate(data_df.values):
-
-            logging.info(f'Processing {Path(data_filename).stem}')
-
-            # Read imagery from disk and process both image and mask
-            image = rxr.open_rasterio(data_filename, chunks=CHUNKS).load()
-            label = rxr.open_rasterio(label_filename, chunks=CHUNKS).values
-            logging.info(f'Image: {image.shape}, Label: {label.shape}')
-
-            # Calculate indices and append to the original raster
-            image = indices.add_indices(
-                xraster=image, input_bands=self.conf.input_bands,
-                output_bands=self.conf.output_bands)
-            logging.info(f'Image: {image.shape}, Label: {label.shape}')
-
-            # Lower the number of bands if required
-            image = modify_bands(
-                xraster=image, input_bands=self.conf.input_bands,
-                output_bands=self.conf.output_bands)
-            logging.info(f'Image: {image.shape}, Label: {label.shape}')
-
-            image = image.values
-
-            # Move from chw to hwc, squeze mask if required
-            image = xp.moveaxis(image, 0, -1)
-            label = xp.squeeze(label) if len(label.shape) != 2 else label
-            logging.info(f'Image: {image.shape}, Label: {label.shape}')
-            logging.info(f'Label classes min {label.min()}, max {label.max()}')
-
-            # Normalize values within [0, 1] range
-            image = normalize_image(image, self.conf.normalize)
-
-            # Rescale values within [0, 1] range
-            image = rescale_image(image, self.conf.rescale)
-
-            # Modify labels, sometimes we need to merge some training classes
-            label = modify_label_classes(
-                label, self.conf.modify_labels, self.conf.substract_labels)
-            logging.info(f'Label classes min {label.min()}, max {label.max()}')
-
-            # Making labels int type and grabbing some information
-            label = label.astype(np.uint8)
-            logging.info(f'Label classes min {label.min()}, max {label.max()}')
-
-            # generate random tiles
-            gen_random_tiles(
-                image=image,
-                label=label,
-                expand_dims=self.conf.expand_dims,
-                tile_size=self.conf.tile_size,
-                index_id=index_id,
-                num_classes=self.conf.n_classes,
-                max_patches=n_tiles,
-                include=self.conf.include_classes,
-                augment=self.conf.augment,
-                output_filename=data_filename,
-                out_image_dir=self.images_dir,
-                out_label_dir=self.labels_dir,
-                json_tiles_dir=self.conf.json_tiles_dir,
-                dataset_from_json=self.conf.dataset_from_json,
-                xp=xp
+        # Multiprocessing, use all cores in the system
+        if enable_multiprocessing:
+            p = Pool(processes=cpu_count())
+            p.starmap(
+                self._preprocess_subprocess,
+                zip(
+                    range(data_df.shape[0]),
+                    data_df['data'].to_list(),
+                    data_df['label'].to_list(),
+                    data_df['ntiles'].to_list()
+                )
             )
+        else:
+            # iterate over each file and generate dataset
+            for index_id, (data_filename, label_filename, n_tiles) \
+                    in enumerate(data_df.values):
+
+                self._preprocess_subprocess(
+                    index_id,
+                    data_filename,
+                    label_filename,
+                    n_tiles
+                )
 
         # Calculate mean and std values for training
         data_filenames = get_dataset_filenames(self.images_dir)
@@ -339,7 +384,8 @@ class CNNSegmentation(object):
         # Load model for inference
         model = load_model(
             model_filename=self.conf.model_filename,
-            model_dir=self.model_dir
+            model_dir=self.model_dir,
+            conf=self.conf
         )
 
         # Retrieve mean and std, there should be a more ideal place
@@ -437,28 +483,37 @@ class CNNSegmentation(object):
                     output_bands=self.conf.output_bands)
                 logging.info(f'Prediction shape after modf: {image.shape}')
 
+                logging.info(
+                    f'Prediction min={image.min().values}, max={image.max().values}')
+
                 # Transpose the image for channel last format
                 image = image.transpose("y", "x", "band")
 
                 # Remove no-data values to account for edge effects
                 temporary_tif = xr.where(image > -100, image, 600)
 
+                print("ENTERING PREDICTION")
+
                 # Sliding window prediction
-                prediction = inference.sliding_window_tiler_multiclass(
-                    xraster=temporary_tif,
-                    model=model,
-                    n_classes=self.conf.n_classes,
-                    overlap=self.conf.inference_overlap,
-                    batch_size=self.conf.pred_batch_size,
-                    threshold=self.conf.inference_treshold,
-                    standardization=self.conf.standardization,
-                    mean=mean,
-                    std=std,
-                    normalize=self.conf.normalize,
-                    rescale=self.conf.rescale,
-                    window=self.conf.window_algorithm,
-                    probability_map=self.conf.probability_map
-                )
+                prediction = \
+                    inference.sliding_window_tiler_multiclass(
+                        xraster=temporary_tif,
+                        model=model,
+                        n_classes=self.conf.n_classes,
+                        overlap=self.conf.inference_overlap,
+                        batch_size=self.conf.pred_batch_size,
+                        threshold=self.conf.inference_treshold,
+                        standardization=self.conf.standardization,
+                        mean=mean,
+                        std=std,
+                        normalize=self.conf.normalize,
+                        rescale=self.conf.rescale,
+                        window=self.conf.window_algorithm,
+                        probability_map=self.conf.probability_map
+                    )
+
+                if isinstance(prediction, tuple):
+                    prediction, probability = prediction
 
                 # Drop image band to allow for a merge of mask
                 image = image.drop(
@@ -496,6 +551,45 @@ class CNNSegmentation(object):
                 )
                 del prediction
 
+                print(Path(output_filename).with_suffix('.tif'))
+
+                """
+                # save probability map
+                if self.conf.probability_map:
+
+                    probability = xr.DataArray(
+                        np.expand_dims(probability[0], axis=-1),
+                        name=self.conf.experiment_type,
+                        coords=image.coords,
+                        dims=image.dims,
+                        attrs=image.attrs
+                    )
+
+                    # Add metadata to raster attributes
+                    probability.attrs['long_name'] = (
+                        self.conf.experiment_type)
+                    probability.attrs['model_name'] = (
+                        self.conf.model_filename)
+                    probability = probability.transpose("band", "y", "x")
+
+                    # Set nodata values on mask
+                    nodata = probability.rio.nodata
+                    probability = probability.where(image != nodata)
+                    probability.rio.write_nodata(
+                        self.conf.prediction_nodata,
+                        encoded=True, inplace=True
+                    )
+
+                    # Save output raster file to disk
+                    probability.rio.to_raster(
+                        output_filename,
+                        BIGTIFF="IF_SAFER",
+                        compress=self.conf.prediction_compress,
+                        driver=self.conf.prediction_driver,
+                        dtype='float32'
+                    )
+                    del probability
+                """
                 # delete lock file
                 try:
                     os.remove(lock_filename)
