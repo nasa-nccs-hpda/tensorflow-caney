@@ -162,6 +162,9 @@ class Config:
     # Threshold used for binary classification
     inference_treshold: Optional[float] = 0.5
 
+    # Inference padding value to replace no-data boundaries
+    inference_pad_value: Optional[int] = 2000
+
     # Window algorithm for smoothing prediction
     window_algorithm: Optional[str] = 'triang'
 
