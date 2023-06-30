@@ -253,7 +253,6 @@ class CNNSegmentation(object):
         label_filenames = get_dataset_filenames(self.labels_dir)
         logging.info(f'Mean and std values from {len(data_filenames)} files.')
 
-        """
         # Temporarily disable standardization and augmentation
         current_standardization = self.conf.standardization
         self.conf.standardization = None
@@ -274,7 +273,7 @@ class CNNSegmentation(object):
 
         # Re-enable standardization for next pipeline step
         self.conf.standardization = current_standardization
-        """
+
         return
 
     # -------------------------------------------------------------------------
@@ -487,7 +486,8 @@ class CNNSegmentation(object):
                 logging.info(f'Prediction shape after modf: {image.shape}')
 
                 logging.info(
-                    f'Prediction min={image.min().values}, max={image.max().values}')
+                    f'Prediction min={image.min().values}, ' +
+                    f'max={image.max().values}')
 
                 # Transpose the image for channel last format
                 image = image.transpose("y", "x", "band")
