@@ -22,6 +22,6 @@ except DistributionNotFound:  # pragma: no cover
 __version__ = VERSION
 
 __all__ = [
-    "deeplabv3_plus", "unet", "unet_regression", "segmentation_unet"
-    "regression_unet", "losses", "regression_unet", "binary_focal_loss"
+    "deeplabv3_plus", "unet", "unet_regression", "segmentation_unet",
+    "regression_unet", "losses", "regression_unet", "binary_focal_loss",
 ]

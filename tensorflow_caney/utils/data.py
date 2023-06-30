@@ -104,10 +104,13 @@ def gen_random_tiles(
             continue
 
         # balancing for binary classes, only applies to binary problem
-        if binary_balance != 0 and \
-            xp.count_nonzero(label_tile == 1) < \
-            int(label_tile.shape[0] * label_tile.shape[1] * binary_balance):
-           continue
+        if binary_balance != 0 and xp.count_nonzero(label_tile == 1) < \
+                int(
+                        label_tile.shape[0] *
+                        label_tile.shape[1] *
+                        binary_balance
+                ):
+            continue
 
         # ---
         # fourth condition, If given a tolerance for nodata,
