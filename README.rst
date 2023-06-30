@@ -1,9 +1,15 @@
-Template for the Read the Docs tutorial
-=======================================
+================
+tensorflow-caney
+================
 
-This GitHub template includes fictional Python library
-with some basic Sphinx docs.
+.. image:: https://github.com/nasa-nccs-hpda/tensorflow-caney/actions/workflows/lint.yml/badge.svg
+        :target: https://github.com/nasa-nccs-hpda/tensorflow-caney/actions/workflows/lint.yml
 
-Read the tutorial here:
+Objectives
+------------
 
-https://docs.readthedocs.io/en/stable/tutorial/
+- Library to process remote sensing imagery using GPU and CPU parallelization.
+- Machine Learning and Deep Learning image classification and regression.
+- Agnostic array and vector-like data structures.
+- User interface environments via Notebooks for easy to use AI/ML projects.
+- Example notebooks for quick AI/ML start with your own data.

@@ -1,16 +1,17 @@
-.. tensorflow_caney documentation master file, created by
-   sphinx-quickstart on Wed Mar 22 15:46:52 2023.
+.. tensorflow-caney's documentation master file, created by
+   sphinx-quickstart on Fri Jun 23 11:32:18 2023.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to tensorflow_caney's documentation!
-============================================
+Welcome to tensorflow-caney's documentation!
+=========================================
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
-
+   readme
+   examples
 
 Indices and tables
 ==================
