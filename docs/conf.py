@@ -23,17 +23,15 @@ author = 'Jordan A. Caraballo-Vega'
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
-    "sphinx.ext.autodoc",
-    "sphinx_autodoc_typehints",
-    "jupyter_sphinx.execute",
+    'sphinx.ext.autodoc',
+    'sphinx_autodoc_typehints',
+    'jupyter_sphinx.execute',
     "sphinx.ext.intersphinx",
     "sphinx.ext.viewcode",
     "sphinx.ext.napoleon",
     "sphinx_click.ext",
     "sphinx.ext.githubpages",
     "nbsphinx",
-    "myst_nb",
-    #"myst_parser",
 ]
 
 intersphinx_mapping = {
@@ -48,12 +46,12 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-source_suffix ={
-    '.rst': 'restructuredtext',
-    '.txt': 'markdown',
-    '.md': 'markdown',
-    '.ipynb': 'myst-nb'
-}
+#source_suffix ={
+#    '.rst': 'restructuredtext',
+#    '.txt': 'markdown',
+#    '.md': 'markdown',
+#    '.ipynb': 'myst-nb'
+#}
 master_doc = "index"
 
 version = release = tensorflow_caney.__version__
