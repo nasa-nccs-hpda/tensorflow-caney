@@ -6,6 +6,9 @@ on:
   #release:
   #  types: [ created ]
 
+env:
+  SM_FRAMEWORK: "tf.keras"
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
