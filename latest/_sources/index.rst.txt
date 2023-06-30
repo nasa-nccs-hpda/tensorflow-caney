@@ -12,6 +12,7 @@ Welcome to tensorflow-caney's documentation!
 
    readme
    examples
+   modules
 
 Indices and tables
 ==================

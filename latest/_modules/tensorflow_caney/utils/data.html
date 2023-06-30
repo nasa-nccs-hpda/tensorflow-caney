@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tensorflow_caney.utils.data &mdash; tensorflow-caney 0.2.5 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            tensorflow-caney
+          </a>
+              <div class="version">
+                0.2.5
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../readme.html">tensorflow-caney</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">tensorflow-caney package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">tensorflow-caney</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tensorflow_caney.utils.data</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tensorflow_caney.utils.data</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">glob</span> <span class="kn">import</span> <span class="n">glob</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">rioxarray</span> <span class="k">as</span> <span class="nn">rxr</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="kn">from</span> <span class="nn">numba</span> <span class="kn">import</span> <span class="n">jit</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">cupy</span> <span class="k">as</span> <span class="nn">cp</span>
+    <span class="n">HAS_GPU</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">HAS_GPU</span> <span class="o">=</span> <span class="kc">False</span>
+
+
+<div class="viewcode-block" id="gen_random_tiles"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.gen_random_tiles">[docs]</a><span class="k">def</span> <span class="nf">gen_random_tiles</span><span class="p">(</span>
+            <span class="n">image</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+            <span class="n">label</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+            <span class="n">index_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="n">num_classes</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="n">tile_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">128</span><span class="p">,</span>
+            <span class="n">expand_dims</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">max_patches</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">include</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">augment</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">output_filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;image&#39;</span><span class="p">,</span>
+            <span class="n">out_image_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;image&#39;</span><span class="p">,</span>
+            <span class="n">out_label_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;label&#39;</span><span class="p">,</span>
+            <span class="n">no_data</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">10001</span><span class="p">,</span>
+            <span class="n">nodata_fractional</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">nodata_fractional_tolerance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.75</span><span class="p">,</span>
+            <span class="n">json_tiles_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">dataset_from_json</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">xp</span><span class="o">=</span><span class="n">np</span><span class="p">,</span>
+            <span class="n">use_case</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;segmentation&#39;</span><span class="p">,</span>
+            <span class="n">binary_balance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+    <span class="c1"># verify the existance of json files to load dataset from</span>
+    <span class="k">if</span> <span class="n">json_tiles_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">dataset_from_json</span><span class="p">:</span>
+
+        <span class="n">json_files</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">json_tiles_dir</span><span class="p">,</span> <span class="s1">&#39;*.json&#39;</span><span class="p">)),</span>
+            <span class="n">key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span>
+        <span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">json_files</span><span class="p">)</span><span class="si">}</span><span class="s1"> json dataset files.&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">json_files</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">gen_random_tiles_from_json</span><span class="p">(</span>
+                <span class="n">json_files</span><span class="p">,</span>
+                <span class="n">image</span><span class="p">,</span>
+                <span class="n">label</span><span class="p">,</span>
+                <span class="n">index_id</span><span class="p">,</span>
+                <span class="n">num_classes</span><span class="p">,</span>
+                <span class="n">tile_size</span><span class="p">,</span>
+                <span class="n">augment</span><span class="p">,</span>
+                <span class="n">expand_dims</span><span class="p">,</span>
+                <span class="n">out_image_dir</span><span class="p">,</span>
+                <span class="n">out_label_dir</span>
+            <span class="p">)</span>
+
+    <span class="n">generated_tiles</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># counter for generated tiles</span>
+    <span class="n">metadata</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="k">while</span> <span class="n">generated_tiles</span> <span class="o">&lt;</span> <span class="n">max_patches</span><span class="p">:</span>
+
+        <span class="c1"># Generate random integers from image</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">tile_size</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">tile_size</span><span class="p">)</span>
+
+        <span class="c1"># Generate img and mask patches</span>
+        <span class="n">image_tile</span> <span class="o">=</span> <span class="n">image</span><span class="p">[</span><span class="n">y</span><span class="p">:(</span><span class="n">y</span> <span class="o">+</span> <span class="n">tile_size</span><span class="p">),</span> <span class="n">x</span><span class="p">:(</span><span class="n">x</span> <span class="o">+</span> <span class="n">tile_size</span><span class="p">)]</span>
+        <span class="n">label_tile</span> <span class="o">=</span> <span class="n">label</span><span class="p">[</span><span class="n">y</span><span class="p">:(</span><span class="n">y</span> <span class="o">+</span> <span class="n">tile_size</span><span class="p">),</span> <span class="n">x</span><span class="p">:(</span><span class="n">x</span> <span class="o">+</span> <span class="n">tile_size</span><span class="p">)]</span>
+
+        <span class="c1"># make sure new tile has the same size</span>
+        <span class="k">if</span> <span class="n">image_tile</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">tile_size</span> <span class="ow">or</span> \
+                <span class="n">image_tile</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">tile_size</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># first condition, time must have valid classes</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">image_tile</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">&lt;</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">or</span> <span class="n">label_tile</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> \
+                <span class="ow">and</span> <span class="n">use_case</span> <span class="o">==</span> <span class="s1">&#39;segmentation&#39;</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">label_tile</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">num_classes</span> <span class="ow">and</span> <span class="n">use_case</span> <span class="o">==</span> <span class="s1">&#39;segmentation&#39;</span><span class="p">):</span>
+            <span class="k">continue</span>
+
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">image_tile</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">()</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">label_tile</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># second condition, if want zero nodata values, skip</span>
+        <span class="k">if</span> <span class="n">xp</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">image_tile</span> <span class="o">==</span> <span class="n">no_data</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">nodata_fractional</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># third condition, if include, number of labels must be at least 2</span>
+        <span class="k">if</span> <span class="n">include</span> <span class="ow">and</span> <span class="n">xp</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">label_tile</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># balancing for binary classes, only applies to binary problem</span>
+        <span class="k">if</span> <span class="n">binary_balance</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">xp</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">label_tile</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&lt;</span> \
+                <span class="nb">int</span><span class="p">(</span>
+                        <span class="n">label_tile</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span>
+                        <span class="n">label_tile</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span>
+                        <span class="n">binary_balance</span>
+                <span class="p">):</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># ---</span>
+        <span class="c1"># fourth condition, If given a tolerance for nodata,</span>
+        <span class="c1"># check amount against tolerance</span>
+        <span class="c1"># ---</span>
+        <span class="n">nodata_in_tile</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">image_tile</span> <span class="o">==</span> <span class="n">no_data</span><span class="p">)</span>
+        <span class="n">nodata_frac</span> <span class="o">=</span> <span class="p">(</span><span class="n">nodata_in_tile</span> <span class="o">/</span> <span class="n">image_tile</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">nodata_frac</span> <span class="o">&gt;=</span> <span class="n">nodata_fractional_tolerance</span> <span class="ow">and</span> <span class="n">nodata_fractional</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># Add to the tiles counter</span>
+        <span class="n">generated_tiles</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">Path</span><span class="p">(</span><span class="n">output_filename</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">generated_tiles</span><span class="si">}</span><span class="s1">.npy&#39;</span>
+        <span class="n">metadata</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="n">x</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="n">y</span><span class="p">}</span>
+
+        <span class="c1"># Apply some random transformations</span>
+        <span class="k">if</span> <span class="n">augment</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="n">xp</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_sample</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">:</span>
+                <span class="n">metadata</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="s1">&#39;fliplr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">image_tile</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">fliplr</span><span class="p">(</span><span class="n">image_tile</span><span class="p">)</span>
+                <span class="n">label_tile</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">fliplr</span><span class="p">(</span><span class="n">label_tile</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">xp</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_sample</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">:</span>
+                <span class="n">metadata</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="s1">&#39;flipud&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">image_tile</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">flipud</span><span class="p">(</span><span class="n">image_tile</span><span class="p">)</span>
+                <span class="n">label_tile</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">flipud</span><span class="p">(</span><span class="n">label_tile</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">xp</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_sample</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">:</span>
+                <span class="n">metadata</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="s1">&#39;rot90&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">image_tile</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">rot90</span><span class="p">(</span><span class="n">image_tile</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">label_tile</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">rot90</span><span class="p">(</span><span class="n">label_tile</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">xp</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_sample</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">:</span>
+                <span class="n">metadata</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="s1">&#39;rot180&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">image_tile</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">rot90</span><span class="p">(</span><span class="n">image_tile</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+                <span class="n">label_tile</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">rot90</span><span class="p">(</span><span class="n">label_tile</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">xp</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_sample</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">:</span>
+                <span class="n">metadata</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="s1">&#39;rot270&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">image_tile</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">rot90</span><span class="p">(</span><span class="n">image_tile</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+                <span class="n">label_tile</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">rot90</span><span class="p">(</span><span class="n">label_tile</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">num_classes</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">label_tile</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">num_classes</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;uint8&#39;</span><span class="p">)[</span><span class="n">label_tile</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">expand_dims</span><span class="p">:</span>
+                <span class="n">label_tile</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">label_tile</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># save tiles to disk</span>
+        <span class="n">xp</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out_image_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">),</span> <span class="n">image_tile</span><span class="p">)</span>
+        <span class="n">xp</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out_label_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">),</span> <span class="n">label_tile</span><span class="p">)</span>
+
+    <span class="c1"># set json name to store values of random tiles for reproducibility</span>
+    <span class="k">if</span> <span class="n">json_tiles_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+
+        <span class="c1"># create output directory</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">json_tiles_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># set output filename</span>
+        <span class="n">json_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">json_tiles_dir</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">Path</span><span class="p">(</span><span class="n">output_filename</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s1">_dataset_metadata.json&#39;</span><span class="p">)</span>
+
+        <span class="c1"># store dict output into json file</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">json_name</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">metadata_outfile</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span> <span class="n">metadata_outfile</span><span class="p">)</span>
+
+    <span class="k">return</span></div>
+
+
+<div class="viewcode-block" id="gen_random_tiles_from_json"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.gen_random_tiles_from_json">[docs]</a><span class="k">def</span> <span class="nf">gen_random_tiles_from_json</span><span class="p">(</span>
+            <span class="n">json_metadata</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+            <span class="n">image</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+            <span class="n">label</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+            <span class="n">index_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="n">num_classes</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="n">tile_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">128</span><span class="p">,</span>
+            <span class="n">augment</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">expand_dims</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">out_image_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;image&#39;</span><span class="p">,</span>
+            <span class="n">out_label_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;label&#39;</span><span class="p">,</span>
+        <span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Precursor of gen_random_tiles, where a json file is accepted.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">json_filename</span> <span class="o">=</span> <span class="n">json_metadata</span><span class="p">[</span><span class="n">index_id</span><span class="p">]</span>
+    <span class="c1"># data_basename = Path(output_filename).stem</span>
+    <span class="c1"># json_filename = [i for i in json_metadata if data_basename in i][0]</span>
+
+    <span class="c1"># load json filename</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">json_filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">j</span><span class="p">:</span>
+        <span class="n">tiles_metadata</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+
+    <span class="k">for</span> <span class="n">tile_filename</span> <span class="ow">in</span> <span class="n">tiles_metadata</span><span class="p">:</span>
+
+        <span class="c1"># Tile indices</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">tiles_metadata</span><span class="p">[</span><span class="n">tile_filename</span><span class="p">][</span><span class="s1">&#39;x&#39;</span><span class="p">]</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">tiles_metadata</span><span class="p">[</span><span class="n">tile_filename</span><span class="p">][</span><span class="s1">&#39;y&#39;</span><span class="p">]</span>
+
+        <span class="c1"># Generate img and mask patches</span>
+        <span class="n">image_tile</span> <span class="o">=</span> <span class="n">image</span><span class="p">[</span><span class="n">y</span><span class="p">:(</span><span class="n">y</span> <span class="o">+</span> <span class="n">tile_size</span><span class="p">),</span> <span class="n">x</span><span class="p">:(</span><span class="n">x</span> <span class="o">+</span> <span class="n">tile_size</span><span class="p">)]</span>
+        <span class="n">label_tile</span> <span class="o">=</span> <span class="n">label</span><span class="p">[</span><span class="n">y</span><span class="p">:(</span><span class="n">y</span> <span class="o">+</span> <span class="n">tile_size</span><span class="p">),</span> <span class="n">x</span><span class="p">:(</span><span class="n">x</span> <span class="o">+</span> <span class="n">tile_size</span><span class="p">)]</span>
+
+        <span class="c1"># Apply some random transformations</span>
+        <span class="k">if</span> <span class="n">augment</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="s1">&#39;fliplr&#39;</span> <span class="ow">in</span> <span class="n">tiles_metadata</span><span class="p">[</span><span class="n">tile_filename</span><span class="p">]:</span>
+                <span class="n">image_tile</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">fliplr</span><span class="p">(</span><span class="n">image_tile</span><span class="p">)</span>
+                <span class="n">label_tile</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">fliplr</span><span class="p">(</span><span class="n">label_tile</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="s1">&#39;flipud&#39;</span> <span class="ow">in</span> <span class="n">tiles_metadata</span><span class="p">[</span><span class="n">tile_filename</span><span class="p">]:</span>
+                <span class="n">image_tile</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">flipud</span><span class="p">(</span><span class="n">image_tile</span><span class="p">)</span>
+                <span class="n">label_tile</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">flipud</span><span class="p">(</span><span class="n">label_tile</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="s1">&#39;rot90&#39;</span> <span class="ow">in</span> <span class="n">tiles_metadata</span><span class="p">[</span><span class="n">tile_filename</span><span class="p">]:</span>
+                <span class="n">image_tile</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">rot90</span><span class="p">(</span><span class="n">image_tile</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">label_tile</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">rot90</span><span class="p">(</span><span class="n">label_tile</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="s1">&#39;rot180&#39;</span> <span class="ow">in</span> <span class="n">tiles_metadata</span><span class="p">[</span><span class="n">tile_filename</span><span class="p">]:</span>
+                <span class="n">image_tile</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">rot90</span><span class="p">(</span><span class="n">image_tile</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+                <span class="n">label_tile</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">rot90</span><span class="p">(</span><span class="n">label_tile</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="s1">&#39;rot270&#39;</span> <span class="ow">in</span> <span class="n">tiles_metadata</span><span class="p">[</span><span class="n">tile_filename</span><span class="p">]:</span>
+                <span class="n">image_tile</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">rot90</span><span class="p">(</span><span class="n">image_tile</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+                <span class="n">label_tile</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">rot90</span><span class="p">(</span><span class="n">label_tile</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">num_classes</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">label_tile</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">num_classes</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;uint8&#39;</span><span class="p">)[</span><span class="n">label_tile</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">expand_dims</span><span class="p">:</span>
+                <span class="n">label_tile</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">label_tile</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># save tiles to disk</span>
+        <span class="n">cp</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out_image_dir</span><span class="p">,</span> <span class="n">tile_filename</span><span class="p">),</span> <span class="n">image_tile</span><span class="p">)</span>
+        <span class="n">cp</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out_label_dir</span><span class="p">,</span> <span class="n">tile_filename</span><span class="p">),</span> <span class="n">label_tile</span><span class="p">)</span>
+    <span class="k">return</span></div>
+
+
+<div class="viewcode-block" id="gen_augmented_tiles"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.gen_augmented_tiles">[docs]</a><span class="k">def</span> <span class="nf">gen_augmented_tiles</span><span class="p">(</span>
+            <span class="n">image</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+            <span class="n">label</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+            <span class="n">index_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="n">num_classes</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="n">tile_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">128</span><span class="p">,</span>
+            <span class="n">expand_dims</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">max_patches</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">include</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">output_filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;image&#39;</span><span class="p">,</span>
+            <span class="n">out_image_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;image&#39;</span><span class="p">,</span>
+            <span class="n">out_label_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;label&#39;</span><span class="p">,</span>
+            <span class="n">no_data</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">10001</span><span class="p">,</span>
+            <span class="n">nodata_fractional</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">nodata_fractional_tolerance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.75</span><span class="p">,</span>
+            <span class="n">json_tiles_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">dataset_from_json</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function to generate all combinations of available augmentations</span>
+<span class="sd">    without generating an exact duplicate. The need for this was to</span>
+<span class="sd">    be able to add more specific data points to a set from a single</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># verify the existance of json files to load dataset from</span>
+    <span class="k">if</span> <span class="n">json_tiles_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">dataset_from_json</span><span class="p">:</span>
+
+        <span class="n">json_files</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">json_tiles_dir</span><span class="p">,</span> <span class="s1">&#39;*.json&#39;</span><span class="p">)),</span>
+            <span class="n">key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span>
+        <span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">json_files</span><span class="p">)</span><span class="si">}</span><span class="s1"> json dataset files.&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">json_files</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">gen_random_tiles_from_json</span><span class="p">(</span>
+                <span class="n">json_files</span><span class="p">,</span>
+                <span class="n">image</span><span class="p">,</span>
+                <span class="n">label</span><span class="p">,</span>
+                <span class="n">index_id</span><span class="p">,</span>
+                <span class="n">num_classes</span><span class="p">,</span>
+                <span class="n">tile_size</span><span class="p">,</span>
+                <span class="kc">True</span><span class="p">,</span>
+                <span class="n">expand_dims</span><span class="p">,</span>
+                <span class="n">out_image_dir</span><span class="p">,</span>
+                <span class="n">out_label_dir</span>
+            <span class="p">)</span>
+
+    <span class="n">generated_tiles</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># counter for generated tiles</span>
+    <span class="n">metadata</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+    <span class="c1"># ---</span>
+    <span class="c1"># You could put these in integer form.</span>
+    <span class="c1"># Keeping in bin for sanity check.</span>
+    <span class="c1"># ---</span>
+    <span class="n">augmentation_dict</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;fliplr&#39;</span><span class="p">:</span> <span class="mb">0b00001</span><span class="p">,</span>
+        <span class="s1">&#39;flipud&#39;</span><span class="p">:</span> <span class="mb">0b00010</span><span class="p">,</span>
+        <span class="s1">&#39;rot090&#39;</span><span class="p">:</span> <span class="mb">0b00100</span><span class="p">,</span>
+        <span class="s1">&#39;rot180&#39;</span><span class="p">:</span> <span class="mb">0b01000</span><span class="p">,</span>
+        <span class="s1">&#39;rot270&#39;</span><span class="p">:</span> <span class="mb">0b10000</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">augmentation_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="nb">len</span><span class="p">(</span><span class="n">augmentation_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span>
+
+    <span class="k">while</span> <span class="n">generated_tiles</span> <span class="o">&lt;</span> <span class="n">max_patches</span><span class="p">:</span>
+
+        <span class="c1"># Expects exact tile size</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># Generate img and mask patches</span>
+        <span class="n">image_tile</span> <span class="o">=</span> <span class="n">image</span><span class="p">[</span><span class="n">y</span><span class="p">:(</span><span class="n">y</span> <span class="o">+</span> <span class="n">tile_size</span><span class="p">),</span> <span class="n">x</span><span class="p">:(</span><span class="n">x</span> <span class="o">+</span> <span class="n">tile_size</span><span class="p">)]</span>
+        <span class="n">label_tile</span> <span class="o">=</span> <span class="n">label</span><span class="p">[</span><span class="n">y</span><span class="p">:(</span><span class="n">y</span> <span class="o">+</span> <span class="n">tile_size</span><span class="p">),</span> <span class="n">x</span><span class="p">:(</span><span class="n">x</span> <span class="o">+</span> <span class="n">tile_size</span><span class="p">)]</span>
+
+        <span class="c1"># first condition, time must have valid classes</span>
+        <span class="k">if</span> <span class="n">label_tile</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">label_tile</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">num_classes</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># if image[x: (x + tile_size), y: (y + tile_size)].min() &lt; -100:</span>
+        <span class="c1"># second condition, if want zero nodata values, skip</span>
+        <span class="k">if</span> <span class="n">cp</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">image_tile</span> <span class="o">==</span> <span class="n">no_data</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">nodata_fractional</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># third condition, if include, number of labels must be at least 2</span>
+        <span class="k">if</span> <span class="n">include</span> <span class="ow">and</span> <span class="n">cp</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">label_tile</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># ---</span>
+        <span class="c1"># fourth condition, If given a tolerance for nodata,</span>
+        <span class="c1"># check amount against tolerance</span>
+        <span class="c1"># ---</span>
+        <span class="n">nodata_in_tile</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">image_tile</span> <span class="o">==</span> <span class="n">no_data</span><span class="p">)</span>
+        <span class="n">nodata_frac</span> <span class="o">=</span> <span class="p">(</span><span class="n">nodata_in_tile</span> <span class="o">/</span> <span class="n">image_tile</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">nodata_frac</span> <span class="o">&gt;=</span> <span class="n">nodata_fractional_tolerance</span> <span class="ow">and</span> <span class="n">nodata_fractional</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># Add to the tiles counter</span>
+        <span class="n">generated_tiles</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">Path</span><span class="p">(</span><span class="n">output_filename</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">generated_tiles</span><span class="si">}</span><span class="s1">.npy&#39;</span>
+        <span class="n">metadata</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="n">x</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="n">y</span><span class="p">}</span>
+
+        <span class="c1"># Pop a random bitmask that represents a combination of augmentations.</span>
+        <span class="n">tile_augmentation_index</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">augmentation_list</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">tile_augmentation</span> <span class="o">=</span> <span class="n">augmentation_list</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">tile_augmentation_index</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">tile_augmentation</span> <span class="o">&amp;</span> <span class="n">augmentation_dict</span><span class="p">[</span><span class="s1">&#39;fliplr&#39;</span><span class="p">]</span> \
+                <span class="o">==</span> <span class="n">augmentation_dict</span><span class="p">[</span><span class="s1">&#39;fliplr&#39;</span><span class="p">]:</span>
+            <span class="n">metadata</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="s1">&#39;fliplr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">image_tile</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">fliplr</span><span class="p">(</span><span class="n">image_tile</span><span class="p">)</span>
+            <span class="n">label_tile</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">fliplr</span><span class="p">(</span><span class="n">label_tile</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">tile_augmentation</span> <span class="o">&amp;</span> <span class="n">augmentation_dict</span><span class="p">[</span><span class="s1">&#39;flipud&#39;</span><span class="p">]</span> \
+                <span class="o">==</span> <span class="n">augmentation_dict</span><span class="p">[</span><span class="s1">&#39;flipud&#39;</span><span class="p">]:</span>
+            <span class="n">metadata</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="s1">&#39;flipud&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">image_tile</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">flipud</span><span class="p">(</span><span class="n">image_tile</span><span class="p">)</span>
+            <span class="n">label_tile</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">flipud</span><span class="p">(</span><span class="n">label_tile</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">tile_augmentation</span> <span class="o">&amp;</span> <span class="n">augmentation_dict</span><span class="p">[</span><span class="s1">&#39;rot090&#39;</span><span class="p">]</span> \
+                <span class="o">==</span> <span class="n">augmentation_dict</span><span class="p">[</span><span class="s1">&#39;rot090&#39;</span><span class="p">]:</span>
+            <span class="n">metadata</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="s1">&#39;rot90&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">image_tile</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">rot90</span><span class="p">(</span><span class="n">image_tile</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">label_tile</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">rot90</span><span class="p">(</span><span class="n">label_tile</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">tile_augmentation</span> <span class="o">&amp;</span> <span class="n">augmentation_dict</span><span class="p">[</span><span class="s1">&#39;rot180&#39;</span><span class="p">]</span> \
+                <span class="o">==</span> <span class="n">augmentation_dict</span><span class="p">[</span><span class="s1">&#39;rot180&#39;</span><span class="p">]:</span>
+            <span class="n">metadata</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="s1">&#39;rot180&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">image_tile</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">rot90</span><span class="p">(</span><span class="n">image_tile</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">label_tile</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">rot90</span><span class="p">(</span><span class="n">label_tile</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">tile_augmentation</span> <span class="o">&amp;</span> <span class="n">augmentation_dict</span><span class="p">[</span><span class="s1">&#39;rot270&#39;</span><span class="p">]</span> \
+                <span class="o">==</span> <span class="n">augmentation_dict</span><span class="p">[</span><span class="s1">&#39;rot270&#39;</span><span class="p">]:</span>
+            <span class="n">metadata</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="s1">&#39;rot270&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">image_tile</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">rot90</span><span class="p">(</span><span class="n">image_tile</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+            <span class="n">label_tile</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">rot90</span><span class="p">(</span><span class="n">label_tile</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">num_classes</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">label_tile</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">num_classes</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;uint8&#39;</span><span class="p">)[</span><span class="n">label_tile</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">expand_dims</span><span class="p">:</span>
+                <span class="n">label_tile</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">label_tile</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># save tiles to disk</span>
+        <span class="n">cp</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out_image_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">),</span> <span class="n">image_tile</span><span class="p">)</span>
+        <span class="n">cp</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out_label_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">),</span> <span class="n">label_tile</span><span class="p">)</span>
+
+    <span class="c1"># set json name to store values of random tiles for reproducibility</span>
+    <span class="k">if</span> <span class="n">json_tiles_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+
+        <span class="c1"># create output directory</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">json_tiles_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># set output filename</span>
+        <span class="n">json_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">json_tiles_dir</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">Path</span><span class="p">(</span><span class="n">output_filename</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s1">_dataset_metadata.json&#39;</span><span class="p">)</span>
+
+        <span class="c1"># store dict output into json file</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">json_name</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">metadata_outfile</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span> <span class="n">metadata_outfile</span><span class="p">)</span>
+
+    <span class="k">return</span></div>
+
+
+<div class="viewcode-block" id="get_dataset_filenames"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.get_dataset_filenames">[docs]</a><span class="k">def</span> <span class="nf">get_dataset_filenames</span><span class="p">(</span><span class="n">data_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ext</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;*.npy&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get dataset filenames for training.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data_filenames</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">ext</span><span class="p">)))</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_filenames</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;No files under </span><span class="si">{</span><span class="n">data_dir</span><span class="si">}</span><span class="s1">.&#39;</span>
+    <span class="k">return</span> <span class="n">data_filenames</span></div>
+
+
+<div class="viewcode-block" id="get_mean_std_dataset"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.get_mean_std_dataset">[docs]</a><span class="k">def</span> <span class="nf">get_mean_std_dataset</span><span class="p">(</span><span class="n">tf_dataset</span><span class="p">,</span> <span class="n">output_filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get general mean and std from tensorflow dataset.</span>
+<span class="sd">    Useful when reading from disk and not from memory.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">data</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">tf_dataset</span><span class="p">:</span>
+        <span class="n">channels_sum</span><span class="p">,</span> <span class="n">channels_squared_sum</span><span class="p">,</span> <span class="n">num_batches</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+        <span class="n">channels_sum</span> <span class="o">+=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+        <span class="n">channels_squared_sum</span> <span class="o">+=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">data</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+        <span class="n">num_batches</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="n">mean</span> <span class="o">=</span> <span class="n">channels_sum</span> <span class="o">/</span> <span class="n">num_batches</span>
+    <span class="n">std</span> <span class="o">=</span> <span class="p">(</span><span class="n">channels_squared_sum</span> <span class="o">/</span> <span class="n">num_batches</span> <span class="o">-</span> <span class="n">mean</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mf">0.5</span>
+
+    <span class="k">if</span> <span class="n">output_filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">mean_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">mean</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">std</span><span class="o">.</span><span class="n">numpy</span><span class="p">()],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">mean_std</span><span class="p">)</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">output_filename</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">mean</span><span class="p">,</span> <span class="n">std</span></div>
+
+
+<div class="viewcode-block" id="get_mean_std_metadata"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.get_mean_std_metadata">[docs]</a><span class="k">def</span> <span class="nf">get_mean_std_metadata</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load mean and std from disk.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        filename (str): csv filename path to load mean and std from</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        np.array mean, np.array std</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span> \
+        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1"> does not exist.&#39;</span>
+    <span class="n">metadata</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Loading mean and std values.&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">metadata</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">metadata</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">values</span></div>
+
+
+<div class="viewcode-block" id="modify_bands"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.modify_bands">[docs]</a><span class="k">def</span> <span class="nf">modify_bands</span><span class="p">(</span>
+        <span class="n">xraster</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">dataarray</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">input_bands</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">output_bands</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">drop_bands</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Drop multiple bands to existing rasterio object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Drop any bands from input that should not be on output</span>
+    <span class="k">for</span> <span class="n">ind_id</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">input_bands</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">output_bands</span><span class="p">)):</span>
+        <span class="n">drop_bands</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">input_bands</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">ind_id</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">xraster</span><span class="p">,</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">generic</span><span class="p">)):</span>
+        <span class="c1"># Do not modify if image has the same number of output bands</span>
+        <span class="k">if</span> <span class="n">xraster</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">output_bands</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">xraster</span>
+        <span class="n">xraster</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span>
+            <span class="n">xraster</span><span class="p">[:][:],</span> <span class="p">[</span><span class="n">x</span> <span class="o">-</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">drop_bands</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">xraster</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Do not modify if image has the same number of output bands</span>
+        <span class="k">if</span> <span class="n">xraster</span><span class="p">[</span><span class="s1">&#39;band&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">output_bands</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">xraster</span>
+        <span class="k">return</span> <span class="n">xraster</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;band&quot;</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">drop_bands</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="modify_label_classes"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.modify_label_classes">[docs]</a><span class="k">def</span> <span class="nf">modify_label_classes</span><span class="p">(</span>
+    <span class="n">mask</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">expressions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span>
+    <span class="n">substract_labels</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Change pixel label values based on expression.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">substract_labels</span><span class="p">:</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">mask</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="k">if</span> <span class="n">expressions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">exp</span> <span class="ow">in</span> <span class="n">expressions</span><span class="p">:</span>
+            <span class="p">[(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)]</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="n">mask</span><span class="p">[</span><span class="nb">eval</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="p">{</span><span class="n">k</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">mask</span><span class="p">})]</span> <span class="o">=</span> <span class="n">v</span>
+    <span class="k">return</span> <span class="n">mask</span></div>
+
+
+<div class="viewcode-block" id="modify_pixel_extremity"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.modify_pixel_extremity">[docs]</a><span class="k">def</span> <span class="nf">modify_pixel_extremity</span><span class="p">(</span>
+    <span class="n">array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">xmin</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">xmax</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10000</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Clip extremity of pixels in the array to given range.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        array (np.ndarray): numpy array with image</span>
+<span class="sd">        xmin (int): minimum value allowed</span>
+<span class="sd">        xmax (max): maximum value allowed</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        np.array mean, np.array std</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="modify_roi"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.modify_roi">[docs]</a><span class="k">def</span> <span class="nf">modify_roi</span><span class="p">(</span>
+    <span class="n">img</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">mask</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">ymin</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">ymax</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">xmin</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">xmax</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Crop ROI, from outside to inside based on pixel address.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">img</span><span class="p">[</span><span class="n">ymin</span><span class="p">:</span><span class="n">ymax</span><span class="p">,</span> <span class="n">xmin</span><span class="p">:</span><span class="n">xmax</span><span class="p">],</span> <span class="n">mask</span><span class="p">[</span><span class="n">ymin</span><span class="p">:</span><span class="n">ymax</span><span class="p">,</span> <span class="n">xmin</span><span class="p">:</span><span class="n">xmax</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="normalize_image"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.normalize_image">[docs]</a><span class="k">def</span> <span class="nf">normalize_image</span><span class="p">(</span><span class="n">image</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">normalize</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Normalize image within parameter, simple scaling of values.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        image (np.ndarray): array to normalize</span>
+<span class="sd">        normalize (float): float value to normalize with</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        normalized np.ndarray</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">normalize</span><span class="p">:</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">image</span> <span class="o">/</span> <span class="n">normalize</span>
+    <span class="k">return</span> <span class="n">image</span></div>
+
+
+<div class="viewcode-block" id="rescale_image"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.rescale_image">[docs]</a><span class="k">def</span> <span class="nf">rescale_image</span><span class="p">(</span>
+            <span class="n">image</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+            <span class="n">rescale_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;per-image&#39;</span><span class="p">,</span>
+            <span class="n">highest_value</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10000</span>
+        <span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Rescale image [0, 1] per-image or per-channel.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        image (np.ndarray): array to rescale</span>
+<span class="sd">        rescale_type (str): rescaling strategy</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        rescaled np.ndarray</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">image</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">rescale_type</span> <span class="o">==</span> <span class="s1">&#39;per-image&#39;</span><span class="p">:</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="p">(</span><span class="n">image</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">initial</span><span class="o">=</span><span class="n">highest_value</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="n">mask</span><span class="p">))</span> \
+            <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">initial</span><span class="o">=</span><span class="n">highest_value</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="n">mask</span><span class="p">)</span>
+                <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">initial</span><span class="o">=</span><span class="n">highest_value</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="n">mask</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="n">rescale_type</span> <span class="o">==</span> <span class="s1">&#39;per-channel&#39;</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">image</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">image</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span>
+                <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">image</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">],</span> <span class="n">initial</span><span class="o">=</span><span class="n">highest_value</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="n">mask</span><span class="p">))</span> \
+                <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">image</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">],</span> <span class="n">initial</span><span class="o">=</span><span class="n">highest_value</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="n">mask</span><span class="p">)</span>
+                    <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span>
+                        <span class="n">image</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">],</span> <span class="n">initial</span><span class="o">=</span><span class="n">highest_value</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="n">mask</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Skipping based on invalid option: </span><span class="si">{</span><span class="n">rescale_type</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">image</span></div>
+
+
+<div class="viewcode-block" id="read_dataset_csv"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.read_dataset_csv">[docs]</a><span class="k">def</span> <span class="nf">read_dataset_csv</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read dataset CSV from disk and load for preprocessing.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        filename (str): string dataset csv.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        pandas dataframe</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> \
+        <span class="sa">f</span><span class="s1">&#39;Invalid input. Variable $filename is </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">.&#39;</span>
+    <span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="ow">and</span> <span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.csv&#39;</span><span class="p">),</span> \
+        <span class="sa">f</span><span class="s1">&#39;File </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1"> not found or has invalid extension (expected .csv).&#39;</span>
+    <span class="n">data_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">data_df</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">any</span><span class="p">(),</span> <span class="sa">f</span><span class="s1">&#39;NaN found: </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="k">return</span> <span class="n">data_df</span></div>
+
+
+<div class="viewcode-block" id="read_metadata"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.read_metadata">[docs]</a><span class="k">def</span> <span class="nf">read_metadata</span><span class="p">(</span><span class="n">filename_regex</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">input_bands</span><span class="p">,</span> <span class="n">output_bands</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read list of CSV from disk and load for preprocessing.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        filename_regex (str): string dataset csv.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        dict of pandas dataframes</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">drop_bands</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">ind_id</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">input_bands</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">output_bands</span><span class="p">)):</span>
+        <span class="n">drop_bands</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">input_bands</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">ind_id</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">drop_bands</span><span class="p">)</span>
+    <span class="n">metadata</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">filenames</span> <span class="o">=</span> <span class="n">glob</span><span class="p">(</span><span class="n">filename_regex</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">filenames</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;No filenames under </span><span class="si">{</span><span class="n">filename_regex</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">filenames</span><span class="p">:</span>
+        <span class="n">features_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">features_df</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">features_df</span><span class="p">)</span>
+        <span class="n">features_df</span> <span class="o">=</span> <span class="n">features_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
+            <span class="n">features_df</span><span class="o">.</span><span class="n">index</span><span class="p">[[</span><span class="n">drop_bands</span><span class="p">]])</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">features_df</span><span class="p">)</span>
+        <span class="n">metadata</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">features_df</span><span class="p">[</span><span class="s1">&#39;timestamp&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]))]</span> <span class="o">=</span> <span class="n">features_df</span>
+    <span class="k">return</span> <span class="n">metadata</span></div>
+
+
+<div class="viewcode-block" id="standardize_image"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.standardize_image">[docs]</a><span class="k">def</span> <span class="nf">standardize_image</span><span class="p">(</span>
+    <span class="n">image</span><span class="p">,</span>
+    <span class="n">standardization_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">mean</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">std</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Standardize image within parameter, simple scaling of values.</span>
+<span class="sd">    Loca, Global, and Mixed options.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">image</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">standardization_type</span> <span class="o">==</span> <span class="s1">&#39;local&#39;</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">image</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">image</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">image</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">],</span> <span class="n">where</span><span class="o">=</span><span class="n">mask</span><span class="p">))</span> <span class="o">/</span> \
+                <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">image</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">],</span> <span class="n">where</span><span class="o">=</span><span class="n">mask</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1e-8</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">standardization_type</span> <span class="o">==</span> <span class="s1">&#39;global&#39;</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">image</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">image</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">mean</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">std</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="mf">1e-8</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">standardization_type</span> <span class="o">==</span> <span class="s1">&#39;mixed&#39;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+    <span class="k">return</span> <span class="n">image</span></div>
+
+
+<div class="viewcode-block" id="standardize_batch"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.standardize_batch">[docs]</a><span class="k">def</span> <span class="nf">standardize_batch</span><span class="p">(</span>
+    <span class="n">image_batch</span><span class="p">,</span>
+    <span class="n">standardization_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">mean</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">std</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Standardize image within parameter, simple scaling of values.</span>
+<span class="sd">    Loca, Global, and Mixed options.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">image_batch</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="n">image_batch</span><span class="p">[</span><span class="n">item</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">standardize_image</span><span class="p">(</span>
+            <span class="n">image_batch</span><span class="p">[</span><span class="n">item</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">standardization_type</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">std</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">image_batch</span></div>
+
+
+<div class="viewcode-block" id="normalize_meanstd"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.normalize_meanstd">[docs]</a><span class="k">def</span> <span class="nf">normalize_meanstd</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">ds_keys</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">subtract</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;mean&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Help function to normalise the features by the mean and</span>
+<span class="sd">    standard deviation</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># assert subtract in [&#39;mean&#39;, &#39;median&#39;]</span>
+    <span class="c1"># feats = tf.math.subtract(</span>
+    <span class="c1">#    tf.cast(image, tf.float64), ds_keys[f&#39;{subtract}&#39;])</span>
+    <span class="c1"># feats = tf.math.divide(feats, ds_keys[&#39;std&#39;])</span>
+    <span class="n">mean</span> <span class="o">=</span> <span class="n">ds_keys</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">subtract</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="n">std</span> <span class="o">=</span> <span class="n">ds_keys</span><span class="p">[</span><span class="s1">&#39;std&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+        <span class="n">image</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">image</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">mean</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">std</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="mf">1e-8</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">image</span></div>
+
+
+<div class="viewcode-block" id="normalize_perc"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.normalize_perc">[docs]</a><span class="k">def</span> <span class="nf">normalize_perc</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">ds_keys</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Help function to normalise the features by the</span>
+<span class="sd">    99th percentile</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">feats</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span> <span class="n">ds_keys</span><span class="p">[</span><span class="s1">&#39;perc_99&#39;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">feats</span></div>
+
+
+<div class="viewcode-block" id="standardize_image_numba"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.standardize_image_numba">[docs]</a><span class="nd">@jit</span><span class="p">(</span><span class="n">nopython</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">standardize_image_numba</span><span class="p">(</span>
+    <span class="n">image</span><span class="p">,</span> <span class="n">standardization_type</span><span class="p">,</span> <span class="n">mean</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">std</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    TODO: FIX STABILITY</span>
+<span class="sd">    Standardize image within parameter, simple scaling of values.</span>
+<span class="sd">    Loca, Global, and Mixed options.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">standardization_type</span> <span class="o">==</span> <span class="s1">&#39;local&#39;</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>  <span class="c1"># for each channel in the image</span>
+            <span class="n">image</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">image</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">image</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]))</span> <span class="o">/</span> \
+                <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">image</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">])</span> <span class="o">+</span> <span class="mf">1e-8</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">image</span></div>
+
+
+<div class="viewcode-block" id="standardize_batch_numba"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.standardize_batch_numba">[docs]</a><span class="k">def</span> <span class="nf">standardize_batch_numba</span><span class="p">(</span>
+    <span class="n">image_batch</span><span class="p">,</span> <span class="n">standardization_type</span><span class="p">,</span> <span class="n">mean</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">std</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    TODO: FIX STABILITY</span>
+<span class="sd">    Standardize image within parameter, simple scaling of values.</span>
+<span class="sd">    Loca, Global, and Mixed options.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">standardization_type</span> <span class="o">==</span> <span class="s1">&#39;local&#39;</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">image_batch</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="n">image_batch</span><span class="p">[</span><span class="n">item</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">image_batch</span><span class="p">[</span><span class="n">item</span><span class="p">]</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">image_batch</span><span class="p">[</span><span class="n">item</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)))</span> \
+                <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">image_batch</span><span class="p">[</span><span class="n">item</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="o">+</span> <span class="mf">1e-8</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">image_batch</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="n">experiment</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">10000</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">experiment</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="c1"># DO NOT REPORT THIS... COMPILATION TIME IS INCLUDED IN THE EXEC TIME!</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">standardize_image_numba</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s1">&#39;local&#39;</span><span class="p">)</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Elapsed (with compilation) = </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">))</span>
+
+        <span class="c1"># NOW THE FUNCTION IS COMPILED, RE-TIME IT EXECUTING FROM CACHE</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">standardize_image_numba</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s1">&#39;local&#39;</span><span class="p">)</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Elapsed (after compilation) = </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">))</span>
+
+    <span class="k">elif</span> <span class="n">experiment</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="c1"># DO NOT REPORT THIS... COMPILATION TIME IS INCLUDED IN THE EXEC TIME!</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="n">standardize_image_numba</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s1">&#39;local&#39;</span><span class="p">)</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Elapsed (with compilation) = </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">))</span>
+
+        <span class="c1"># NOW THE FUNCTION IS COMPILED, RE-TIME IT EXECUTING FROM CACHE</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="n">standardize_image_numba</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s1">&#39;local&#39;</span><span class="p">)</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Elapsed (after compilation) = </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">))</span>
+
+    <span class="k">elif</span> <span class="n">experiment</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="c1"># DO NOT REPORT THIS... COMPILATION TIME IS INCLUDED IN THE EXEC TIME!</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">standardize_batch_numba</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s1">&#39;local&#39;</span><span class="p">)</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Elapsed (with compilation) = </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">))</span>
+
+        <span class="c1"># NOW THE FUNCTION IS COMPILED, RE-TIME IT EXECUTING FROM CACHE</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">standardize_batch_numba</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s1">&#39;local&#39;</span><span class="p">)</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Elapsed (after compilation) = </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">experiment</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+
+        <span class="c1"># chunks={&#39;band&#39;: &#39;auto&#39;, &#39;x&#39;: &#39;auto&#39;, &#39;y&#39;: &#39;auto&#39;}</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;/adapt/nobackup/projects/ilab/projects/srlite/&#39;</span> <span class="o">+</span> \
+            <span class="s1">&#39;input/TOA_v2/Senegal/5-toas/&#39;</span> <span class="o">+</span> \
+            <span class="s1">&#39;WV02_20101020_M1BS_1030010007BBFA00-toa.tif&#39;</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">rxr</span><span class="o">.</span><span class="n">open_rasterio</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Elapsed (after compilation) = </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">))</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Jordan A. Caraballo-Vega.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
