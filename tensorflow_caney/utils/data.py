@@ -40,7 +40,8 @@ def gen_random_tiles(
             json_tiles_dir: str = None,
             dataset_from_json: bool = False,
             xp=np,
-            use_case: str = 'segmentation'
+            use_case: str = 'segmentation',
+            binary_balance: float = 0.0
         ) -> None:
 
     # verify the existance of json files to load dataset from
@@ -78,17 +79,21 @@ def gen_random_tiles(
         image_tile = image[y:(y + tile_size), x:(x + tile_size)]
         label_tile = label[y:(y + tile_size), x:(x + tile_size)]
 
+        # make sure new tile has the same size
+        if image_tile.shape[0] != tile_size or \
+                image_tile.shape[1] != tile_size:
+            continue
+
         # first condition, time must have valid classes
-        # TODO: this condition is not met on regression
-        if (image_tile.min() < 0 or label_tile.min() < 0):
+        if (image_tile.min() < -1 or label_tile.min() < 0) \
+                and use_case == 'segmentation':
             continue
 
         if (label_tile.max() > num_classes and use_case == 'segmentation'):
             continue
 
-        # for regression
-        # if (label_tile.min() < 0):
-        #    continue
+        if np.isnan(image_tile).any() or np.isnan(label_tile).any():
+            continue
 
         # second condition, if want zero nodata values, skip
         if xp.any(image_tile == no_data) and not nodata_fractional:
@@ -97,6 +102,12 @@ def gen_random_tiles(
         # third condition, if include, number of labels must be at least 2
         if include and xp.unique(label_tile).shape[0] < 2:
             continue
+
+        # balancing for binary classes, only applies to binary problem
+        if binary_balance != 0 and \
+            xp.count_nonzero(label_tile == 1) < \
+            int(label_tile.shape[0] * label_tile.shape[1] * binary_balance):
+           continue
 
         # ---
         # fourth condition, If given a tolerance for nodata,
@@ -139,8 +150,6 @@ def gen_random_tiles(
                 metadata[filename]['rot270'] = True
                 image_tile = xp.rot90(image_tile, 3)
                 label_tile = xp.rot90(label_tile, 3)
-
-        # print(label_tile.min(), label_tile.max() )
 
         if num_classes >= 2:
             label_tile = xp.eye(num_classes, dtype='uint8')[label_tile]
