@@ -207,12 +207,14 @@ class CNNSegmentation(object):
             xp=np
         )
 
+        logging.info(f'Done generating random tiles for {data_filename}')
+
         return
 
     # -------------------------------------------------------------------------
     # preprocess
     # -------------------------------------------------------------------------
-    def preprocess(self, enable_multiprocessing: bool = True) -> None:
+    def preprocess(self, enable_multiprocessing: bool = False) -> None:
         """
         Perform general preprocessing.
         """
@@ -251,6 +253,7 @@ class CNNSegmentation(object):
         label_filenames = get_dataset_filenames(self.labels_dir)
         logging.info(f'Mean and std values from {len(data_filenames)} files.')
 
+        """
         # Temporarily disable standardization and augmentation
         current_standardization = self.conf.standardization
         self.conf.standardization = None
@@ -271,7 +274,7 @@ class CNNSegmentation(object):
 
         # Re-enable standardization for next pipeline step
         self.conf.standardization = current_standardization
-
+        """
         return
 
     # -------------------------------------------------------------------------

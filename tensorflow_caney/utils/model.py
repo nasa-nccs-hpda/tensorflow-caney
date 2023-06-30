@@ -9,6 +9,11 @@ import tensorflow_caney
 
 from typing import Any
 from glob import glob
+from omegaconf import OmegaConf
+
+from tensorflow_caney.utils.losses import get_loss
+from tensorflow_caney.utils.optimizers import get_optimizer
+from tensorflow_caney.utils.metrics import get_metrics
 
 __all__ = ["get_model", "load_model"]
 
@@ -32,7 +37,8 @@ def load_model(
             model_filename: str = None,
             model_dir: str = None,
             custom_objects: dict = {'iou_score': sm.metrics.iou_score},
-            model_extension: str = '*.hdf5'
+            model_extension: str = '*.hdf5',
+            conf: OmegaConf = None
         ) -> Any:
     """
     Load model from filename, take the latest model if not given.
@@ -54,7 +60,19 @@ def load_model(
         f'{model_filename} does not exist.'
     logging.info(f'Loading {model_filename}')
 
-    # Load the model via the TensorFlow
-    model = tf.keras.models.load_model(
-        model_filename, custom_objects=custom_objects)
+    try:
+        # Load the model via the TensorFlow
+        model = tf.keras.models.load_model(
+            model_filename, custom_objects=custom_objects)
+    except TypeError:
+        # Load the model via the TensorFlow
+        model = tf.keras.models.load_model(
+            model_filename, custom_objects=custom_objects, compile=False)
+        # Compile model
+        model.compile(
+            loss=get_loss(conf.loss),
+            optimizer=get_optimizer(
+                conf.optimizer)(conf.learning_rate),
+            metrics=get_metrics(conf.metrics)
+        )
     return model
