@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tensorflow_caney.utils.indices &mdash; tensorflow-caney 0.2.5 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            tensorflow-caney
+          </a>
+              <div class="version">
+                0.2.5
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../readme.html">tensorflow-caney</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">tensorflow-caney package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">tensorflow-caney</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tensorflow_caney.utils.indices</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tensorflow_caney.utils.indices</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;bai&quot;</span><span class="p">,</span> <span class="s2">&quot;cig&quot;</span><span class="p">,</span> <span class="s2">&quot;cire&quot;</span><span class="p">,</span> <span class="s2">&quot;cm&quot;</span><span class="p">,</span> <span class="s2">&quot;cs1&quot;</span><span class="p">,</span> <span class="s2">&quot;cs2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;dvi&quot;</span><span class="p">,</span> <span class="s2">&quot;dwi&quot;</span><span class="p">,</span> <span class="s2">&quot;fdi&quot;</span><span class="p">,</span> <span class="s2">&quot;gndvi&quot;</span><span class="p">,</span> <span class="s2">&quot;ndvi&quot;</span><span class="p">,</span> <span class="s2">&quot;ndwi&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;si&quot;</span><span class="p">,</span> <span class="s2">&quot;sr&quot;</span><span class="p">,</span> <span class="s2">&quot;_get_band_locations&quot;</span><span class="p">,</span> <span class="s2">&quot;_get_index_function&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;add_indices&quot;</span>
+<span class="p">]</span>
+
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># Get Methods</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="k">def</span> <span class="nf">_get_band_locations</span><span class="p">(</span><span class="n">bands</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">requested_bands</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get list indices for band locations.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        bands (list): list of bands in the original raster</span>
+<span class="sd">        requested_bands (list): list of requested bands for indices</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        List of band locations in the order received.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">locations</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">requested_bands</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">locations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bands</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">lower</span><span class="p">()))</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">b</span><span class="si">}</span><span class="s1"> not in raster bands </span><span class="si">{</span><span class="n">bands</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">locations</span>
+
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># Indices Methods</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<div class="viewcode-block" id="bai"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.indices.bai">[docs]</a><span class="k">def</span> <span class="nf">bai</span><span class="p">(</span><span class="n">raster</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Burn Area Index (BAI), BAI := 1/((0.1 -RED)^2 + (0.06 - NIR)^2)</span>
+<span class="sd">    Args:</span>
+<span class="sd">        raster (list): xarray or numpy array object in the form (c, h, w)</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        new xarray.DataArray band with index calculated</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">red</span><span class="p">,</span> <span class="n">nir1</span> <span class="o">=</span> <span class="n">_get_band_locations</span><span class="p">(</span>
+        <span class="n">raster</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;band_names&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="s1">&#39;nir1&#39;</span><span class="p">])</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span>
+            <span class="p">(</span><span class="mf">0.1</span> <span class="o">-</span> <span class="n">raster</span><span class="p">[</span><span class="n">red</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:])</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span>
+            <span class="p">(</span><span class="mf">0.06</span> <span class="o">-</span> <span class="n">raster</span><span class="p">[</span><span class="n">nir1</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">index</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;band&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="cig"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.indices.cig">[docs]</a><span class="k">def</span> <span class="nf">cig</span><span class="p">(</span><span class="n">raster</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Chlorophyll Index - Green (CIg), CIRE := (NIR / Green) - 1</span>
+<span class="sd">    Args:</span>
+<span class="sd">        raster (list): xarray or numpy array object in the form (c, h, w)</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        new xarray.DataArray band with index calculated</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nir1</span><span class="p">,</span> <span class="n">green</span> <span class="o">=</span> <span class="n">_get_band_locations</span><span class="p">(</span>
+        <span class="n">raster</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;band_names&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;nir1&#39;</span><span class="p">,</span> <span class="s1">&#39;green&#39;</span><span class="p">])</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="p">(</span><span class="n">raster</span><span class="p">[</span><span class="n">nir1</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">/</span> <span class="n">raster</span><span class="p">[</span><span class="n">green</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:])</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">index</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;band&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="cire"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.indices.cire">[docs]</a><span class="k">def</span> <span class="nf">cire</span><span class="p">(</span><span class="n">raster</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Chlorophyll Index - Red-Edge (CIre), CIRE := (NIR / RedEdge) - 1</span>
+<span class="sd">    Args:</span>
+<span class="sd">        raster (list): xarray or numpy array object in the form (c, h, w)</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        new xarray.DataArray band with index calculated</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">bands</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;nir1&#39;</span><span class="p">,</span> <span class="s1">&#39;rededge&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">b</span> <span class="ow">in</span> <span class="n">bands</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">raster</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;band_names&#39;</span><span class="p">]):</span>
+        <span class="n">bands</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;nir1&#39;</span><span class="p">,</span> <span class="s1">&#39;red&#39;</span><span class="p">]</span>
+    <span class="n">nir1</span><span class="p">,</span> <span class="n">rededge</span> <span class="o">=</span> <span class="n">_get_band_locations</span><span class="p">(</span>
+        <span class="n">raster</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;band_names&#39;</span><span class="p">],</span> <span class="n">bands</span><span class="p">)</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="p">(</span><span class="n">raster</span><span class="p">[</span><span class="n">nir1</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">/</span> <span class="n">raster</span><span class="p">[</span><span class="n">rededge</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:])</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">index</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;band&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="cm"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.indices.cm">[docs]</a><span class="k">def</span> <span class="nf">cm</span><span class="p">(</span><span class="n">raster</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Clay Minerals (CM), CM := SWIR1 / SWIR2</span>
+<span class="sd">    Args:</span>
+<span class="sd">        raster (list): xarray or numpy array object in the form (c, h, w)</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        new xarray.DataArray band with index calculated</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">swir1</span><span class="p">,</span> <span class="n">swir2</span> <span class="o">=</span> <span class="n">_get_band_locations</span><span class="p">(</span>
+        <span class="n">raster</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;band_names&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;swir1&#39;</span><span class="p">,</span> <span class="s1">&#39;swir2&#39;</span><span class="p">])</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="n">raster</span><span class="p">[</span><span class="n">swir1</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">/</span> <span class="n">raster</span><span class="p">[</span><span class="n">swir2</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+    <span class="k">return</span> <span class="n">index</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;band&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="cs1"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.indices.cs1">[docs]</a><span class="k">def</span> <span class="nf">cs1</span><span class="p">(</span><span class="n">raster</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Cloud detection index (CS1), CS1 := (3. * NIR1) / (Blue + Green + Red)</span>
+<span class="sd">    Args:</span>
+<span class="sd">        raster (list): xarray or numpy array object in the form (c, h, w)</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        new xarray.DataArray band with index calculated</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nir1</span><span class="p">,</span> <span class="n">red</span><span class="p">,</span> <span class="n">blue</span><span class="p">,</span> <span class="n">green</span> <span class="o">=</span> <span class="n">_get_band_locations</span><span class="p">(</span>
+        <span class="n">raster</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;band_names&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;nir1&#39;</span><span class="p">,</span> <span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="s1">&#39;green&#39;</span><span class="p">])</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="mf">3.</span> <span class="o">*</span> <span class="n">raster</span><span class="p">[</span><span class="n">nir1</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:])</span> <span class="o">/</span>
+        <span class="p">(</span><span class="n">raster</span><span class="p">[</span><span class="n">blue</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">raster</span><span class="p">[</span><span class="n">green</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">raster</span><span class="p">[</span><span class="n">red</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:])</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">index</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;band&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="cs2"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.indices.cs2">[docs]</a><span class="k">def</span> <span class="nf">cs2</span><span class="p">(</span><span class="n">raster</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Cloud detection index (CS2), CS2 := (Blue + Green + Red + NIR1) / 4.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        raster (list): xarray or numpy array object in the form (c, h, w)</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        new xarray.DataArray band with index calculated</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nir1</span><span class="p">,</span> <span class="n">red</span><span class="p">,</span> <span class="n">blue</span><span class="p">,</span> <span class="n">green</span> <span class="o">=</span> <span class="n">_get_band_locations</span><span class="p">(</span>
+        <span class="n">raster</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;band_names&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;nir1&#39;</span><span class="p">,</span> <span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="s1">&#39;green&#39;</span><span class="p">])</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">raster</span><span class="p">[</span><span class="n">blue</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">raster</span><span class="p">[</span><span class="n">green</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+            <span class="o">+</span> <span class="n">raster</span><span class="p">[</span><span class="n">red</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">raster</span><span class="p">[</span><span class="n">nir1</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:])</span>
+        <span class="o">/</span> <span class="mf">4.0</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">index</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;band&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="dvi"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.indices.dvi">[docs]</a><span class="k">def</span> <span class="nf">dvi</span><span class="p">(</span><span class="n">raster</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Difference Vegetation Index (DVI), DVI := NIR1 - Red</span>
+<span class="sd">    Args:</span>
+<span class="sd">        raster (list): xarray or numpy array object in the form (c, h, w)</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        new xarray.DataArray band with index calculated</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nir1</span><span class="p">,</span> <span class="n">red</span> <span class="o">=</span> <span class="n">_get_band_locations</span><span class="p">(</span>
+        <span class="n">raster</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;band_names&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;nir1&#39;</span><span class="p">,</span> <span class="s1">&#39;red&#39;</span><span class="p">])</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">raster</span><span class="p">[</span><span class="n">nir1</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">raster</span><span class="p">[</span><span class="n">red</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">index</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;band&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="dwi"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.indices.dwi">[docs]</a><span class="k">def</span> <span class="nf">dwi</span><span class="p">(</span><span class="n">raster</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Difference Water Index (DWI), DWI := Green - NIR1</span>
+<span class="sd">    Args:</span>
+<span class="sd">        raster (list): xarray or numpy array object in the form (c, h, w)</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        new xarray.DataArray band with index calculated</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nir1</span><span class="p">,</span> <span class="n">green</span> <span class="o">=</span> <span class="n">_get_band_locations</span><span class="p">(</span>
+        <span class="n">raster</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;band_names&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;nir1&#39;</span><span class="p">,</span> <span class="s1">&#39;green&#39;</span><span class="p">])</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">raster</span><span class="p">[</span><span class="n">green</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">raster</span><span class="p">[</span><span class="n">nir1</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">index</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;band&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">evi</span><span class="p">(</span><span class="n">raster</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Enhanced Vegetation Index (EVI)</span>
+<span class="sd">    EVI := 2.5 [(NIR1 - RE) / (NIR + 6 * RED - 7.5 * BLUE + 1) ]</span>
+<span class="sd">    Args:</span>
+<span class="sd">        raster (list): xarray or numpy array object in the form (c, h, w)</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        new xarray.DataArray band with index calculated</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">red</span><span class="p">,</span> <span class="n">blue</span><span class="p">,</span> <span class="n">nir1</span> <span class="o">=</span> <span class="n">_get_band_locations</span><span class="p">(</span>
+        <span class="n">raster</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;band_names&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="s1">&#39;nir1&#39;</span><span class="p">])</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="mf">2.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">raster</span><span class="p">[</span><span class="n">nir1</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">raster</span><span class="p">[</span><span class="n">red</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]))</span> <span class="o">/</span>
+        <span class="p">(</span>
+            <span class="n">raster</span><span class="p">[</span><span class="n">nir1</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">+</span> <span class="mi">6</span> <span class="o">*</span> <span class="n">raster</span><span class="p">[</span><span class="n">red</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+            <span class="o">-</span> <span class="mf">7.5</span> <span class="o">*</span> <span class="n">raster</span><span class="p">[</span><span class="n">blue</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">index</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;band&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="fdi"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.indices.fdi">[docs]</a><span class="k">def</span> <span class="nf">fdi</span><span class="p">(</span><span class="n">raster</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Forest Discrimination Index (FDI), type int16</span>
+<span class="sd">    Args:</span>
+<span class="sd">        raster (list): xarray or numpy array object in the form (c, h, w)</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        new xarray.DataArray band with index calculated</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">bands</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="s1">&#39;nir2&#39;</span><span class="p">,</span> <span class="s1">&#39;rededge&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">b</span> <span class="ow">in</span> <span class="n">bands</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">raster</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;band_names&#39;</span><span class="p">]):</span>
+        <span class="n">bands</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="s1">&#39;nir1&#39;</span><span class="p">,</span> <span class="s1">&#39;red&#39;</span><span class="p">]</span>
+    <span class="n">blue</span><span class="p">,</span> <span class="n">nir</span><span class="p">,</span> <span class="n">red</span> <span class="o">=</span> <span class="n">_get_band_locations</span><span class="p">(</span>
+        <span class="n">raster</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;band_names&#39;</span><span class="p">],</span> <span class="n">bands</span><span class="p">)</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">raster</span><span class="p">[</span><span class="n">nir</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">-</span> <span class="p">(</span><span class="n">raster</span><span class="p">[</span><span class="n">red</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">raster</span><span class="p">[</span><span class="n">blue</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:])</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">index</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;band&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="gndvi"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.indices.gndvi">[docs]</a><span class="k">def</span> <span class="nf">gndvi</span><span class="p">(</span><span class="n">raster</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Green Normalized Difference Vegetation Index (GNDVI)</span>
+<span class="sd">    GNDVI := (NIR - Green) / (NIR + Green)</span>
+<span class="sd">    Args:</span>
+<span class="sd">        raster (list): xarray or numpy array object in the form (c, h, w)</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        new xarray.DataArray band with index calculated</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nir1</span><span class="p">,</span> <span class="n">green</span> <span class="o">=</span> <span class="n">_get_band_locations</span><span class="p">(</span>
+        <span class="n">raster</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;band_names&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;nir1&#39;</span><span class="p">,</span> <span class="s1">&#39;green&#39;</span><span class="p">])</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">raster</span><span class="p">[</span><span class="n">nir1</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">raster</span><span class="p">[</span><span class="n">green</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:])</span> <span class="o">/</span>
+        <span class="p">(</span><span class="n">raster</span><span class="p">[</span><span class="n">nir1</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">raster</span><span class="p">[</span><span class="n">green</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:])</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">index</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;band&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ndvi"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.indices.ndvi">[docs]</a><span class="k">def</span> <span class="nf">ndvi</span><span class="p">(</span><span class="n">raster</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Norm. Difference Vegetation Index (DVI), NDVI := (NIR - Red) / (NIR + RED)</span>
+<span class="sd">    Args:</span>
+<span class="sd">        raster (list): xarray or numpy array object in the form (c, h, w)</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        new xarray.DataArray band with index calculated</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nir1</span><span class="p">,</span> <span class="n">red</span> <span class="o">=</span> <span class="n">_get_band_locations</span><span class="p">(</span>
+        <span class="n">raster</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;band_names&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;nir1&#39;</span><span class="p">,</span> <span class="s1">&#39;red&#39;</span><span class="p">])</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">raster</span><span class="p">[</span><span class="n">nir1</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">raster</span><span class="p">[</span><span class="n">red</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:])</span> <span class="o">/</span>
+        <span class="p">(</span><span class="n">raster</span><span class="p">[</span><span class="n">nir1</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">raster</span><span class="p">[</span><span class="n">red</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:])</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">index</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;band&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ndwi"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.indices.ndwi">[docs]</a><span class="k">def</span> <span class="nf">ndwi</span><span class="p">(</span><span class="n">raster</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Normalized Difference Water Index (NDWI)</span>
+<span class="sd">    NDWI := factor * (Green - NIR1) / (Green + NIR1)</span>
+<span class="sd">    Args:</span>
+<span class="sd">        raster (list): xarray or numpy array object in the form (c, h, w)</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        new xarray.DataArray band with index calculated</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nir1</span><span class="p">,</span> <span class="n">green</span> <span class="o">=</span> <span class="n">_get_band_locations</span><span class="p">(</span>
+        <span class="n">raster</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;band_names&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;nir1&#39;</span><span class="p">,</span> <span class="s1">&#39;green&#39;</span><span class="p">])</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">raster</span><span class="p">[</span><span class="n">green</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">raster</span><span class="p">[</span><span class="n">nir1</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:])</span> <span class="o">/</span>
+        <span class="p">(</span><span class="n">raster</span><span class="p">[</span><span class="n">green</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">raster</span><span class="p">[</span><span class="n">nir1</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:])</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">index</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;band&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="si"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.indices.si">[docs]</a><span class="k">def</span> <span class="nf">si</span><span class="p">(</span><span class="n">raster</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Shadow Index (SI), SI := (Blue * Green * Red) ** (1.0 / 3)</span>
+<span class="sd">    Args:</span>
+<span class="sd">        raster (list): xarray or numpy array object in the form (c, h, w)</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        new xarray.DataArray band with index calculated</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">red</span><span class="p">,</span> <span class="n">blue</span><span class="p">,</span> <span class="n">green</span> <span class="o">=</span> <span class="n">_get_band_locations</span><span class="p">(</span>
+        <span class="n">raster</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;band_names&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="s1">&#39;green&#39;</span><span class="p">])</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">raster</span><span class="p">[</span><span class="n">blue</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">raster</span><span class="p">[</span><span class="n">green</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">/</span>
+            <span class="n">raster</span><span class="p">[</span><span class="n">red</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:])</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span><span class="o">/</span><span class="mf">3.0</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">index</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;band&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="sr"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.indices.sr">[docs]</a><span class="k">def</span> <span class="nf">sr</span><span class="p">(</span><span class="n">raster</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    SR := NIR / Red</span>
+<span class="sd">    Args:</span>
+<span class="sd">        raster (list): xarray or numpy array object in the form (c, h, w)</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        new xarray.DataArray band with index calculated</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nir1</span><span class="p">,</span> <span class="n">red</span> <span class="o">=</span> <span class="n">_get_band_locations</span><span class="p">(</span>
+        <span class="n">raster</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;band_names&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;nir1&#39;</span><span class="p">,</span> <span class="s1">&#39;red&#39;</span><span class="p">])</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">raster</span><span class="p">[</span><span class="n">nir1</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">/</span> <span class="n">raster</span><span class="p">[</span><span class="n">red</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">index</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;band&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># Modify Methods</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="n">indices_registry</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;bai&#39;</span><span class="p">:</span> <span class="n">bai</span><span class="p">,</span>
+    <span class="s1">&#39;cig&#39;</span><span class="p">:</span> <span class="n">cig</span><span class="p">,</span>
+    <span class="s1">&#39;cire&#39;</span><span class="p">:</span> <span class="n">cire</span><span class="p">,</span>
+    <span class="s1">&#39;cm&#39;</span><span class="p">:</span> <span class="n">cm</span><span class="p">,</span>
+    <span class="s1">&#39;cs1&#39;</span><span class="p">:</span> <span class="n">cs1</span><span class="p">,</span>
+    <span class="s1">&#39;cs2&#39;</span><span class="p">:</span> <span class="n">cs2</span><span class="p">,</span>
+    <span class="s1">&#39;dvi&#39;</span><span class="p">:</span> <span class="n">dvi</span><span class="p">,</span>
+    <span class="s1">&#39;dwi&#39;</span><span class="p">:</span> <span class="n">dwi</span><span class="p">,</span>
+    <span class="s1">&#39;fdi&#39;</span><span class="p">:</span> <span class="n">fdi</span><span class="p">,</span>
+    <span class="s1">&#39;gndvi&#39;</span><span class="p">:</span> <span class="n">gndvi</span><span class="p">,</span>
+    <span class="s1">&#39;ndvi&#39;</span><span class="p">:</span> <span class="n">ndvi</span><span class="p">,</span>
+    <span class="s1">&#39;ndwi&#39;</span><span class="p">:</span> <span class="n">ndwi</span><span class="p">,</span>
+    <span class="s1">&#39;si&#39;</span><span class="p">:</span> <span class="n">si</span><span class="p">,</span>
+    <span class="s1">&#39;sr&#39;</span><span class="p">:</span> <span class="n">sr</span>
+<span class="p">}</span>
+
+
+<span class="k">def</span> <span class="nf">_get_index_function</span><span class="p">(</span><span class="n">index_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get index function from the indices registry.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        index_key (str): index key to mine callable index function</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        index callable function</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">indices_registry</span><span class="p">[</span><span class="n">index_key</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid indices mapping: </span><span class="si">{</span><span class="n">index_key</span><span class="si">}</span><span class="s1">.&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="add_indices"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.indices.add_indices">[docs]</a><span class="k">def</span> <span class="nf">add_indices</span><span class="p">(</span>
+            <span class="n">xraster</span><span class="p">,</span>
+            <span class="n">input_bands</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+            <span class="n">output_bands</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+            <span class="n">factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add indices to a given xarray (appended as bands).</span>
+<span class="sd">    Args:</span>
+<span class="sd">        xraster (xarray.DataArray): index key to mine callable index function</span>
+<span class="sd">        input_bands (list): input bands given by the original raster</span>
+<span class="sd">        output_bands (list): output bands including new indices (order matters)</span>
+<span class="sd">        factor (float): factor used for toa imagery calculations</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        xarray DataArray with updated bands list and indices</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># make band names uniform for easy of validation</span>
+    <span class="n">input_bands</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">input_bands</span><span class="p">]</span>
+    <span class="n">output_bands</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">output_bands</span><span class="p">]</span>
+
+    <span class="n">xraster</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;band_names&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">input_bands</span>
+    <span class="n">n_bands</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_bands</span><span class="p">)</span>  <span class="c1"># get number of input bands</span>
+
+    <span class="c1"># iterate over each new band that needs to be included</span>
+    <span class="k">for</span> <span class="n">band_id</span> <span class="ow">in</span> <span class="n">output_bands</span><span class="p">:</span>
+
+        <span class="k">if</span> <span class="n">band_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">input_bands</span><span class="p">:</span>
+
+            <span class="c1"># increase the number of input bands</span>
+            <span class="n">n_bands</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="c1"># calculate band (indices)</span>
+            <span class="n">index_function</span> <span class="o">=</span> <span class="n">_get_index_function</span><span class="p">(</span><span class="n">band_id</span><span class="p">)</span>
+            <span class="n">new_index</span> <span class="o">=</span> <span class="n">index_function</span><span class="p">(</span><span class="n">xraster</span><span class="p">)</span>
+
+            <span class="c1"># Add band indices to raster, add future object</span>
+            <span class="n">new_index</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s1">&#39;band&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">n_bands</span><span class="p">]</span>
+            <span class="n">xraster</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">xraster</span><span class="p">,</span> <span class="n">new_index</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="s1">&#39;band&#39;</span><span class="p">)</span>
+
+            <span class="c1"># Update raster metadata,</span>
+            <span class="n">xraster</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;band_names&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">band_id</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">xraster</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Jordan A. Caraballo-Vega.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
