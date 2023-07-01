@@ -1,8 +1,13 @@
 tensorflow-caney package
 ========================
 
-Submodules
-----------
+tensorflow_caney.utils.augmentations module
+----------------------
+
+.. automodule:: tensorflow_caney.utils.augmentations
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 tensorflow_caney.utils.data module
 ----------------------
@@ -12,7 +17,4 @@ tensorflow_caney.utils.data module
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: tensorflow_caney
-   :members:
-   :undoc-members:
-   :show-inheritance:
+

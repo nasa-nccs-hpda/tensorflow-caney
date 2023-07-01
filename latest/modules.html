@@ -50,7 +50,10 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="readme.html">tensorflow-caney</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">tensorflow-caney package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tensorflow-caney-utils-augmentations-module">tensorflow_caney.utils.augmentations module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tensorflow_caney.utils.augmentations.center_crop"><code class="docutils literal notranslate"><span class="pre">center_crop()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#tensorflow-caney-utils-data-module">tensorflow_caney.utils.data module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#tensorflow_caney.utils.data.gen_augmented_tiles"><code class="docutils literal notranslate"><span class="pre">gen_augmented_tiles()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#tensorflow_caney.utils.data.gen_random_tiles"><code class="docutils literal notranslate"><span class="pre">gen_random_tiles()</span></code></a></li>
@@ -104,8 +107,28 @@
              
   <section id="tensorflow-caney-package">
 <h1>tensorflow-caney package<a class="headerlink" href="#tensorflow-caney-package" title="Permalink to this heading"></a></h1>
-<section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+<section id="tensorflow-caney-utils-augmentations-module">
+<h2>tensorflow_caney.utils.augmentations module<a class="headerlink" href="#tensorflow-caney-utils-augmentations-module" title="Permalink to this heading"></a></h2>
+<span class="target" id="module-tensorflow_caney.utils.augmentations"></span><dl class="py function">
+<dt class="sig sig-object py" id="tensorflow_caney.utils.augmentations.center_crop">
+<span class="sig-prename descclassname"><span class="pre">tensorflow_caney.utils.augmentations.</span></span><span class="sig-name descname"><span class="pre">center_crop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tensorflow_caney/utils/augmentations.html#center_crop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tensorflow_caney.utils.augmentations.center_crop" title="Permalink to this definition"></a></dt>
+<dd><p>Center crop numpy array</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<em>np.array</em>) – image to be center cropped</p></li>
+<li><p><strong>dim</strong> (<em>tuple</em>) – dimensions (width, height) to be cropped</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>center cropped image</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="tensorflow-caney-utils-data-module">
 <h2>tensorflow_caney.utils.data module<a class="headerlink" href="#tensorflow-caney-utils-data-module" title="Permalink to this heading"></a></h2>
@@ -324,7 +347,7 @@ Standardize image within parameter, simple scaling of values.
 Loca, Global, and Mixed options.</p>
 </dd></dl>
 
-<span class="target" id="module-tensorflow_caney"></span></section>
+</section>
 </section>
 
 
