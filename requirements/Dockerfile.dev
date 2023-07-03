@@ -1,6 +1,6 @@
 # Arguments to pass to the image
 ARG TF_VER=tf2
-ARG VERSION_DATE=23.01
+ARG VERSION_DATE=23.05
 ARG FROM_IMAGE=nvcr.io/nvidia/tensorflow
 
 # Import RAPIDS container as the BASE Image (cuda base image)
@@ -11,6 +11,7 @@ ENV DEBIAN_FRONTEND noninteractive
 #ENV LD_LIBRARY_PATH="/mnt/data-store/FileGDB_API-64gcc51/lib/:/usr/local/lib"
 ENV CPLUS_INCLUDE_PATH="/usr/include/gdal"
 ENV C_INCLUDE_PATH="/usr/include/gdal"
+ENV PROJ_LIB="/usr/share/proj"
 ENV SM_FRAMEWORK="tf.keras"
 
 # System dependencies
