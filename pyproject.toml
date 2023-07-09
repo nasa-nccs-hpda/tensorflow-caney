@@ -2,24 +2,5 @@
 # Minimum requirements for the build system to execute.
 requires = ["setuptools", "wheel"]
 
-[tool.coverage.run]
-branch = true
-relative_files = true
-source = ['tensorflow_caney']
-omit = ['tensorflow_caney/version.py']
-
-[tool.coverage.report]
-show_missing = true
-fail_under = 95
-
 [tool.black]
-line-length = 88
-target-version = ['py39']
-
-[project.scripts]
-cnn_segmentation_cli = 'tensorflow_caney.view.cnn_segmentation_cli:main'
-cnn_regression_cli = 'tensorflow_caney.view.cnn_regression_cli:main'
-
-[project.optional-dependencies]
-test = ['pytest', 'coverage[toml]', 'black']
-docs = ['pdoc==8.0.1']
+target_version = ['py39']
