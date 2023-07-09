@@ -2,9 +2,6 @@
 # Minimum requirements for the build system to execute.
 requires = ["setuptools", "wheel"]
 
-[tool.black]
-target_version = ['py39']
-
 [tool.coverage.run]
 branch = true
 relative_files = true
@@ -17,7 +14,7 @@ fail_under = 95
 
 [tool.black]
 line-length = 88
-target-version = ['py38']
+target-version = ['py39']
 
 [project.scripts]
 cnn_segmentation_cli = 'tensorflow_caney.view.cnn_segmentation_cli:main'
