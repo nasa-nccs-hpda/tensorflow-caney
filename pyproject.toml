@@ -1,40 +1,9 @@
-[project]
-name = "tensorflow-caney"
-authors = [
-    {name = "Jordan A. Caraballo-Vega", email = "jordan.a.caraballo-vega@nasa.gov"},
-    {name = "Caleb S. Spradlin", email = "caleb.s.spradlin@nasa.gov"}
-]
-description = "Methods for tensorflow deep learning applications"
-readme = "README.md"
-classifiers = [
-    "Programming Language :: Python :: 3",
-    "Operating System :: OS Independent",
-]
-requires-python = ">=3.7"
-keywords = ["deep-learning", "machine-learning"]
-dynamic = ["version"]
-
 [build-system]
-requires = [
-    "setuptools >= 40.6.0",
-    "setuptools_scm[toml] >= 4, <6",
-    "setuptools_scm_git_archive",
-    "setuptools-git-versioning",
-    "poetry",
-    "wheel",
-    "omegaconf",
-    "segmentation-models",
-    "xarray",
-    "rioxarray",
-    "numba"
-]
-build-backend = "setuptools.build_meta"
+# Minimum requirements for the build system to execute.
+requires = ["setuptools", "wheel"]
 
-[tool.setuptools]
-packages = ["tensorflow_caney"]
-
-[tool.setuptools_scm]
-write_to = "tensorflow_caney/version.py"
+[tool.black]
+target_version = ['py39']
 
 [tool.coverage.run]
 branch = true

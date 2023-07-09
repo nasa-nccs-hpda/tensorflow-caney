@@ -19,6 +19,7 @@ except DistributionNotFound:  # pragma: no cover
             "This might be because you are installing from GitHub's tarballs, "
             "use the PyPI ones."
         )
+
 __version__ = "0.2.5"
 
 __all__ = [
