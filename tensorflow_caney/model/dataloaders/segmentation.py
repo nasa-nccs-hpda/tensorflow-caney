@@ -142,7 +142,7 @@ class SegmentationDataLoader(object):
         ],
             random_order=True)
         """
-a
+
     def tf_dataset(
                 self, x: list, y: list,
                 read_func: Any,
