@@ -17,6 +17,12 @@ from tensorflow_caney.utils.metrics import get_metrics
 
 __all__ = ["get_model", "load_model"]
 
+CUSTOM_OBJECTS = {
+    'iou_score': sm.metrics.iou_score,
+    'focal_tversky_loss': tfc.utils.losses.focal_tversky_loss,
+    'binary_tversky_loss': tfc.utils.losses.binary_tversky_loss,
+}
+
 
 def get_model(model: str) -> Any:
     """
@@ -36,7 +42,7 @@ def get_model(model: str) -> Any:
 def load_model(
             model_filename: str = None,
             model_dir: str = None,
-            custom_objects: dict = {'iou_score': sm.metrics.iou_score},
+            custom_objects: dict = CUSTOM_OBJECTS,
             model_extension: str = '*.hdf5',
             conf: OmegaConf = None
         ) -> Any:

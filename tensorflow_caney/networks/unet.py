@@ -148,8 +148,10 @@ def unet_batchnorm(nclass=19, input_size=(256, 256, 8), weight_file=None,
     if nclass == 1:
         actv = 'sigmoid'
 
-    c10 = Conv2D(nclass, (1, 1), activation=actv, kernel_regularizer=kr)(c9)
-    model = Model(inputs=inputs, outputs=c10, name="UNetBatchNorm")
+    c10 = Conv2D(nclass, (1, 1), kernel_regularizer=kr)(c9)
+    outputs = Activation(actv, dtype='float32', name='predictions')(c10)
+
+    model = Model(inputs=inputs, outputs=outputs, name="UNetBatchNorm")
 
     if weight_file:
         model.load_weights(weight_file).expect_partial()

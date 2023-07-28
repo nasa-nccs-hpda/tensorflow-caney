@@ -269,6 +269,12 @@ def sliding_window_tiler_multiclass(
     tile_channels = model.layers[0].input_shape[0][-1]
     # n_classes = out of the output layer, output_shape
 
+    if tile_size is None:
+        tile_size = 256
+    
+    if tile_channels is None:
+        tile_channels = xraster.shape[-1]
+
     tiler_image = Tiler(
         data_shape=xraster.shape,
         tile_shape=(tile_size, tile_size, tile_channels),
@@ -291,8 +297,8 @@ def sliding_window_tiler_multiclass(
     merger = Merger(tiler=tiler_mask, window=window)
     xraster = normalize_image(xraster, normalize)
 
-    if rescale is not None:
-        xraster = rescale_image(xraster, rescale)
+    # if rescale is not None:
+    #    xraster = rescale_image(xraster, rescale)
 
     # Iterate over the data in batches
     for batch_id, batch_i in tiler_image(xraster, batch_size=batch_size):
@@ -300,10 +306,20 @@ def sliding_window_tiler_multiclass(
         # Standardize
         batch = batch_i.copy()
 
-        if standardization is not None:
+        if standardization != 'None' and standardization is not None:
+            # print("STANDARDIZING")
             for item in range(batch.shape[0]):
                 batch[item, :, :, :] = standardize_image(
                     batch[item, :, :, :], standardization, mean, std)
+
+        if rescale != 'None' and rescale is not None:
+            # print("RESCALING")
+            for item in range(batch.shape[0]):
+                means = batch[item, :, :, :].mean(axis=(0, 1))
+                stds = batch[item, :, :, :].std(axis=(0, 1))
+                newMin = means - (2 * stds)
+                newMax = means + (2 * stds)
+                batch[item, :, :, :] = (batch[item, :, :, :] - newMin) / (newMax - newMin)
 
         # Predict
         batch = model.predict(batch, batch_size=batch_size, verbose=0)
@@ -313,16 +329,34 @@ def sliding_window_tiler_multiclass(
 
     prediction = merger.merge(unpad=True)
 
+    # print("BEFORE ARGMAX", probability_map, prediction.shape)
+
+    # return prediction map
     if not probability_map:
+
+        # print("ENTERING SINGLE ARGMAX")
+
         if prediction.shape[-1] > 1:
             prediction = np.argmax(prediction, axis=-1)
+            # print("DOING NUMPY ARGMAX", prediction.shape)
         else:
             prediction = np.squeeze(
-                np.where(prediction > threshold, 1, 0).astype(np.int16)
-            )
+                np.where(prediction > threshold, 1, 0).astype(np.int16))
+
+        # print("BEFORE RETURN", prediction.shape)
+        return prediction, None
+
+    # return prediction and probability map
     else:
-        prediction = np.squeeze(prediction)
-    return prediction
+        # print("ENTERING PROBABILITY")
+        if prediction.shape[-1] > 1:
+            probability = np.amax(prediction, axis=-1)
+            prediction = np.argmax(prediction, axis=-1)
+        else:
+            probability = np.squeeze(prediction)
+            prediction = np.squeeze(
+                np.where(prediction > threshold, 1, 0).astype(np.int16))
+        return prediction, probability
 
 
 def get_extract_pred_scatter(
