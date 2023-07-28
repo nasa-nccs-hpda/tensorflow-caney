@@ -163,7 +163,7 @@ class Config:
     inference_treshold: Optional[float] = 0.5
 
     # Inference padding value to replace no-data boundaries
-    inference_pad_value: Optional[int] = 2000
+    inference_pad_value: Optional[int] = 1000
 
     # Window algorithm for smoothing prediction
     window_algorithm: Optional[str] = 'triang'
@@ -188,3 +188,6 @@ class Config:
 
     # Regex to find model metadata
     metadata_regex: Optional[str] = None
+
+    # Validation database for validation of predictions
+    validation_database: Optional[str] = None

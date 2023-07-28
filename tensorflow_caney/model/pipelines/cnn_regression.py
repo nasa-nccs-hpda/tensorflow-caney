@@ -435,7 +435,8 @@ class CNNRegression(object):
                 image = image.transpose("y", "x", "band")
 
                 # Remove no-data values to account for edge effects
-                temporary_tif = xr.where(image > -100, image, 600)
+                temporary_tif = xr.where(
+                    image > -100, image, self.conf.inference_pad_value)
 
                 # Sliding window prediction
                 prediction = regression_inference.sliding_window_tiler(
@@ -450,6 +451,8 @@ class CNNRegression(object):
                     normalize=self.conf.normalize,
                     window=self.conf.window_algorithm
                 ) * self.conf.normalize_label
+
+                # Predictions lower than 0 are 0'ed out
                 prediction[prediction < 0] = 0
 
                 # Drop image band to allow for a merge of mask
@@ -474,6 +477,8 @@ class CNNRegression(object):
 
                 # Set nodata values on mask
                 nodata = prediction.rio.nodata
+                # print("THIS IS MY NODATA FROM PREDICTION", nodata)
+
                 prediction = prediction.where(image != nodata)
                 prediction.rio.write_nodata(
                     self.conf.prediction_nodata, encoded=True, inplace=True)
