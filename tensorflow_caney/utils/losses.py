@@ -6,6 +6,7 @@ import segmentation_models as sm
 import tensorflow_caney as tfc
 
 from typing import Any
+import keras.backend as K
 from tensorflow.keras.losses import Loss, Reduction
 
 
@@ -14,6 +15,9 @@ __all__ = [
     "CategoricalCrossEntropy", "CategoricalFocalLoss",
     "JaccardDistanceLoss", "TanimotoDistanceLoss"
 ]
+
+epsilon = 1e-5
+smooth = 1
 
 
 def get_loss(loss: str) -> Any:
@@ -324,3 +328,73 @@ class TanimotoDistanceLoss(Loss):
         loss = tf.reduce_sum(loss, axis=-1)
 
         return loss
+
+
+@tf.function
+def tversky(y_true, y_pred, alpha=0.40, beta=0.60):
+    """
+    Function to calculate the Tversky loss for imbalanced data
+    :param prediction: the logits
+    :param ground_truth: the segmentation ground_truth
+    :param alpha: weight of false positives
+    :param beta: weight of false negatives
+    :param weight_map:
+    :return: the loss
+    """
+
+    y_t = y_true[..., 0]
+    y_t = y_t[..., np.newaxis]
+    # weights
+    y_weights = y_true[..., 1]
+    y_weights = y_weights[..., np.newaxis]
+
+    ones = 1
+    p0 = y_pred  # proba that voxels are class i
+    p1 = ones - y_pred  # proba that voxels are not class i
+    g0 = y_t
+    g1 = ones - y_t
+
+    tp = tf.reduce_sum(y_weights * p0 * g0)
+    fp = alpha * tf.reduce_sum(y_weights * p0 * g1)
+    fn = beta * tf.reduce_sum(y_weights * p1 * g0)
+
+    EPSILON = 0.00001
+    numerator = tp
+    denominator = tp + fp + fn + EPSILON
+    score = numerator / denominator
+    return 1.0 - tf.reduce_mean(score)
+
+
+def class_tversky(y_true, y_pred):
+    smooth = 1
+
+    y_true = K.permute_dimensions(y_true, (3,1,2,0))
+    y_pred = K.permute_dimensions(y_pred, (3,1,2,0))
+
+    y_true_pos = K.batch_flatten(y_true)
+    y_pred_pos = K.batch_flatten(y_pred)
+    true_pos = K.sum(y_true_pos * y_pred_pos, 1)
+    false_neg = K.sum(y_true_pos * (1-y_pred_pos), 1)
+    false_pos = K.sum((1-y_true_pos)*y_pred_pos, 1)
+    alpha = 0.7
+    return (true_pos + smooth)/(true_pos + alpha*false_neg + (1-alpha)*false_pos + smooth)
+
+
+def focal_tversky_loss(y_true,y_pred):
+    pt_1 = class_tversky(y_true, y_pred)
+    gamma = 0.75
+    return K.sum(K.pow((1-pt_1), gamma))
+
+
+def binary_tversky(y_true, y_pred):
+    y_true_pos = K.flatten(y_true)
+    y_pred_pos = K.flatten(y_pred)
+    true_pos = K.sum(y_true_pos * y_pred_pos)
+    false_neg = K.sum(y_true_pos * (1-y_pred_pos))
+    false_pos = K.sum((1-y_true_pos)*y_pred_pos)
+    alpha = 0.7
+    return (true_pos + smooth)/(true_pos + alpha*false_neg + (1-alpha)*false_pos + smooth)
+
+
+def binary_tversky_loss(y_true, y_pred):
+    return 1 - binary_tversky(y_true, y_pred)

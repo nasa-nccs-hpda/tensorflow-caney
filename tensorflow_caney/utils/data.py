@@ -62,6 +62,7 @@ def gen_random_tiles(
                 num_classes,
                 tile_size,
                 augment,
+                xp,
                 expand_dims,
                 out_image_dir,
                 out_label_dir
@@ -84,7 +85,12 @@ def gen_random_tiles(
                 image_tile.shape[1] != tile_size:
             continue
 
-        # first condition, time must have valid classes
+        # make sure new tile has the same size
+        if label_tile.shape[0] != tile_size or \
+                label_tile.shape[1] != tile_size:
+            continue
+
+        # first condition, tile must have valid classes
         if (image_tile.min() < -1 or label_tile.min() < 0) \
                 and use_case == 'segmentation':
             continue
@@ -190,6 +196,7 @@ def gen_random_tiles_from_json(
             num_classes: int,
             tile_size: int = 128,
             augment: bool = True,
+            xp: object = np,
             expand_dims: bool = True,
             out_image_dir: str = 'image',
             out_label_dir: str = 'label',
@@ -206,6 +213,8 @@ def gen_random_tiles_from_json(
         tiles_metadata = json.loads(j.read())
 
     for tile_filename in tiles_metadata:
+
+        # print("MY JSON FILENAME", tile_filename)
 
         # Tile indices
         x = tiles_metadata[tile_filename]['x']
@@ -239,14 +248,15 @@ def gen_random_tiles_from_json(
                 label_tile = cp.rot90(label_tile, 3)
 
         if num_classes >= 2:
-            label_tile = cp.eye(num_classes, dtype='uint8')[label_tile]
+            label_tile = xp.eye(num_classes, dtype='uint8')[label_tile]
         else:
             if expand_dims:
-                label_tile = cp.expand_dims(label_tile, axis=-1)
+                label_tile = xp.expand_dims(label_tile, axis=-1)
 
         # save tiles to disk
-        cp.save(os.path.join(out_image_dir, tile_filename), image_tile)
-        cp.save(os.path.join(out_label_dir, tile_filename), label_tile)
+        xp.save(os.path.join(out_image_dir, tile_filename), image_tile)
+        xp.save(os.path.join(out_label_dir, tile_filename), label_tile)
+
     return
 
 
