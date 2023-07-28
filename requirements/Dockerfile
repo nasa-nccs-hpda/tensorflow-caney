@@ -8,15 +8,15 @@ FROM ${FROM_IMAGE}:${VERSION_DATE}-${TF_VER}-py3
 
 # Ubuntu needs noninteractive to be forced
 ENV DEBIAN_FRONTEND noninteractive
-ENV LD_LIBRARY_PATH="/mnt/data-store/FileGDB_API-64gcc51/lib/:/usr/local/lib"
 ENV CPLUS_INCLUDE_PATH="/usr/include/gdal"
 ENV C_INCLUDE_PATH="/usr/include/gdal"
+ENV PROJ_LIB="/usr/share/proj"
 ENV SM_FRAMEWORK="tf.keras"
 
 # System dependencies
 RUN apt-get update && \
     apt-get -y install software-properties-common && \
-    add-apt-repository ppa:ubuntugis/ppa && \
+    add-apt-repository ppa:ubuntugis/ubuntugis-unstable && \
     apt-get update && apt-get -y dist-upgrade && \
     apt-get -y install build-essential \
         libsm6 \
@@ -35,7 +35,9 @@ RUN apt-get update && \
         libgeos-dev \
         libsqlite3-dev \
         libx11-dev \
-        libproj-dev proj-data proj-bin \
+        libproj-dev \
+        proj-data \
+        proj-bin \
         libspatialindex-dev \
         wget \
         vim \
@@ -46,19 +48,14 @@ RUN apt-get update && \
         g++ \
         bzip2 \
         libssl-dev \
+        libzmq3-dev \
+        libpng-dev \
+        libfreetype6-dev \ 
         locales && \
     apt-get -y install gdal-bin libgdal-dev && \
     apt-get -y autoremove && \
     rm -rf /var/cache/apt /var/lib/apt/lists/*
 
-
-        libfreetype6-dev \
-        libpng-dev \
-        libzmq3-dev \
-        libspatialindex-dev \
-        gdal-bin \
-        libgdal-dev \
-        python3-gdal \
 
 # Install shiftc
 WORKDIR /app
@@ -78,12 +75,16 @@ RUN git clone --single-branch --branch master https://github.com/pkolano/shift.g
     rm -rf /app
 
 # Pip
-RUN pip --no-cache-dir install omegaconf \
+RUN pip install \
+    scipy \
+    omegaconf \
     rasterio \
     rioxarray \
     xarray \
     geopandas \
     tensorflow_probability \
+    keras-cv \
+    keras-unet-collection \
     opencv-python \
     opencv-python-headless \
     opencv-contrib-python \
@@ -101,6 +102,7 @@ RUN pip --no-cache-dir install omegaconf \
     rasterstats \
     sphinx \
     sphinx_rtd_theme \
+    geedim \
     geemap \
     GDAL==`ogrinfo --version | grep -Eo '[0-9]\.[0-9]\.[0-9]+'` \
     git+https://github.com/dshean/pygeotools.git@master \

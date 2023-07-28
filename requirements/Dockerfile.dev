@@ -85,6 +85,7 @@ RUN pip install \
     geopandas \
     tensorflow_probability \
     keras-cv \
+    keras-unet-collection \
     opencv-python \
     opencv-python-headless \
     opencv-contrib-python \
