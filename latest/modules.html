@@ -121,15 +121,8 @@
 <li class="toctree-l3"><a class="reference internal" href="#tensorflow_caney.utils.losses.get_loss"><code class="docutils literal notranslate"><span class="pre">get_loss()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#tensorflow-caney-utils-metrics">tensorflow_caney.utils.metrics</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#tensorflow_caney.utils.metrics.get_metrics"><code class="docutils literal notranslate"><span class="pre">get_metrics()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#tensorflow-caney-utils-model">tensorflow_caney.utils.model</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#tensorflow_caney.utils.model.get_model"><code class="docutils literal notranslate"><span class="pre">get_model()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#tensorflow_caney.utils.model.load_model"><code class="docutils literal notranslate"><span class="pre">load_model()</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="#tensorflow-caney-utils-metrics">tensorflow_caney.utils.metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tensorflow-caney-utils-model">tensorflow_caney.utils.model</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#tensorflow-caney-utils-optimizers">tensorflow_caney.utils.optimizers</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#tensorflow_caney.utils.optimizers.get_optimizer"><code class="docutils literal notranslate"><span class="pre">get_optimizer()</span></code></a></li>
 </ul>
@@ -246,7 +239,7 @@ be able to add more specific data points to a set from a single</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tensorflow_caney.utils.data.gen_random_tiles_from_json">
-<span class="sig-prename descclassname"><span class="pre">tensorflow_caney.utils.data.</span></span><span class="sig-name descname"><span class="pre">gen_random_tiles_from_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">json_metadata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tile_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">augment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expand_dims</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_image_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'image'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_label_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'label'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tensorflow_caney/utils/data.html#gen_random_tiles_from_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tensorflow_caney.utils.data.gen_random_tiles_from_json" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">tensorflow_caney.utils.data.</span></span><span class="sig-name descname"><span class="pre">gen_random_tiles_from_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">json_metadata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tile_size=128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">augment=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xp=&lt;module</span> <span class="pre">'numpy'</span> <span class="pre">from</span> <span class="pre">'/usr/share/miniconda/envs/docs/lib/python3.9/site-packages/numpy/__init__.py'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expand_dims=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_image_dir='image'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_label_dir='label'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tensorflow_caney/utils/data.html#gen_random_tiles_from_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tensorflow_caney.utils.data.gen_random_tiles_from_json" title="Permalink to this definition"></a></dt>
 <dd><p>Precursor of gen_random_tiles, where a json file is accepted.</p>
 </dd></dl>
 
@@ -807,69 +800,9 @@ shape = <cite>[batch_size, d0, .. dN-1]</cite></p></li>
 </section>
 <section id="tensorflow-caney-utils-metrics">
 <h2>tensorflow_caney.utils.metrics<a class="headerlink" href="#tensorflow-caney-utils-metrics" title="Permalink to this heading"></a></h2>
-<span class="target" id="module-tensorflow_caney.utils.metrics"></span><dl class="py function">
-<dt class="sig sig-object py" id="tensorflow_caney.utils.metrics.get_metrics">
-<span class="sig-prename descclassname"><span class="pre">tensorflow_caney.utils.metrics.</span></span><span class="sig-name descname"><span class="pre">get_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tensorflow_caney/utils/metrics.html#get_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tensorflow_caney.utils.metrics.get_metrics" title="Permalink to this definition"></a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></p>
-</dd>
-</dl>
-<p>Get metric functions from string evaluation.
-:param model: string with metric callable.
-:type model: str</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Callable.</p>
-</dd>
-</dl>
-</dd></dl>
-
 </section>
 <section id="tensorflow-caney-utils-model">
 <h2>tensorflow_caney.utils.model<a class="headerlink" href="#tensorflow-caney-utils-model" title="Permalink to this heading"></a></h2>
-<span class="target" id="module-tensorflow_caney.utils.model"></span><dl class="py function">
-<dt class="sig sig-object py" id="tensorflow_caney.utils.model.get_model">
-<span class="sig-prename descclassname"><span class="pre">tensorflow_caney.utils.model.</span></span><span class="sig-name descname"><span class="pre">get_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tensorflow_caney/utils/model.html#get_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tensorflow_caney.utils.model.get_model" title="Permalink to this definition"></a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></p>
-</dd>
-</dl>
-<p>Get model function from string evaluation.
-:param model: string with model callable.
-:type model: str</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Callable</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="tensorflow_caney.utils.model.load_model">
-<span class="sig-prename descclassname"><span class="pre">tensorflow_caney.utils.model.</span></span><span class="sig-name descname"><span class="pre">load_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_filename=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_dir=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_objects={'iou_score':</span> <span class="pre">&lt;segmentation_models.metrics.IOUScore</span> <span class="pre">object&gt;}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_extension='*.hdf5'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf=None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tensorflow_caney/utils/model.html#load_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tensorflow_caney.utils.model.load_model" title="Permalink to this definition"></a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></p>
-</dd>
-</dl>
-<p>Load model from filename, take the latest model if not given.
-:param model_filename: string with model filename.
-:type model_filename: str
-:param model_dir: string with model directory.
-:type model_dir: str
-:param custom_objects: dictionary with callable custom objects
-:type custom_objects: dict
-:param model_extension: string with model extension
-:type model_extension: str</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Callable</p>
-</dd>
-</dl>
-</dd></dl>
-
 </section>
 <section id="tensorflow-caney-utils-optimizers">
 <h2>tensorflow_caney.utils.optimizers<a class="headerlink" href="#tensorflow-caney-utils-optimizers" title="Permalink to this heading"></a></h2>

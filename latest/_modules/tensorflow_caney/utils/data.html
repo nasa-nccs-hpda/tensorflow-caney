@@ -139,6 +139,7 @@
                 <span class="n">num_classes</span><span class="p">,</span>
                 <span class="n">tile_size</span><span class="p">,</span>
                 <span class="n">augment</span><span class="p">,</span>
+                <span class="n">xp</span><span class="p">,</span>
                 <span class="n">expand_dims</span><span class="p">,</span>
                 <span class="n">out_image_dir</span><span class="p">,</span>
                 <span class="n">out_label_dir</span>
@@ -161,7 +162,12 @@
                 <span class="n">image_tile</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">tile_size</span><span class="p">:</span>
             <span class="k">continue</span>
 
-        <span class="c1"># first condition, time must have valid classes</span>
+        <span class="c1"># make sure new tile has the same size</span>
+        <span class="k">if</span> <span class="n">label_tile</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">tile_size</span> <span class="ow">or</span> \
+                <span class="n">label_tile</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">tile_size</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># first condition, tile must have valid classes</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">image_tile</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">&lt;</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">or</span> <span class="n">label_tile</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> \
                 <span class="ow">and</span> <span class="n">use_case</span> <span class="o">==</span> <span class="s1">&#39;segmentation&#39;</span><span class="p">:</span>
             <span class="k">continue</span>
@@ -267,6 +273,7 @@
             <span class="n">num_classes</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
             <span class="n">tile_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">128</span><span class="p">,</span>
             <span class="n">augment</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">xp</span><span class="p">:</span> <span class="nb">object</span> <span class="o">=</span> <span class="n">np</span><span class="p">,</span>
             <span class="n">expand_dims</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
             <span class="n">out_image_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;image&#39;</span><span class="p">,</span>
             <span class="n">out_label_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;label&#39;</span><span class="p">,</span>
@@ -283,6 +290,8 @@
         <span class="n">tiles_metadata</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
 
     <span class="k">for</span> <span class="n">tile_filename</span> <span class="ow">in</span> <span class="n">tiles_metadata</span><span class="p">:</span>
+
+        <span class="c1"># print(&quot;MY JSON FILENAME&quot;, tile_filename)</span>
 
         <span class="c1"># Tile indices</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">tiles_metadata</span><span class="p">[</span><span class="n">tile_filename</span><span class="p">][</span><span class="s1">&#39;x&#39;</span><span class="p">]</span>
@@ -316,14 +325,15 @@
                 <span class="n">label_tile</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">rot90</span><span class="p">(</span><span class="n">label_tile</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">num_classes</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="n">label_tile</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">num_classes</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;uint8&#39;</span><span class="p">)[</span><span class="n">label_tile</span><span class="p">]</span>
+            <span class="n">label_tile</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">num_classes</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;uint8&#39;</span><span class="p">)[</span><span class="n">label_tile</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">expand_dims</span><span class="p">:</span>
-                <span class="n">label_tile</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">label_tile</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">label_tile</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">label_tile</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
 
         <span class="c1"># save tiles to disk</span>
-        <span class="n">cp</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out_image_dir</span><span class="p">,</span> <span class="n">tile_filename</span><span class="p">),</span> <span class="n">image_tile</span><span class="p">)</span>
-        <span class="n">cp</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out_label_dir</span><span class="p">,</span> <span class="n">tile_filename</span><span class="p">),</span> <span class="n">label_tile</span><span class="p">)</span>
+        <span class="n">xp</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out_image_dir</span><span class="p">,</span> <span class="n">tile_filename</span><span class="p">),</span> <span class="n">image_tile</span><span class="p">)</span>
+        <span class="n">xp</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out_label_dir</span><span class="p">,</span> <span class="n">tile_filename</span><span class="p">),</span> <span class="n">label_tile</span><span class="p">)</span>
+
     <span class="k">return</span></div>
 
 

@@ -83,6 +83,7 @@
 <span class="kn">import</span> <span class="nn">tensorflow_caney</span> <span class="k">as</span> <span class="nn">tfc</span>
 
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
+<span class="kn">import</span> <span class="nn">keras.backend</span> <span class="k">as</span> <span class="nn">K</span>
 <span class="kn">from</span> <span class="nn">tensorflow.keras.losses</span> <span class="kn">import</span> <span class="n">Loss</span><span class="p">,</span> <span class="n">Reduction</span>
 
 
@@ -91,6 +92,9 @@
     <span class="s2">&quot;CategoricalCrossEntropy&quot;</span><span class="p">,</span> <span class="s2">&quot;CategoricalFocalLoss&quot;</span><span class="p">,</span>
     <span class="s2">&quot;JaccardDistanceLoss&quot;</span><span class="p">,</span> <span class="s2">&quot;TanimotoDistanceLoss&quot;</span>
 <span class="p">]</span>
+
+<span class="n">epsilon</span> <span class="o">=</span> <span class="mf">1e-5</span>
+<span class="n">smooth</span> <span class="o">=</span> <span class="mi">1</span>
 
 
 <div class="viewcode-block" id="get_loss"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.losses.get_loss">[docs]</a><span class="k">def</span> <span class="nf">get_loss</span><span class="p">(</span><span class="n">loss</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
@@ -401,6 +405,76 @@
         <span class="n">loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">loss</span></div></div>
+
+
+<span class="nd">@tf</span><span class="o">.</span><span class="n">function</span>
+<span class="k">def</span> <span class="nf">tversky</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.40</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="mf">0.60</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function to calculate the Tversky loss for imbalanced data</span>
+<span class="sd">    :param prediction: the logits</span>
+<span class="sd">    :param ground_truth: the segmentation ground_truth</span>
+<span class="sd">    :param alpha: weight of false positives</span>
+<span class="sd">    :param beta: weight of false negatives</span>
+<span class="sd">    :param weight_map:</span>
+<span class="sd">    :return: the loss</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">y_t</span> <span class="o">=</span> <span class="n">y_true</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">y_t</span> <span class="o">=</span> <span class="n">y_t</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    <span class="c1"># weights</span>
+    <span class="n">y_weights</span> <span class="o">=</span> <span class="n">y_true</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">y_weights</span> <span class="o">=</span> <span class="n">y_weights</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+
+    <span class="n">ones</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">p0</span> <span class="o">=</span> <span class="n">y_pred</span>  <span class="c1"># proba that voxels are class i</span>
+    <span class="n">p1</span> <span class="o">=</span> <span class="n">ones</span> <span class="o">-</span> <span class="n">y_pred</span>  <span class="c1"># proba that voxels are not class i</span>
+    <span class="n">g0</span> <span class="o">=</span> <span class="n">y_t</span>
+    <span class="n">g1</span> <span class="o">=</span> <span class="n">ones</span> <span class="o">-</span> <span class="n">y_t</span>
+
+    <span class="n">tp</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">y_weights</span> <span class="o">*</span> <span class="n">p0</span> <span class="o">*</span> <span class="n">g0</span><span class="p">)</span>
+    <span class="n">fp</span> <span class="o">=</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">y_weights</span> <span class="o">*</span> <span class="n">p0</span> <span class="o">*</span> <span class="n">g1</span><span class="p">)</span>
+    <span class="n">fn</span> <span class="o">=</span> <span class="n">beta</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">y_weights</span> <span class="o">*</span> <span class="n">p1</span> <span class="o">*</span> <span class="n">g0</span><span class="p">)</span>
+
+    <span class="n">EPSILON</span> <span class="o">=</span> <span class="mf">0.00001</span>
+    <span class="n">numerator</span> <span class="o">=</span> <span class="n">tp</span>
+    <span class="n">denominator</span> <span class="o">=</span> <span class="n">tp</span> <span class="o">+</span> <span class="n">fp</span> <span class="o">+</span> <span class="n">fn</span> <span class="o">+</span> <span class="n">EPSILON</span>
+    <span class="n">score</span> <span class="o">=</span> <span class="n">numerator</span> <span class="o">/</span> <span class="n">denominator</span>
+    <span class="k">return</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">class_tversky</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
+    <span class="n">smooth</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="n">y_true</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">permute_dimensions</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span>
+    <span class="n">y_pred</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">permute_dimensions</span><span class="p">(</span><span class="n">y_pred</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span>
+
+    <span class="n">y_true_pos</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">batch_flatten</span><span class="p">(</span><span class="n">y_true</span><span class="p">)</span>
+    <span class="n">y_pred_pos</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">batch_flatten</span><span class="p">(</span><span class="n">y_pred</span><span class="p">)</span>
+    <span class="n">true_pos</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">y_true_pos</span> <span class="o">*</span> <span class="n">y_pred_pos</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">false_neg</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">y_true_pos</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">y_pred_pos</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">false_pos</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="mi">1</span><span class="o">-</span><span class="n">y_true_pos</span><span class="p">)</span><span class="o">*</span><span class="n">y_pred_pos</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.7</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">true_pos</span> <span class="o">+</span> <span class="n">smooth</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">true_pos</span> <span class="o">+</span> <span class="n">alpha</span><span class="o">*</span><span class="n">false_neg</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">alpha</span><span class="p">)</span><span class="o">*</span><span class="n">false_pos</span> <span class="o">+</span> <span class="n">smooth</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">focal_tversky_loss</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span><span class="n">y_pred</span><span class="p">):</span>
+    <span class="n">pt_1</span> <span class="o">=</span> <span class="n">class_tversky</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+    <span class="n">gamma</span> <span class="o">=</span> <span class="mf">0.75</span>
+    <span class="k">return</span> <span class="n">K</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">K</span><span class="o">.</span><span class="n">pow</span><span class="p">((</span><span class="mi">1</span><span class="o">-</span><span class="n">pt_1</span><span class="p">),</span> <span class="n">gamma</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">binary_tversky</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
+    <span class="n">y_true_pos</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">y_true</span><span class="p">)</span>
+    <span class="n">y_pred_pos</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">y_pred</span><span class="p">)</span>
+    <span class="n">true_pos</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">y_true_pos</span> <span class="o">*</span> <span class="n">y_pred_pos</span><span class="p">)</span>
+    <span class="n">false_neg</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">y_true_pos</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">y_pred_pos</span><span class="p">))</span>
+    <span class="n">false_pos</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="mi">1</span><span class="o">-</span><span class="n">y_true_pos</span><span class="p">)</span><span class="o">*</span><span class="n">y_pred_pos</span><span class="p">)</span>
+    <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.7</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">true_pos</span> <span class="o">+</span> <span class="n">smooth</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">true_pos</span> <span class="o">+</span> <span class="n">alpha</span><span class="o">*</span><span class="n">false_neg</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">alpha</span><span class="p">)</span><span class="o">*</span><span class="n">false_pos</span> <span class="o">+</span> <span class="n">smooth</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">binary_tversky_loss</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
+    <span class="k">return</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">binary_tversky</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
 </pre></div>
 
            </div>
