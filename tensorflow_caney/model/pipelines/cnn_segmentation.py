@@ -330,7 +330,7 @@ class CNNSegmentation(object):
 
                 # get full model for training
                 model = get_model(self.conf.model)
-                model.trainable = False
+                model.trainable = True
                 pretrained = load_model(
                     model_filename=self.conf.transfer_learning_weights,
                     model_dir=self.model_dir
