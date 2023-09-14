@@ -91,7 +91,7 @@ def gen_random_tiles(
             continue
 
         # first condition, tile must have valid classes
-        if (image_tile.min() < -1 or label_tile.min() < 0) \
+        if (image_tile.min() < -1000 or label_tile.min() < 0) \
                 and use_case == 'segmentation':
             continue
 
