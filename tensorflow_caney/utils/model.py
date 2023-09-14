@@ -5,6 +5,7 @@ import tensorflow as tf
 import segmentation_models as sm
 import tensorflow_addons as tfa
 import tensorflow_caney as tfc
+from keras_unet_collection import models as kuc
 import tensorflow_caney
 
 from typing import Any
@@ -16,6 +17,12 @@ from tensorflow_caney.utils.optimizers import get_optimizer
 from tensorflow_caney.utils.metrics import get_metrics
 
 __all__ = ["get_model", "load_model"]
+
+CUSTOM_OBJECTS = {
+    'iou_score': sm.metrics.iou_score,
+    'focal_tversky_loss': tfc.utils.losses.focal_tversky_loss,
+    'binary_tversky_loss': tfc.utils.losses.binary_tversky_loss,
+}
 
 
 def get_model(model: str) -> Any:
@@ -29,14 +36,14 @@ def get_model(model: str) -> Any:
     try:
         model_function = eval(model)
     except (NameError, AttributeError) as err:
-        sys.exit(f'{err}. Accepted models from {tf}, {sm}, {tfa}, {tfc}')
+        sys.exit(f'{err}. Accepted models from {tf}, {sm}, {tfa}, {tfc}, {kuc}')
     return model_function
 
 
 def load_model(
             model_filename: str = None,
             model_dir: str = None,
-            custom_objects: dict = {'iou_score': sm.metrics.iou_score},
+            custom_objects: dict = CUSTOM_OBJECTS,
             model_extension: str = '*.hdf5',
             conf: OmegaConf = None
         ) -> Any:

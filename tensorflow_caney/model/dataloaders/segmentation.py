@@ -113,6 +113,36 @@ class SegmentationDataLoader(object):
             self.metadata = read_metadata(
                 conf.metadata_regex, conf.input_bands, conf.output_bands)
 
+        """
+        # sometimes = lambda aug, prob=0.5: iaa.Sometimes(prob, aug)
+        self.seq = iaa.Sequential([
+            # Basic aug without changing any values
+            iaa.Fliplr(0.5),  # horizontally flip 50% of all images
+            iaa.Flipud(0.5),  # vertically flip 20% of all images
+            #sometimes(iaa.Crop(percent=(0, 0.1))),  # random crops
+
+            # Gaussian blur and gamma contrast
+            sometimes(iaa.GaussianBlur(sigma=(0, 0.3)), 0.3),
+            # sometimes(iaa.GammaContrast(gamma=0.5, per_channel=True), 0.3),
+
+            # Sharpen
+            #sometimes(iaa.Sharpen(alpha=(0.0, 1.0), lightness=(0.75, 2.0))),
+            # AddToHueAndSaturation
+            # sometimes(iaa.AddToHueAndSaturation((-50, 50), per_channel=True)),
+
+            # sometimes(iaa.Affine(scale={"x": (0.5, 1.5), "y": (0.5, 1.5)})),
+            #sometimes(iaa.Affine(rotate=(-90, 90))),
+
+            # iaa.CoarseDropout((0.03, 0.25), size_percent=(0.02, 0.05), per_channel=True)
+            # sometimes(iaa.Multiply((0.75, 1.25), per_channel=True), 0.3),
+            sometimes(iaa.LinearContrast((0.3, 1.2)), 0.3),
+            # iaa.Add(value=(-0.5,0.5),per_channel=True),
+            #sometimes(iaa.PiecewiseAffine(0.05), 0.3),
+            #sometimes(iaa.PerspectiveTransform(0.01), 0.1)
+        ],
+            random_order=True)
+        """
+
     def tf_dataset(
                 self, x: list, y: list,
                 read_func: Any,
@@ -180,6 +210,12 @@ class SegmentationDataLoader(object):
         # Normalization should be done at preprocessing step
         # x = normalize_image(x, self.conf.normalize)
 
+        # seq_det = self.seq.to_deterministic()
+        # x = seq_det.augment_image(x)
+        # y would have two channels, i.e. annotations and weights.
+        # We need to augment y for operations such as crop and transform
+        # y = seq_det.augment_image(y)
+
         # Standardize
         if self.conf.metadata_regex is not None and \
                 self.conf.standardization is not None:
@@ -187,15 +223,27 @@ class SegmentationDataLoader(object):
                 x, self.metadata[timestamp], subtract='median'
             )
 
-        elif self.conf.standardization is not None:
+        elif self.conf.standardization is not None and \
+                self.conf.standardization != 'None':
             x = standardize_image(
                 x, self.conf.standardization, self.mean, self.std)
+
+        # Rescale
+        if self.conf.rescale is not None and \
+                self.conf.rescale != 'None':
+            # print("RESCALING")
+            means = x.mean(axis=(0, 1))
+            stds = x.std(axis=(0, 1))
+            newMin = means - (2 * stds)
+            newMax = means + (2 * stds)
+            x = (x - newMin) / (newMax - newMin)
 
         # Crop
         if self.conf.center_crop:
             x = center_crop(x, (self.conf.tile_size, self.conf.tile_size))
             y = center_crop(y, (self.conf.tile_size, self.conf.tile_size))
 
+       
         # Augment
         if self.conf.augment:
 

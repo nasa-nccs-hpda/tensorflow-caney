@@ -32,9 +32,18 @@ directory so projects, examples, and notebooks can be run.
 Note: PIP installations do not include CUDA libraries for GPU support. Make sure NVIDIA libraries
 are installed locally in the system if not using conda/mamba.
 
+### Production Container
+
 ```bash
 module load singularity
-singularity build --sandbox tensorflow-caney docker://nasanccs/tensorflow-caney:latest
+singularity build --sandbox /lscratch/$USER/container/tensorflow-caney docker://nasanccs/tensorflow-caney:latest
+```
+
+## Development Container
+
+```bash
+module load singularity
+singularity build --sandbox /lscratch/$USER/container/tensorflow-caney docker://nasanccs/tensorflow-caney:dev
 ```
 
 ## Why Caney?

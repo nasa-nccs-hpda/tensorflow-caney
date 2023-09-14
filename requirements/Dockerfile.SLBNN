@@ -1,0 +1,56 @@
+# Arguments to pass to the image
+ARG TF_VER=tf2
+ARG VERSION_DATE=23.01
+ARG FROM_IMAGE=nvcr.io/nvidia/tensorflow
+
+# Import RAPIDS container as the BASE Image (cuda base image)
+FROM ${FROM_IMAGE}:${VERSION_DATE}-${TF_VER}-py3
+
+# Ubuntu needs noninteractive to be forced
+ENV DEBIAN_FRONTEND noninteractive
+ENV SM_FRAMEWORK="tf.keras"
+
+# System dependencies
+RUN apt-get update && \
+    apt-get -y install software-properties-common && \
+    add-apt-repository ppa:ubuntugis/ppa && \
+    apt-get update && apt-get -y dist-upgrade && \
+    apt-get -y install build-essential \
+        wget \
+        vim \
+        curl \
+        git \
+        procps \
+        gcc \
+        g++ \
+        bzip2 \
+        libssl-dev \
+        locales && \
+    apt-get -y autoremove && \
+    rm -rf /var/cache/apt /var/lib/apt/lists/*
+
+# Pip
+RUN pip --no-cache-dir install omegaconf \
+    xarray \
+    tensorflow_probability \
+    opencv-python \
+    opencv-python-headless \
+    opencv-contrib-python \
+    opencv-contrib-python-headless \
+    tifffile \
+    webcolors \
+    Pillow \
+    seaborn \
+    xgboost \
+    tiler \
+    segmentation-models \
+    pytest \
+    coveralls \
+    rtree \
+    sphinx \
+    sphinx_rtd_theme \
+    astropy
+
+HEALTHCHECK NONE
+ENTRYPOINT []
+CMD ["/bin/bash"]

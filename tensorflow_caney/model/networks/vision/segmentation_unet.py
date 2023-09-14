@@ -309,7 +309,10 @@ def Attention_UNet(input_shape, NUM_CLASSES=1, dropout_rate=0.0, batch_norm=True
     conv_final = layers.Conv2D(NUM_CLASSES, kernel_size=(1,1))(up_conv_128)
     conv_final = layers.BatchNormalization(axis=3)(conv_final)
     # Change to softmax for multichannel
-    conv_final = layers.Activation('sigmoid')(conv_final)
+    if NUM_CLASSES == 1:
+        conv_final = layers.Activation('sigmoid')(conv_final)
+    else:
+        conv_final = layers.Activation('softmax')(conv_final)
 
     # Model integration
     model = models.Model(inputs, conv_final, name="Attention_UNet")
@@ -388,7 +391,10 @@ def Attention_ResUNet(input_shape, NUM_CLASSES=1, dropout_rate=0.0, batch_norm=T
     conv_final = layers.Conv2D(NUM_CLASSES, kernel_size=(1,1))(up_conv_128)
     conv_final = layers.BatchNormalization(axis=axis)(conv_final)
     # Change to softmax for multichannel
-    conv_final = layers.Activation('sigmoid')(conv_final)
+    if NUM_CLASSES == 1:
+        conv_final = layers.Activation('sigmoid')(conv_final)
+    else:
+        conv_final = layers.Activation('softmax')(conv_final)
 
     # Model integration
     model = models.Model(inputs, conv_final, name="AttentionResUNet")

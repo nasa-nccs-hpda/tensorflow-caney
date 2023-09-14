@@ -330,7 +330,7 @@ class CNNSegmentation(object):
 
                 # get full model for training
                 model = get_model(self.conf.model)
-                model.trainable = False
+                model.trainable = True
                 pretrained = load_model(
                     model_filename=self.conf.transfer_learning_weights,
                     model_dir=self.model_dir
@@ -470,6 +470,12 @@ class CNNSegmentation(object):
                     image = rxr.open_rasterio(filename)
                     logging.info(f'Prediction shape: {image.shape}')
 
+                    # check bands in imagery, do not proceed if one band
+                    if image.shape[0] == 1:
+                        logging.info(
+                            'Skipping file because of non sufficient bands')
+                        continue
+
                 except rasterio.errors.RasterioIOError:
                     logging.info(f'Skipped {filename}, probably corrupted.')
                     continue
@@ -495,10 +501,10 @@ class CNNSegmentation(object):
                 # Remove no-data values to account for edge effects
                 temporary_tif = xr.where(image > -100, image, 600)
 
-                print("ENTERING PREDICTION")
+                # print("ENTERING PREDICTION")
 
                 # Sliding window prediction
-                prediction = \
+                prediction, probability = \
                     inference.sliding_window_tiler_multiclass(
                         xraster=temporary_tif,
                         model=model,
@@ -515,8 +521,8 @@ class CNNSegmentation(object):
                         probability_map=self.conf.probability_map
                     )
 
-                if isinstance(prediction, tuple):
-                    prediction, probability = prediction
+                # if isinstance(prediction, tuple):
+                #     prediction, probability = prediction
 
                 # Drop image band to allow for a merge of mask
                 image = image.drop(
@@ -524,7 +530,7 @@ class CNNSegmentation(object):
                     labels=image.coords["band"].values[1:],
                 )
 
-                # Get metadata to save raster
+                # Get metadata to save raster prediction
                 prediction = xr.DataArray(
                     np.expand_dims(prediction, axis=-1),
                     name=self.conf.experiment_type,
@@ -554,14 +560,13 @@ class CNNSegmentation(object):
                 )
                 del prediction
 
-                print(Path(output_filename).with_suffix('.tif'))
+                # print(Path(output_filename).with_suffix('.tif'))
 
-                """
                 # save probability map
-                if self.conf.probability_map:
+                if probability is not None:
 
                     probability = xr.DataArray(
-                        np.expand_dims(probability[0], axis=-1),
+                        np.expand_dims(probability, axis=-1), # probability[0]
                         name=self.conf.experiment_type,
                         coords=image.coords,
                         dims=image.dims,
@@ -585,14 +590,14 @@ class CNNSegmentation(object):
 
                     # Save output raster file to disk
                     probability.rio.to_raster(
-                        output_filename,
+                        Path(output_filename).with_suffix('.prob.tif'),
                         BIGTIFF="IF_SAFER",
                         compress=self.conf.prediction_compress,
                         driver=self.conf.prediction_driver,
                         dtype='float32'
                     )
                     del probability
-                """
+
                 # delete lock file
                 try:
                     os.remove(lock_filename)

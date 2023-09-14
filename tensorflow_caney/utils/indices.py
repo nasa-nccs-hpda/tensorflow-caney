@@ -305,7 +305,7 @@ indices_registry = {
     'ndvi': ndvi,
     'ndwi': ndwi,
     'si': si,
-    'sr': sr
+    'sr': sr,
 }
 
 

@@ -181,3 +181,6 @@ class Config:
 
     # Regex to find model metadata
     metadata_regex: Optional[str] = None
+
+    # Validation database for validation of predictions
+    validation_database: Optional[str] = None

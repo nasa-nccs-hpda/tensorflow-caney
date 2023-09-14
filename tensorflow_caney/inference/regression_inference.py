@@ -1,4 +1,5 @@
 import numpy as np
+import tensorflow as tf
 from tiler import Tiler, Merger
 from ..utils.data import standardize_image
 
@@ -59,7 +60,10 @@ def sliding_window_tiler(
                 batch[item, :, :, :] = standardize_image(
                     batch[item, :, :, :], standardization, mean, std)
 
-        # Predict
+        # Predict - working on TensorRT
+        # if isinstance(model, tf.python.saved_model.load._WrapperFunction):
+        # batch = model(batch)['probs'].numpy()
+        # else:
         batch = model.predict(batch, batch_size=batch_size, verbose=0)
 
         # Merge the updated data in the array
