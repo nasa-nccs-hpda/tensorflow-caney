@@ -191,3 +191,14 @@ class Config:
 
     # Validation database for validation of predictions
     validation_database: Optional[str] = None
+
+    # Test classes
+    test_classes: Optional[List[str]] = field(
+        default_factory=lambda: [])
+
+    # Test colors for vis, must match test_classes size
+    test_colors: Optional[List[str]] = field(
+        default_factory=lambda: [])
+
+    # Test truth regex where labels are stored to compare with
+    test_truth_regex:  Optional[str] = None
