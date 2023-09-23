@@ -6,7 +6,7 @@ import logging
 import argparse
 import omegaconf
 import rasterio
-import cupy as cp
+# import cupy as cp
 import numpy as np
 import xarray as xr
 import rioxarray as rxr
@@ -19,7 +19,7 @@ from omegaconf.listconfig import ListConfig
 
 from tensorflow_caney.model.config.cnn_config import Config
 from tensorflow_caney.utils.system import seed_everything, \
-    set_gpu_strategy, set_mixed_precision, set_xla
+    set_gpu_strategy, set_mixed_precision, set_xla, array_module
 from tensorflow_caney.utils.data import read_dataset_csv, \
     gen_random_tiles, modify_bands, normalize_image, rescale_image, \
     modify_label_classes, get_dataset_filenames, get_mean_std_dataset, \
@@ -35,7 +35,8 @@ from tensorflow_caney.utils.callbacks import get_callbacks
 from tensorflow_caney.inference import inference
 
 CHUNKS = {'band': 'auto', 'x': 'auto', 'y': 'auto'}
-xp = cp
+xp = array_module()
+print(xp)
 
 
 __status__ = "Development"
