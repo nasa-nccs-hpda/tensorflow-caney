@@ -18,7 +18,8 @@ def confusion_matrix_func(
             y_pred: list = [],
             nclasses: int = 3,
             norm: bool = True,
-            percent: float = 0.2
+            sample_points: bool = True,
+            percent: float = 0.2,
         ):
     """
     Args:
@@ -35,30 +36,31 @@ def confusion_matrix_func(
     label_dict = np.unique(y_true, return_counts=True)
 
     # get subset of pixel
-    #ind3 = np.random.choice(np.where(y_true == 3)[0], round(label_dict[1][3] * percent))
-    ind2 = np.random.choice(np.where(y_true == 2)[0], round(label_dict[1][2] * percent))
-    ind1 = np.random.choice(np.where(y_true == 1)[0], round(label_dict[1][1] * percent))
-    ind0 = np.random.choice(np.where(y_true == 0)[0], round(label_dict[1][0] * percent))
-    #print(ind0)
+    if sample_points:
 
-    numpix_class0 = round(label_dict[1][0] * percent)
-    numpix_class1 = round(label_dict[1][1] * percent)
-    numpix_class2 = round(label_dict[1][2] * percent)
-    #numpix_class3 = round(label_dict[1][3] * percent)
-    #print(numpix_class0)
+        #ind3 = np.random.choice(np.where(y_true == 3)[0], round(label_dict[1][3] * percent))
+        ind2 = np.random.choice(np.where(y_true == 2)[0], round(label_dict[1][2] * percent))
+        ind1 = np.random.choice(np.where(y_true == 1)[0], round(label_dict[1][1] * percent))
+        ind0 = np.random.choice(np.where(y_true == 0)[0], round(label_dict[1][0] * percent))
 
-    gt = np.concatenate((y_true[ind0], y_true[ind1], y_true[ind2]))
-    pred = np.concatenate((y_pred[ind0], y_pred[ind1], y_pred[ind2]))
+        numpix_class0 = round(label_dict[1][0] * percent)
+        numpix_class1 = round(label_dict[1][1] * percent)
+        numpix_class2 = round(label_dict[1][2] * percent)
+        #numpix_class3 = round(label_dict[1][3] * percent)
+        #print(numpix_class0)
 
-    # change value 3 in prediction (burned area) to value 0 (other vegetation)
-    pred[pred == 3] = 0
+        y_true = np.concatenate((y_true[ind0], y_true[ind1], y_true[ind2]))
+        y_pred = np.concatenate((y_pred[ind0], y_pred[ind1], y_pred[ind2]))
+
+        # change value 3 in prediction (burned area) to value 0 (other vegetation)
+        y_pred[y_pred == 3] = 0
 
     #print('ground truth: ', np.unique(gt))
     #print('predict: ', np.unique(pred))
 
     # get overall weighted accuracy
-    accuracy = accuracy_score(gt, pred, normalize=True, sample_weight=None)
-    balanced_accuracy = balanced_accuracy_score(gt, pred, sample_weight=None)
+    accuracy = accuracy_score(y_true, y_pred, normalize=True, sample_weight=None)
+    balanced_accuracy = balanced_accuracy_score(y_true, y_pred, sample_weight=None)
     print("Accuracy: ", accuracy, "Balanced Accuracy: ", balanced_accuracy)
 
     # print(classification_report(y_true, y_pred))
@@ -69,8 +71,9 @@ def confusion_matrix_func(
 
     target_names = ['other-vegetation', 'tree', 'cropland']
     report = classification_report(
-        gt, pred, target_names=target_names, output_dict=True)
-    cfn_matrix = confusion_matrix(gt, pred)
+        y_true, y_pred, target_names=target_names,
+        output_dict=True, labels=label_name)
+    cfn_matrix = confusion_matrix(y_true, y_pred)
 
     #tree_recall = report['tree']['recall']
     #crop_recall = report['cropland']['recall']
@@ -80,7 +83,7 @@ def confusion_matrix_func(
 
     ## get confusion matrix
     con_mat = tf.math.confusion_matrix(
-        labels=gt, predictions=pred, num_classes=nclasses
+        labels=y_true, predictions=y_pred, num_classes=nclasses
     ).numpy()
 
     # print(con_mat.sum(axis=1)[:, np.newaxis])
