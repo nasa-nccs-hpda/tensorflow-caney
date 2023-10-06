@@ -75,8 +75,9 @@
            <div itemprop="articleBody">
              
   <h1>Source code for tensorflow_caney.utils.data</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">os</span>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">random</span>
 <span class="kn">import</span> <span class="nn">logging</span>
@@ -124,10 +125,14 @@
     <span class="c1"># verify the existance of json files to load dataset from</span>
     <span class="k">if</span> <span class="n">json_tiles_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">dataset_from_json</span><span class="p">:</span>
 
+        <span class="c1">#json_files = sorted(</span>
+        <span class="c1">#    glob(os.path.join(json_tiles_dir, &#39;*.json&#39;)),</span>
+        <span class="c1">#    key=os.path.getmtime</span>
+        <span class="c1">#)</span>
         <span class="n">json_files</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
-            <span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">json_tiles_dir</span><span class="p">,</span> <span class="s1">&#39;*.json&#39;</span><span class="p">)),</span>
-            <span class="n">key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span>
+            <span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">json_tiles_dir</span><span class="p">,</span> <span class="s1">&#39;*.json&#39;</span><span class="p">))</span>
         <span class="p">)</span>
+        <span class="c1">#print(json_files)</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">json_files</span><span class="p">)</span><span class="si">}</span><span class="s1"> json dataset files.&#39;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">json_files</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -282,6 +287,11 @@
 <span class="sd">    Precursor of gen_random_tiles, where a json file is accepted.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">json_filename</span> <span class="o">=</span> <span class="n">json_metadata</span><span class="p">[</span><span class="n">index_id</span><span class="p">]</span>
+    
+    <span class="c1"># 10/05/2023 TEMPORARY FIX to get the same filename following</span>
+    <span class="c1"># TOA naming conventions</span>
+    <span class="c1"># Tappan33_WV03_20141118_M1BS_104001000415CB00</span>
+    <span class="c1"># print(&quot;JSON FILENAME&quot;, json_filename)</span>
     <span class="c1"># data_basename = Path(output_filename).stem</span>
     <span class="c1"># json_filename = [i for i in json_metadata if data_basename in i][0]</span>
 
@@ -324,11 +334,15 @@
                 <span class="n">image_tile</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">rot90</span><span class="p">(</span><span class="n">image_tile</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
                 <span class="n">label_tile</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">rot90</span><span class="p">(</span><span class="n">label_tile</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">num_classes</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="n">label_tile</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">num_classes</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;uint8&#39;</span><span class="p">)[</span><span class="n">label_tile</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">expand_dims</span><span class="p">:</span>
-                <span class="n">label_tile</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">label_tile</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">num_classes</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">label_tile</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">num_classes</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;uint8&#39;</span><span class="p">)[</span><span class="n">label_tile</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">expand_dims</span><span class="p">:</span>
+                    <span class="n">label_tile</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">label_tile</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out_image_dir</span><span class="p">,</span> <span class="n">tile_filename</span><span class="p">))</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
 
         <span class="c1"># save tiles to disk</span>
         <span class="n">xp</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out_image_dir</span><span class="p">,</span> <span class="n">tile_filename</span><span class="p">),</span> <span class="n">image_tile</span><span class="p">)</span>
