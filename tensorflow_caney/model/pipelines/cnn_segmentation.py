@@ -223,6 +223,7 @@ class CNNSegmentation(object):
 
         # Initialize dataframe with data details
         data_df = read_dataset_csv(self.data_csv)
+        data_df = data_df.sort_values(by=['data'])
         self.logger.info(data_df)
 
         # Multiprocessing, use all cores in the system
