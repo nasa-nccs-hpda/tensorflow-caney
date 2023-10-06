@@ -1,5 +1,6 @@
-import json
 import os
+import sys
+import json
 import time
 import random
 import logging
@@ -47,10 +48,14 @@ def gen_random_tiles(
     # verify the existance of json files to load dataset from
     if json_tiles_dir is not None and dataset_from_json:
 
+        #json_files = sorted(
+        #    glob(os.path.join(json_tiles_dir, '*.json')),
+        #    key=os.path.getmtime
+        #)
         json_files = sorted(
-            glob(os.path.join(json_tiles_dir, '*.json')),
-            key=os.path.getmtime
+            glob(os.path.join(json_tiles_dir, '*.json'))
         )
+        #print(json_files)
         logging.info(f'Found {len(json_files)} json dataset files.')
 
         if len(json_files) > 0:
@@ -205,6 +210,11 @@ def gen_random_tiles_from_json(
     Precursor of gen_random_tiles, where a json file is accepted.
     """
     json_filename = json_metadata[index_id]
+    
+    # 10/05/2023 TEMPORARY FIX to get the same filename following
+    # TOA naming conventions
+    # Tappan33_WV03_20141118_M1BS_104001000415CB00
+    # print("JSON FILENAME", json_filename)
     # data_basename = Path(output_filename).stem
     # json_filename = [i for i in json_metadata if data_basename in i][0]
 
@@ -247,11 +257,15 @@ def gen_random_tiles_from_json(
                 image_tile = cp.rot90(image_tile, 3)
                 label_tile = cp.rot90(label_tile, 3)
 
-        if num_classes >= 2:
-            label_tile = xp.eye(num_classes, dtype='uint8')[label_tile]
-        else:
-            if expand_dims:
-                label_tile = xp.expand_dims(label_tile, axis=-1)
+        try:
+            if num_classes >= 2:
+                label_tile = xp.eye(num_classes, dtype='uint8')[label_tile]
+            else:
+                if expand_dims:
+                    label_tile = xp.expand_dims(label_tile, axis=-1)
+        except:
+            print(os.path.join(out_image_dir, tile_filename))
+            sys.exit()
 
         # save tiles to disk
         xp.save(os.path.join(out_image_dir, tile_filename), image_tile)

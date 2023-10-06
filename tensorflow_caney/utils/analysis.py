@@ -29,6 +29,8 @@ def confusion_matrix_func(
     Returns:
     numpy array with confusion matrix
     """
+    print("HELLLLOOOO")
+
     y_true = y_true.flatten()
     y_pred = y_pred.flatten()
 
@@ -58,9 +60,20 @@ def confusion_matrix_func(
     #print('ground truth: ', np.unique(gt))
     #print('predict: ', np.unique(pred))
 
+    print("TRUUUUE", y_true.min(), y_true.max())
+    print("PREDDD", y_pred.min(), y_pred.max())
+
+
     # get overall weighted accuracy
-    accuracy = accuracy_score(y_true, y_pred, normalize=True, sample_weight=None)
-    balanced_accuracy = balanced_accuracy_score(y_true, y_pred, sample_weight=None)
+    try:
+        accuracy = accuracy_score(y_true, y_pred, normalize=True, sample_weight=None)
+    except:
+        accuracy = np.nan
+    
+    try:
+        balanced_accuracy = balanced_accuracy_score(y_true, y_pred, sample_weight=None)
+    except:
+        balanced_accuracy = np.nan
     print("Accuracy: ", accuracy, "Balanced Accuracy: ", balanced_accuracy)
 
     # print(classification_report(y_true, y_pred))
