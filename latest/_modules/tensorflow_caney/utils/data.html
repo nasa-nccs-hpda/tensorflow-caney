@@ -1,21 +1,22 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>tensorflow_caney.utils.data &mdash; tensorflow-caney 0.2.5 documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=cb850272"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -99,7 +100,9 @@
     <span class="n">HAS_GPU</span> <span class="o">=</span> <span class="kc">False</span>
 
 
-<div class="viewcode-block" id="gen_random_tiles"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.gen_random_tiles">[docs]</a><span class="k">def</span> <span class="nf">gen_random_tiles</span><span class="p">(</span>
+<div class="viewcode-block" id="gen_random_tiles">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.gen_random_tiles">[docs]</a>
+<span class="k">def</span> <span class="nf">gen_random_tiles</span><span class="p">(</span>
             <span class="n">image</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
             <span class="n">label</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
             <span class="n">index_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -125,14 +128,9 @@
     <span class="c1"># verify the existance of json files to load dataset from</span>
     <span class="k">if</span> <span class="n">json_tiles_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">dataset_from_json</span><span class="p">:</span>
 
-        <span class="c1">#json_files = sorted(</span>
-        <span class="c1">#    glob(os.path.join(json_tiles_dir, &#39;*.json&#39;)),</span>
-        <span class="c1">#    key=os.path.getmtime</span>
-        <span class="c1">#)</span>
         <span class="n">json_files</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
             <span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">json_tiles_dir</span><span class="p">,</span> <span class="s1">&#39;*.json&#39;</span><span class="p">))</span>
         <span class="p">)</span>
-        <span class="c1">#print(json_files)</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">json_files</span><span class="p">)</span><span class="si">}</span><span class="s1"> json dataset files.&#39;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">json_files</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -270,7 +268,10 @@
     <span class="k">return</span></div>
 
 
-<div class="viewcode-block" id="gen_random_tiles_from_json"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.gen_random_tiles_from_json">[docs]</a><span class="k">def</span> <span class="nf">gen_random_tiles_from_json</span><span class="p">(</span>
+
+<div class="viewcode-block" id="gen_random_tiles_from_json">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.gen_random_tiles_from_json">[docs]</a>
+<span class="k">def</span> <span class="nf">gen_random_tiles_from_json</span><span class="p">(</span>
             <span class="n">json_metadata</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
             <span class="n">image</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
             <span class="n">label</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
@@ -287,21 +288,12 @@
 <span class="sd">    Precursor of gen_random_tiles, where a json file is accepted.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">json_filename</span> <span class="o">=</span> <span class="n">json_metadata</span><span class="p">[</span><span class="n">index_id</span><span class="p">]</span>
-    
-    <span class="c1"># 10/05/2023 TEMPORARY FIX to get the same filename following</span>
-    <span class="c1"># TOA naming conventions</span>
-    <span class="c1"># Tappan33_WV03_20141118_M1BS_104001000415CB00</span>
-    <span class="c1"># print(&quot;JSON FILENAME&quot;, json_filename)</span>
-    <span class="c1"># data_basename = Path(output_filename).stem</span>
-    <span class="c1"># json_filename = [i for i in json_metadata if data_basename in i][0]</span>
 
     <span class="c1"># load json filename</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">json_filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">j</span><span class="p">:</span>
         <span class="n">tiles_metadata</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
 
     <span class="k">for</span> <span class="n">tile_filename</span> <span class="ow">in</span> <span class="n">tiles_metadata</span><span class="p">:</span>
-
-        <span class="c1"># print(&quot;MY JSON FILENAME&quot;, tile_filename)</span>
 
         <span class="c1"># Tile indices</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">tiles_metadata</span><span class="p">[</span><span class="n">tile_filename</span><span class="p">][</span><span class="s1">&#39;x&#39;</span><span class="p">]</span>
@@ -334,15 +326,11 @@
                 <span class="n">image_tile</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">rot90</span><span class="p">(</span><span class="n">image_tile</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
                 <span class="n">label_tile</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">rot90</span><span class="p">(</span><span class="n">label_tile</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
 
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">num_classes</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
-                <span class="n">label_tile</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">num_classes</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;uint8&#39;</span><span class="p">)[</span><span class="n">label_tile</span><span class="p">]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">expand_dims</span><span class="p">:</span>
-                    <span class="n">label_tile</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">label_tile</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
-        <span class="k">except</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out_image_dir</span><span class="p">,</span> <span class="n">tile_filename</span><span class="p">))</span>
-            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">num_classes</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">label_tile</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">num_classes</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;uint8&#39;</span><span class="p">)[</span><span class="n">label_tile</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">expand_dims</span><span class="p">:</span>
+                <span class="n">label_tile</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">label_tile</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
 
         <span class="c1"># save tiles to disk</span>
         <span class="n">xp</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out_image_dir</span><span class="p">,</span> <span class="n">tile_filename</span><span class="p">),</span> <span class="n">image_tile</span><span class="p">)</span>
@@ -351,7 +339,10 @@
     <span class="k">return</span></div>
 
 
-<div class="viewcode-block" id="gen_augmented_tiles"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.gen_augmented_tiles">[docs]</a><span class="k">def</span> <span class="nf">gen_augmented_tiles</span><span class="p">(</span>
+
+<div class="viewcode-block" id="gen_augmented_tiles">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.gen_augmented_tiles">[docs]</a>
+<span class="k">def</span> <span class="nf">gen_augmented_tiles</span><span class="p">(</span>
             <span class="n">image</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
             <span class="n">label</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
             <span class="n">index_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -514,7 +505,10 @@
     <span class="k">return</span></div>
 
 
-<div class="viewcode-block" id="get_dataset_filenames"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.get_dataset_filenames">[docs]</a><span class="k">def</span> <span class="nf">get_dataset_filenames</span><span class="p">(</span><span class="n">data_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ext</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;*.npy&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+
+<div class="viewcode-block" id="get_dataset_filenames">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.get_dataset_filenames">[docs]</a>
+<span class="k">def</span> <span class="nf">get_dataset_filenames</span><span class="p">(</span><span class="n">data_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ext</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;*.npy&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get dataset filenames for training.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -523,7 +517,10 @@
     <span class="k">return</span> <span class="n">data_filenames</span></div>
 
 
-<div class="viewcode-block" id="get_mean_std_dataset"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.get_mean_std_dataset">[docs]</a><span class="k">def</span> <span class="nf">get_mean_std_dataset</span><span class="p">(</span><span class="n">tf_dataset</span><span class="p">,</span> <span class="n">output_filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_mean_std_dataset">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.get_mean_std_dataset">[docs]</a>
+<span class="k">def</span> <span class="nf">get_mean_std_dataset</span><span class="p">(</span><span class="n">tf_dataset</span><span class="p">,</span> <span class="n">output_filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get general mean and std from tensorflow dataset.</span>
 <span class="sd">    Useful when reading from disk and not from memory.</span>
@@ -542,7 +539,10 @@
     <span class="k">return</span> <span class="n">mean</span><span class="p">,</span> <span class="n">std</span></div>
 
 
-<div class="viewcode-block" id="get_mean_std_metadata"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.get_mean_std_metadata">[docs]</a><span class="k">def</span> <span class="nf">get_mean_std_metadata</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_mean_std_metadata">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.get_mean_std_metadata">[docs]</a>
+<span class="k">def</span> <span class="nf">get_mean_std_metadata</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Load mean and std from disk.</span>
 <span class="sd">    Args:</span>
@@ -557,7 +557,10 @@
     <span class="k">return</span> <span class="n">metadata</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">metadata</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">values</span></div>
 
 
-<div class="viewcode-block" id="modify_bands"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.modify_bands">[docs]</a><span class="k">def</span> <span class="nf">modify_bands</span><span class="p">(</span>
+
+<div class="viewcode-block" id="modify_bands">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.modify_bands">[docs]</a>
+<span class="k">def</span> <span class="nf">modify_bands</span><span class="p">(</span>
         <span class="n">xraster</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">dataarray</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">input_bands</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="n">output_bands</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">drop_bands</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -581,7 +584,10 @@
         <span class="k">return</span> <span class="n">xraster</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;band&quot;</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">drop_bands</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="modify_label_classes"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.modify_label_classes">[docs]</a><span class="k">def</span> <span class="nf">modify_label_classes</span><span class="p">(</span>
+
+<div class="viewcode-block" id="modify_label_classes">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.modify_label_classes">[docs]</a>
+<span class="k">def</span> <span class="nf">modify_label_classes</span><span class="p">(</span>
     <span class="n">mask</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">expressions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span>
     <span class="n">substract_labels</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
@@ -598,7 +604,10 @@
     <span class="k">return</span> <span class="n">mask</span></div>
 
 
-<div class="viewcode-block" id="modify_pixel_extremity"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.modify_pixel_extremity">[docs]</a><span class="k">def</span> <span class="nf">modify_pixel_extremity</span><span class="p">(</span>
+
+<div class="viewcode-block" id="modify_pixel_extremity">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.modify_pixel_extremity">[docs]</a>
+<span class="k">def</span> <span class="nf">modify_pixel_extremity</span><span class="p">(</span>
     <span class="n">array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">xmin</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">xmax</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10000</span>
@@ -615,7 +624,10 @@
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="modify_roi"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.modify_roi">[docs]</a><span class="k">def</span> <span class="nf">modify_roi</span><span class="p">(</span>
+
+<div class="viewcode-block" id="modify_roi">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.modify_roi">[docs]</a>
+<span class="k">def</span> <span class="nf">modify_roi</span><span class="p">(</span>
     <span class="n">img</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">mask</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">ymin</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -629,7 +641,10 @@
     <span class="k">return</span> <span class="n">img</span><span class="p">[</span><span class="n">ymin</span><span class="p">:</span><span class="n">ymax</span><span class="p">,</span> <span class="n">xmin</span><span class="p">:</span><span class="n">xmax</span><span class="p">],</span> <span class="n">mask</span><span class="p">[</span><span class="n">ymin</span><span class="p">:</span><span class="n">ymax</span><span class="p">,</span> <span class="n">xmin</span><span class="p">:</span><span class="n">xmax</span><span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="normalize_image"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.normalize_image">[docs]</a><span class="k">def</span> <span class="nf">normalize_image</span><span class="p">(</span><span class="n">image</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">normalize</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+
+<div class="viewcode-block" id="normalize_image">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.normalize_image">[docs]</a>
+<span class="k">def</span> <span class="nf">normalize_image</span><span class="p">(</span><span class="n">image</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">normalize</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Normalize image within parameter, simple scaling of values.</span>
 <span class="sd">    Args:</span>
@@ -643,7 +658,10 @@
     <span class="k">return</span> <span class="n">image</span></div>
 
 
-<div class="viewcode-block" id="rescale_image"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.rescale_image">[docs]</a><span class="k">def</span> <span class="nf">rescale_image</span><span class="p">(</span>
+
+<div class="viewcode-block" id="rescale_image">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.rescale_image">[docs]</a>
+<span class="k">def</span> <span class="nf">rescale_image</span><span class="p">(</span>
             <span class="n">image</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
             <span class="n">rescale_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;per-image&#39;</span><span class="p">,</span>
             <span class="n">highest_value</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10000</span>
@@ -676,7 +694,10 @@
     <span class="k">return</span> <span class="n">image</span></div>
 
 
-<div class="viewcode-block" id="read_dataset_csv"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.read_dataset_csv">[docs]</a><span class="k">def</span> <span class="nf">read_dataset_csv</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+
+<div class="viewcode-block" id="read_dataset_csv">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.read_dataset_csv">[docs]</a>
+<span class="k">def</span> <span class="nf">read_dataset_csv</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Read dataset CSV from disk and load for preprocessing.</span>
 <span class="sd">    Args:</span>
@@ -693,7 +714,10 @@
     <span class="k">return</span> <span class="n">data_df</span></div>
 
 
-<div class="viewcode-block" id="read_metadata"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.read_metadata">[docs]</a><span class="k">def</span> <span class="nf">read_metadata</span><span class="p">(</span><span class="n">filename_regex</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">input_bands</span><span class="p">,</span> <span class="n">output_bands</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+
+<div class="viewcode-block" id="read_metadata">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.read_metadata">[docs]</a>
+<span class="k">def</span> <span class="nf">read_metadata</span><span class="p">(</span><span class="n">filename_regex</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">input_bands</span><span class="p">,</span> <span class="n">output_bands</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Read list of CSV from disk and load for preprocessing.</span>
 <span class="sd">    Args:</span>
@@ -719,7 +743,10 @@
     <span class="k">return</span> <span class="n">metadata</span></div>
 
 
-<div class="viewcode-block" id="standardize_image"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.standardize_image">[docs]</a><span class="k">def</span> <span class="nf">standardize_image</span><span class="p">(</span>
+
+<div class="viewcode-block" id="standardize_image">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.standardize_image">[docs]</a>
+<span class="k">def</span> <span class="nf">standardize_image</span><span class="p">(</span>
     <span class="n">image</span><span class="p">,</span>
     <span class="n">standardization_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">mean</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -745,7 +772,10 @@
     <span class="k">return</span> <span class="n">image</span></div>
 
 
-<div class="viewcode-block" id="standardize_batch"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.standardize_batch">[docs]</a><span class="k">def</span> <span class="nf">standardize_batch</span><span class="p">(</span>
+
+<div class="viewcode-block" id="standardize_batch">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.standardize_batch">[docs]</a>
+<span class="k">def</span> <span class="nf">standardize_batch</span><span class="p">(</span>
     <span class="n">image_batch</span><span class="p">,</span>
     <span class="n">standardization_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">mean</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -761,7 +791,10 @@
     <span class="k">return</span> <span class="n">image_batch</span></div>
 
 
-<div class="viewcode-block" id="normalize_meanstd"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.normalize_meanstd">[docs]</a><span class="k">def</span> <span class="nf">normalize_meanstd</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">ds_keys</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">subtract</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;mean&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+
+<div class="viewcode-block" id="normalize_meanstd">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.normalize_meanstd">[docs]</a>
+<span class="k">def</span> <span class="nf">normalize_meanstd</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">ds_keys</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">subtract</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;mean&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Help function to normalise the features by the mean and</span>
 <span class="sd">    standard deviation</span>
@@ -777,7 +810,10 @@
     <span class="k">return</span> <span class="n">image</span></div>
 
 
-<div class="viewcode-block" id="normalize_perc"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.normalize_perc">[docs]</a><span class="k">def</span> <span class="nf">normalize_perc</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">ds_keys</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+
+<div class="viewcode-block" id="normalize_perc">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.normalize_perc">[docs]</a>
+<span class="k">def</span> <span class="nf">normalize_perc</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">ds_keys</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Help function to normalise the features by the</span>
 <span class="sd">    99th percentile</span>
@@ -787,7 +823,10 @@
     <span class="k">return</span> <span class="n">feats</span></div>
 
 
-<div class="viewcode-block" id="standardize_image_numba"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.standardize_image_numba">[docs]</a><span class="nd">@jit</span><span class="p">(</span><span class="n">nopython</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="standardize_image_numba">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.standardize_image_numba">[docs]</a>
+<span class="nd">@jit</span><span class="p">(</span><span class="n">nopython</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">standardize_image_numba</span><span class="p">(</span>
     <span class="n">image</span><span class="p">,</span> <span class="n">standardization_type</span><span class="p">,</span> <span class="n">mean</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">std</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span>
@@ -804,7 +843,10 @@
     <span class="k">return</span> <span class="n">image</span></div>
 
 
-<div class="viewcode-block" id="standardize_batch_numba"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.standardize_batch_numba">[docs]</a><span class="k">def</span> <span class="nf">standardize_batch_numba</span><span class="p">(</span>
+
+<div class="viewcode-block" id="standardize_batch_numba">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.data.standardize_batch_numba">[docs]</a>
+<span class="k">def</span> <span class="nf">standardize_batch_numba</span><span class="p">(</span>
     <span class="n">image_batch</span><span class="p">,</span> <span class="n">standardization_type</span><span class="p">,</span> <span class="n">mean</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">std</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">):</span>
@@ -819,6 +861,7 @@
                 <span class="n">image_batch</span><span class="p">[</span><span class="n">item</span><span class="p">]</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">image_batch</span><span class="p">[</span><span class="n">item</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)))</span> \
                 <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">image_batch</span><span class="p">[</span><span class="n">item</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="o">+</span> <span class="mf">1e-8</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">image_batch</span></div>
+
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>

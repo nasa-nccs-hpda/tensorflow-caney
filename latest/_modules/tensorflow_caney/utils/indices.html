@@ -1,21 +1,22 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>tensorflow_caney.utils.indices &mdash; tensorflow-caney 0.2.5 documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=cb850272"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -110,7 +111,9 @@
 <span class="c1"># ---------------------------------------------------------------------------</span>
 <span class="c1"># Indices Methods</span>
 <span class="c1"># ---------------------------------------------------------------------------</span>
-<div class="viewcode-block" id="bai"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.indices.bai">[docs]</a><span class="k">def</span> <span class="nf">bai</span><span class="p">(</span><span class="n">raster</span><span class="p">):</span>
+<div class="viewcode-block" id="bai">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.indices.bai">[docs]</a>
+<span class="k">def</span> <span class="nf">bai</span><span class="p">(</span><span class="n">raster</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Burn Area Index (BAI), BAI := 1/((0.1 -RED)^2 + (0.06 - NIR)^2)</span>
 <span class="sd">    Args:</span>
@@ -128,7 +131,10 @@
     <span class="k">return</span> <span class="n">index</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;band&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="cig"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.indices.cig">[docs]</a><span class="k">def</span> <span class="nf">cig</span><span class="p">(</span><span class="n">raster</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cig">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.indices.cig">[docs]</a>
+<span class="k">def</span> <span class="nf">cig</span><span class="p">(</span><span class="n">raster</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Chlorophyll Index - Green (CIg), CIRE := (NIR / Green) - 1</span>
 <span class="sd">    Args:</span>
@@ -142,7 +148,10 @@
     <span class="k">return</span> <span class="n">index</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;band&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="cire"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.indices.cire">[docs]</a><span class="k">def</span> <span class="nf">cire</span><span class="p">(</span><span class="n">raster</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cire">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.indices.cire">[docs]</a>
+<span class="k">def</span> <span class="nf">cire</span><span class="p">(</span><span class="n">raster</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Chlorophyll Index - Red-Edge (CIre), CIRE := (NIR / RedEdge) - 1</span>
 <span class="sd">    Args:</span>
@@ -159,7 +168,10 @@
     <span class="k">return</span> <span class="n">index</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;band&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="cm"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.indices.cm">[docs]</a><span class="k">def</span> <span class="nf">cm</span><span class="p">(</span><span class="n">raster</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cm">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.indices.cm">[docs]</a>
+<span class="k">def</span> <span class="nf">cm</span><span class="p">(</span><span class="n">raster</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Clay Minerals (CM), CM := SWIR1 / SWIR2</span>
 <span class="sd">    Args:</span>
@@ -173,7 +185,10 @@
     <span class="k">return</span> <span class="n">index</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;band&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="cs1"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.indices.cs1">[docs]</a><span class="k">def</span> <span class="nf">cs1</span><span class="p">(</span><span class="n">raster</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cs1">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.indices.cs1">[docs]</a>
+<span class="k">def</span> <span class="nf">cs1</span><span class="p">(</span><span class="n">raster</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Cloud detection index (CS1), CS1 := (3. * NIR1) / (Blue + Green + Red)</span>
 <span class="sd">    Args:</span>
@@ -190,7 +205,10 @@
     <span class="k">return</span> <span class="n">index</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;band&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="cs2"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.indices.cs2">[docs]</a><span class="k">def</span> <span class="nf">cs2</span><span class="p">(</span><span class="n">raster</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cs2">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.indices.cs2">[docs]</a>
+<span class="k">def</span> <span class="nf">cs2</span><span class="p">(</span><span class="n">raster</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Cloud detection index (CS2), CS2 := (Blue + Green + Red + NIR1) / 4.</span>
 <span class="sd">    Args:</span>
@@ -208,7 +226,10 @@
     <span class="k">return</span> <span class="n">index</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;band&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="dvi"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.indices.dvi">[docs]</a><span class="k">def</span> <span class="nf">dvi</span><span class="p">(</span><span class="n">raster</span><span class="p">):</span>
+
+<div class="viewcode-block" id="dvi">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.indices.dvi">[docs]</a>
+<span class="k">def</span> <span class="nf">dvi</span><span class="p">(</span><span class="n">raster</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Difference Vegetation Index (DVI), DVI := NIR1 - Red</span>
 <span class="sd">    Args:</span>
@@ -224,7 +245,10 @@
     <span class="k">return</span> <span class="n">index</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;band&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="dwi"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.indices.dwi">[docs]</a><span class="k">def</span> <span class="nf">dwi</span><span class="p">(</span><span class="n">raster</span><span class="p">):</span>
+
+<div class="viewcode-block" id="dwi">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.indices.dwi">[docs]</a>
+<span class="k">def</span> <span class="nf">dwi</span><span class="p">(</span><span class="n">raster</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Difference Water Index (DWI), DWI := Green - NIR1</span>
 <span class="sd">    Args:</span>
@@ -238,6 +262,7 @@
         <span class="n">raster</span><span class="p">[</span><span class="n">green</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">raster</span><span class="p">[</span><span class="n">nir1</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">index</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;band&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
 
 
 <span class="k">def</span> <span class="nf">evi</span><span class="p">(</span><span class="n">raster</span><span class="p">):</span>
@@ -260,7 +285,9 @@
     <span class="k">return</span> <span class="n">index</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;band&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="fdi"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.indices.fdi">[docs]</a><span class="k">def</span> <span class="nf">fdi</span><span class="p">(</span><span class="n">raster</span><span class="p">):</span>
+<div class="viewcode-block" id="fdi">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.indices.fdi">[docs]</a>
+<span class="k">def</span> <span class="nf">fdi</span><span class="p">(</span><span class="n">raster</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Forest Discrimination Index (FDI), type int16</span>
 <span class="sd">    Args:</span>
@@ -279,7 +306,10 @@
     <span class="k">return</span> <span class="n">index</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;band&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="gndvi"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.indices.gndvi">[docs]</a><span class="k">def</span> <span class="nf">gndvi</span><span class="p">(</span><span class="n">raster</span><span class="p">):</span>
+
+<div class="viewcode-block" id="gndvi">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.indices.gndvi">[docs]</a>
+<span class="k">def</span> <span class="nf">gndvi</span><span class="p">(</span><span class="n">raster</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Green Normalized Difference Vegetation Index (GNDVI)</span>
 <span class="sd">    GNDVI := (NIR - Green) / (NIR + Green)</span>
@@ -297,7 +327,10 @@
     <span class="k">return</span> <span class="n">index</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;band&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="ndvi"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.indices.ndvi">[docs]</a><span class="k">def</span> <span class="nf">ndvi</span><span class="p">(</span><span class="n">raster</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ndvi">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.indices.ndvi">[docs]</a>
+<span class="k">def</span> <span class="nf">ndvi</span><span class="p">(</span><span class="n">raster</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Norm. Difference Vegetation Index (DVI), NDVI := (NIR - Red) / (NIR + RED)</span>
 <span class="sd">    Args:</span>
@@ -314,7 +347,10 @@
     <span class="k">return</span> <span class="n">index</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;band&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="ndwi"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.indices.ndwi">[docs]</a><span class="k">def</span> <span class="nf">ndwi</span><span class="p">(</span><span class="n">raster</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ndwi">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.indices.ndwi">[docs]</a>
+<span class="k">def</span> <span class="nf">ndwi</span><span class="p">(</span><span class="n">raster</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Normalized Difference Water Index (NDWI)</span>
 <span class="sd">    NDWI := factor * (Green - NIR1) / (Green + NIR1)</span>
@@ -332,7 +368,10 @@
     <span class="k">return</span> <span class="n">index</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;band&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="si"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.indices.si">[docs]</a><span class="k">def</span> <span class="nf">si</span><span class="p">(</span><span class="n">raster</span><span class="p">):</span>
+
+<div class="viewcode-block" id="si">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.indices.si">[docs]</a>
+<span class="k">def</span> <span class="nf">si</span><span class="p">(</span><span class="n">raster</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Shadow Index (SI), SI := (Blue * Green * Red) ** (1.0 / 3)</span>
 <span class="sd">    Args:</span>
@@ -349,7 +388,10 @@
     <span class="k">return</span> <span class="n">index</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;band&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="sr"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.indices.sr">[docs]</a><span class="k">def</span> <span class="nf">sr</span><span class="p">(</span><span class="n">raster</span><span class="p">):</span>
+
+<div class="viewcode-block" id="sr">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.indices.sr">[docs]</a>
+<span class="k">def</span> <span class="nf">sr</span><span class="p">(</span><span class="n">raster</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    SR := NIR / Red</span>
 <span class="sd">    Args:</span>
@@ -363,6 +405,7 @@
         <span class="n">raster</span><span class="p">[</span><span class="n">nir1</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">/</span> <span class="n">raster</span><span class="p">[</span><span class="n">red</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">index</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;band&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
 
 
 <span class="c1"># ---------------------------------------------------------------------------</span>
@@ -400,7 +443,9 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid indices mapping: </span><span class="si">{</span><span class="n">index_key</span><span class="si">}</span><span class="s1">.&#39;</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="add_indices"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.indices.add_indices">[docs]</a><span class="k">def</span> <span class="nf">add_indices</span><span class="p">(</span>
+<div class="viewcode-block" id="add_indices">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.indices.add_indices">[docs]</a>
+<span class="k">def</span> <span class="nf">add_indices</span><span class="p">(</span>
             <span class="n">xraster</span><span class="p">,</span>
             <span class="n">input_bands</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
             <span class="n">output_bands</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
@@ -444,6 +489,7 @@
             <span class="n">xraster</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;band_names&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">band_id</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">xraster</span></div>
+
 </pre></div>
 
            </div>

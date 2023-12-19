@@ -1,21 +1,22 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>tensorflow_caney.utils.losses &mdash; tensorflow-caney 0.2.5 documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=cb850272"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -97,7 +98,9 @@
 <span class="n">smooth</span> <span class="o">=</span> <span class="mi">1</span>
 
 
-<div class="viewcode-block" id="get_loss"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.losses.get_loss">[docs]</a><span class="k">def</span> <span class="nf">get_loss</span><span class="p">(</span><span class="n">loss</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<div class="viewcode-block" id="get_loss">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.losses.get_loss">[docs]</a>
+<span class="k">def</span> <span class="nf">get_loss</span><span class="p">(</span><span class="n">loss</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get loss function from string evaluation.</span>
 <span class="sd">    Args:</span>
@@ -112,7 +115,10 @@
     <span class="k">return</span> <span class="n">loss_function</span></div>
 
 
-<div class="viewcode-block" id="dicece_loss"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.losses.dicece_loss">[docs]</a><span class="k">def</span> <span class="nf">dicece_loss</span><span class="p">(</span><span class="n">y_true</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">):</span>
+
+<div class="viewcode-block" id="dicece_loss">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.losses.dicece_loss">[docs]</a>
+<span class="k">def</span> <span class="nf">dicece_loss</span><span class="p">(</span><span class="n">y_true</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Dice Crossentropy loss function.</span>
 <span class="sd">    Args:</span>
@@ -133,7 +139,10 @@
     <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">o</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="cropped_loss"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.losses.cropped_loss">[docs]</a><span class="k">def</span> <span class="nf">cropped_loss</span><span class="p">(</span><span class="n">loss_fn</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cropped_loss">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.losses.cropped_loss">[docs]</a>
+<span class="k">def</span> <span class="nf">cropped_loss</span><span class="p">(</span><span class="n">loss_fn</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Wraps loss function. Crops the labels to match the logits size.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -145,7 +154,10 @@
     <span class="k">return</span> <span class="n">_loss_fn</span></div>
 
 
-<div class="viewcode-block" id="CategoricalCrossEntropy"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.losses.CategoricalCrossEntropy">[docs]</a><span class="k">class</span> <span class="nc">CategoricalCrossEntropy</span><span class="p">(</span><span class="n">Loss</span><span class="p">):</span>
+
+<div class="viewcode-block" id="CategoricalCrossEntropy">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.losses.CategoricalCrossEntropy">[docs]</a>
+<span class="k">class</span> <span class="nc">CategoricalCrossEntropy</span><span class="p">(</span><span class="n">Loss</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Wrapper class for cross-entropy with class weights</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -174,7 +186,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">from_logits</span> <span class="o">=</span> <span class="n">from_logits</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">class_weights</span> <span class="o">=</span> <span class="n">class_weights</span>
 
-<div class="viewcode-block" id="CategoricalCrossEntropy.call"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.losses.CategoricalCrossEntropy.call">[docs]</a>    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
+<div class="viewcode-block" id="CategoricalCrossEntropy.call">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.losses.CategoricalCrossEntropy.call">[docs]</a>
+    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
         <span class="c1"># Perform softmax</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_logits</span><span class="p">:</span>
             <span class="n">y_pred</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">y_pred</span><span class="p">)</span>
@@ -193,10 +207,14 @@
         <span class="c1"># Sum over classes</span>
         <span class="n">loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">loss</span></div></div>
+        <span class="k">return</span> <span class="n">loss</span></div>
+</div>
 
 
-<div class="viewcode-block" id="CategoricalFocalLoss"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.losses.CategoricalFocalLoss">[docs]</a><span class="k">class</span> <span class="nc">CategoricalFocalLoss</span><span class="p">(</span><span class="n">Loss</span><span class="p">):</span>
+
+<div class="viewcode-block" id="CategoricalFocalLoss">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.losses.CategoricalFocalLoss">[docs]</a>
+<span class="k">class</span> <span class="nc">CategoricalFocalLoss</span><span class="p">(</span><span class="n">Loss</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Categorical version of focal loss.</span>
 <span class="sd">    References:</span>
@@ -237,7 +255,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">from_logits</span> <span class="o">=</span> <span class="n">from_logits</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">class_weights</span> <span class="o">=</span> <span class="n">class_weights</span>
 
-<div class="viewcode-block" id="CategoricalFocalLoss.call"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.losses.CategoricalFocalLoss.call">[docs]</a>    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
+<div class="viewcode-block" id="CategoricalFocalLoss.call">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.losses.CategoricalFocalLoss.call">[docs]</a>
+    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
 
         <span class="c1"># Perform softmax</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_logits</span><span class="p">:</span>
@@ -260,10 +280,14 @@
         <span class="c1"># Sum over classes</span>
         <span class="n">loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">loss</span></div></div>
+        <span class="k">return</span> <span class="n">loss</span></div>
+</div>
 
 
-<div class="viewcode-block" id="JaccardDistanceLoss"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.losses.JaccardDistanceLoss">[docs]</a><span class="k">class</span> <span class="nc">JaccardDistanceLoss</span><span class="p">(</span><span class="n">Loss</span><span class="p">):</span>
+
+<div class="viewcode-block" id="JaccardDistanceLoss">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.losses.JaccardDistanceLoss">[docs]</a>
+<span class="k">class</span> <span class="nc">JaccardDistanceLoss</span><span class="p">(</span><span class="n">Loss</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Implementation of the Jaccard distance, or Intersection</span>
 <span class="sd">    over Union IoU loss.</span>
@@ -301,7 +325,9 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">class_weights</span> <span class="o">=</span> <span class="n">class_weights</span>
 
-<div class="viewcode-block" id="JaccardDistanceLoss.call"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.losses.JaccardDistanceLoss.call">[docs]</a>    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
+<div class="viewcode-block" id="JaccardDistanceLoss.call">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.losses.JaccardDistanceLoss.call">[docs]</a>
+    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
 
         <span class="c1"># Perform softmax</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_logits</span><span class="p">:</span>
@@ -321,10 +347,14 @@
 
         <span class="n">loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">loss</span></div></div>
+        <span class="k">return</span> <span class="n">loss</span></div>
+</div>
 
 
-<div class="viewcode-block" id="TanimotoDistanceLoss"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.losses.TanimotoDistanceLoss">[docs]</a><span class="k">class</span> <span class="nc">TanimotoDistanceLoss</span><span class="p">(</span><span class="n">Loss</span><span class="p">):</span>
+
+<div class="viewcode-block" id="TanimotoDistanceLoss">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.losses.TanimotoDistanceLoss">[docs]</a>
+<span class="k">class</span> <span class="nc">TanimotoDistanceLoss</span><span class="p">(</span><span class="n">Loss</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Implementation of the Tanimoto distance, which is</span>
 <span class="sd">    modified version of the Jaccard distance.</span>
@@ -368,7 +398,9 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">class_weights</span> <span class="o">=</span> <span class="n">class_weights</span>
 
-<div class="viewcode-block" id="TanimotoDistanceLoss.call"><a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.losses.TanimotoDistanceLoss.call">[docs]</a>    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
+<div class="viewcode-block" id="TanimotoDistanceLoss.call">
+<a class="viewcode-back" href="../../../modules.html#tensorflow_caney.utils.losses.TanimotoDistanceLoss.call">[docs]</a>
+    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
 
         <span class="c1"># Perform softmax</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_logits</span><span class="p">:</span>
@@ -404,7 +436,9 @@
 
         <span class="n">loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">loss</span></div></div>
+        <span class="k">return</span> <span class="n">loss</span></div>
+</div>
+
 
 
 <span class="nd">@tf</span><span class="o">.</span><span class="n">function</span>
