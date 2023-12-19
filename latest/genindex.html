@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Index &mdash; tensorflow-caney 0.3.0 documentation</title>
+  <title>Index &mdash; tensorflow-caney 0.3.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
 
@@ -14,7 +14,7 @@
   
         <script src="_static/jquery.js?v=5d32c60e"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=e259d695"></script>
+        <script src="_static/documentation_options.js?v=4621528c"></script>
         <script src="_static/doctools.js?v=888ff710"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -35,7 +35,7 @@
             tensorflow-caney
           </a>
               <div class="version">
-                0.3.0
+                0.3.1
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -85,6 +85,7 @@
  | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
  | <a href="#J"><strong>J</strong></a>
+ | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
  | <a href="#R"><strong>R</strong></a>
@@ -179,13 +180,17 @@
 </li>
       <li><a href="modules.html#tensorflow_caney.utils.data.get_dataset_filenames">get_dataset_filenames() (in module tensorflow_caney.utils.data)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="modules.html#tensorflow_caney.utils.losses.get_loss">get_loss() (in module tensorflow_caney.utils.losses)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="modules.html#tensorflow_caney.utils.data.get_mean_std_dataset">get_mean_std_dataset() (in module tensorflow_caney.utils.data)</a>
 </li>
       <li><a href="modules.html#tensorflow_caney.utils.data.get_mean_std_metadata">get_mean_std_metadata() (in module tensorflow_caney.utils.data)</a>
+</li>
+      <li><a href="modules.html#tensorflow_caney.utils.metrics.get_metrics">get_metrics() (in module tensorflow_caney.utils.metrics)</a>
+</li>
+      <li><a href="modules.html#tensorflow_caney.utils.model.get_model">get_model() (in module tensorflow_caney.utils.model)</a>
 </li>
       <li><a href="modules.html#tensorflow_caney.utils.optimizers.get_optimizer">get_optimizer() (in module tensorflow_caney.utils.optimizers)</a>
 </li>
@@ -198,6 +203,22 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="modules.html#tensorflow_caney.utils.losses.JaccardDistanceLoss">JaccardDistanceLoss (class in tensorflow_caney.utils.losses)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="L">L</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules.html#tensorflow_caney.utils.regression_tools.RegressionDataLoader.load_data">load_data() (tensorflow_caney.utils.regression_tools.RegressionDataLoader method)</a>
+
+      <ul>
+        <li><a href="modules.html#tensorflow_caney.utils.segmentation_tools.SegmentationDataLoader.load_data">(tensorflow_caney.utils.segmentation_tools.SegmentationDataLoader method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules.html#tensorflow_caney.utils.model.load_model">load_model() (in module tensorflow_caney.utils.model)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -229,7 +250,15 @@
 </li>
         <li><a href="modules.html#module-tensorflow_caney.utils.losses">tensorflow_caney.utils.losses</a>
 </li>
+        <li><a href="modules.html#module-tensorflow_caney.utils.metrics">tensorflow_caney.utils.metrics</a>
+</li>
+        <li><a href="modules.html#module-tensorflow_caney.utils.model">tensorflow_caney.utils.model</a>
+</li>
         <li><a href="modules.html#module-tensorflow_caney.utils.optimizers">tensorflow_caney.utils.optimizers</a>
+</li>
+        <li><a href="modules.html#module-tensorflow_caney.utils.regression_tools">tensorflow_caney.utils.regression_tools</a>
+</li>
+        <li><a href="modules.html#module-tensorflow_caney.utils.segmentation_tools">tensorflow_caney.utils.segmentation_tools</a>
 </li>
         <li><a href="modules.html#module-tensorflow_caney.utils.system">tensorflow_caney.utils.system</a>
 </li>
@@ -260,9 +289,11 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="modules.html#tensorflow_caney.utils.data.read_dataset_csv">read_dataset_csv() (in module tensorflow_caney.utils.data)</a>
 </li>
+      <li><a href="modules.html#tensorflow_caney.utils.data.read_metadata">read_metadata() (in module tensorflow_caney.utils.data)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="modules.html#tensorflow_caney.utils.data.read_metadata">read_metadata() (in module tensorflow_caney.utils.data)</a>
+      <li><a href="modules.html#tensorflow_caney.utils.regression_tools.RegressionDataLoader">RegressionDataLoader (class in tensorflow_caney.utils.regression_tools)</a>
 </li>
       <li><a href="modules.html#tensorflow_caney.utils.data.rescale_image">rescale_image() (in module tensorflow_caney.utils.data)</a>
 </li>
@@ -274,16 +305,18 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="modules.html#tensorflow_caney.utils.system.seed_everything">seed_everything() (in module tensorflow_caney.utils.system)</a>
 </li>
+      <li><a href="modules.html#tensorflow_caney.utils.segmentation_tools.SegmentationDataLoader">SegmentationDataLoader (class in tensorflow_caney.utils.segmentation_tools)</a>
+</li>
       <li><a href="modules.html#tensorflow_caney.utils.system.set_gpu_strategy">set_gpu_strategy() (in module tensorflow_caney.utils.system)</a>
 </li>
       <li><a href="modules.html#tensorflow_caney.utils.system.set_mixed_precision">set_mixed_precision() (in module tensorflow_caney.utils.system)</a>
 </li>
       <li><a href="modules.html#tensorflow_caney.utils.system.set_xla">set_xla() (in module tensorflow_caney.utils.system)</a>
 </li>
-      <li><a href="modules.html#tensorflow_caney.utils.indices.si">si() (in module tensorflow_caney.utils.indices)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules.html#tensorflow_caney.utils.indices.si">si() (in module tensorflow_caney.utils.indices)</a>
+</li>
       <li><a href="modules.html#tensorflow_caney.utils.indices.sr">sr() (in module tensorflow_caney.utils.indices)</a>
 </li>
       <li><a href="modules.html#tensorflow_caney.utils.data.standardize_batch">standardize_batch() (in module tensorflow_caney.utils.data)</a>
@@ -330,8 +363,6 @@
         <li><a href="modules.html#module-tensorflow_caney.utils.data">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     tensorflow_caney.utils.indices
 
@@ -347,6 +378,22 @@
 </li>
       </ul></li>
       <li>
+    tensorflow_caney.utils.metrics
+
+      <ul>
+        <li><a href="modules.html#module-tensorflow_caney.utils.metrics">module</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    tensorflow_caney.utils.model
+
+      <ul>
+        <li><a href="modules.html#module-tensorflow_caney.utils.model">module</a>
+</li>
+      </ul></li>
+      <li>
     tensorflow_caney.utils.optimizers
 
       <ul>
@@ -354,10 +401,36 @@
 </li>
       </ul></li>
       <li>
+    tensorflow_caney.utils.regression_tools
+
+      <ul>
+        <li><a href="modules.html#module-tensorflow_caney.utils.regression_tools">module</a>
+</li>
+      </ul></li>
+      <li>
+    tensorflow_caney.utils.segmentation_tools
+
+      <ul>
+        <li><a href="modules.html#module-tensorflow_caney.utils.segmentation_tools">module</a>
+</li>
+      </ul></li>
+      <li>
     tensorflow_caney.utils.system
 
       <ul>
         <li><a href="modules.html#module-tensorflow_caney.utils.system">module</a>
+</li>
+      </ul></li>
+      <li><a href="modules.html#tensorflow_caney.utils.regression_tools.RegressionDataLoader.tf_data_loader">tf_data_loader() (tensorflow_caney.utils.regression_tools.RegressionDataLoader method)</a>
+
+      <ul>
+        <li><a href="modules.html#tensorflow_caney.utils.segmentation_tools.SegmentationDataLoader.tf_data_loader">(tensorflow_caney.utils.segmentation_tools.SegmentationDataLoader method)</a>
+</li>
+      </ul></li>
+      <li><a href="modules.html#tensorflow_caney.utils.regression_tools.RegressionDataLoader.tf_dataset">tf_dataset() (tensorflow_caney.utils.regression_tools.RegressionDataLoader method)</a>
+
+      <ul>
+        <li><a href="modules.html#tensorflow_caney.utils.segmentation_tools.SegmentationDataLoader.tf_dataset">(tensorflow_caney.utils.segmentation_tools.SegmentationDataLoader method)</a>
 </li>
       </ul></li>
   </ul></td>

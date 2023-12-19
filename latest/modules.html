@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>tensorflow-caney package &mdash; tensorflow-caney 0.3.0 documentation</title>
+  <title>tensorflow-caney package &mdash; tensorflow-caney 0.3.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
 
@@ -15,7 +15,7 @@
   
         <script src="_static/jquery.js?v=5d32c60e"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=e259d695"></script>
+        <script src="_static/documentation_options.js?v=4621528c"></script>
         <script src="_static/doctools.js?v=888ff710"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -37,7 +37,7 @@
             tensorflow-caney
           </a>
               <div class="version">
-                0.3.0
+                0.3.1
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -122,14 +122,37 @@
 <li class="toctree-l3"><a class="reference internal" href="#tensorflow_caney.utils.losses.get_loss"><code class="docutils literal notranslate"><span class="pre">get_loss()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#tensorflow-caney-utils-metrics">tensorflow_caney.utils.metrics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#tensorflow-caney-utils-model">tensorflow_caney.utils.model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tensorflow-caney-utils-metrics">tensorflow_caney.utils.metrics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tensorflow_caney.utils.metrics.get_metrics"><code class="docutils literal notranslate"><span class="pre">get_metrics()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#tensorflow-caney-utils-model">tensorflow_caney.utils.model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tensorflow_caney.utils.model.get_model"><code class="docutils literal notranslate"><span class="pre">get_model()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tensorflow_caney.utils.model.load_model"><code class="docutils literal notranslate"><span class="pre">load_model()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#tensorflow-caney-utils-optimizers">tensorflow_caney.utils.optimizers</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#tensorflow_caney.utils.optimizers.get_optimizer"><code class="docutils literal notranslate"><span class="pre">get_optimizer()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#tensorflow-caney-utils-regression-tools">tensorflow_caney.utils.regression_tools</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#tensorflow-caney-utils-segmentation-tools">tensorflow_caney.utils.segmentation_tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tensorflow-caney-utils-regression-tools">tensorflow_caney.utils.regression_tools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tensorflow_caney.utils.regression_tools.RegressionDataLoader"><code class="docutils literal notranslate"><span class="pre">RegressionDataLoader</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#tensorflow_caney.utils.regression_tools.RegressionDataLoader.load_data"><code class="docutils literal notranslate"><span class="pre">RegressionDataLoader.load_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tensorflow_caney.utils.regression_tools.RegressionDataLoader.tf_data_loader"><code class="docutils literal notranslate"><span class="pre">RegressionDataLoader.tf_data_loader()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tensorflow_caney.utils.regression_tools.RegressionDataLoader.tf_dataset"><code class="docutils literal notranslate"><span class="pre">RegressionDataLoader.tf_dataset()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#tensorflow-caney-utils-segmentation-tools">tensorflow_caney.utils.segmentation_tools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tensorflow_caney.utils.segmentation_tools.SegmentationDataLoader"><code class="docutils literal notranslate"><span class="pre">SegmentationDataLoader</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#tensorflow_caney.utils.segmentation_tools.SegmentationDataLoader.load_data"><code class="docutils literal notranslate"><span class="pre">SegmentationDataLoader.load_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tensorflow_caney.utils.segmentation_tools.SegmentationDataLoader.tf_data_loader"><code class="docutils literal notranslate"><span class="pre">SegmentationDataLoader.tf_data_loader()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tensorflow_caney.utils.segmentation_tools.SegmentationDataLoader.tf_dataset"><code class="docutils literal notranslate"><span class="pre">SegmentationDataLoader.tf_dataset()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#tensorflow-caney-utils-system">tensorflow_caney.utils.system</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#tensorflow_caney.utils.system.seed_everything"><code class="docutils literal notranslate"><span class="pre">seed_everything()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#tensorflow_caney.utils.system.set_gpu_strategy"><code class="docutils literal notranslate"><span class="pre">set_gpu_strategy()</span></code></a></li>
@@ -801,9 +824,69 @@ crossentropy where shape = <cite>[batch_size, d0, .. dN-1]</cite></p></li>
 </section>
 <section id="tensorflow-caney-utils-metrics">
 <h2>tensorflow_caney.utils.metrics<a class="headerlink" href="#tensorflow-caney-utils-metrics" title="Link to this heading"></a></h2>
+<dl class="py function" id="module-tensorflow_caney.utils.metrics">
+<dt class="sig sig-object py" id="tensorflow_caney.utils.metrics.get_metrics">
+<span class="sig-prename descclassname"><span class="pre">tensorflow_caney.utils.metrics.</span></span><span class="sig-name descname"><span class="pre">get_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tensorflow_caney/utils/metrics.html#get_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tensorflow_caney.utils.metrics.get_metrics" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></span></p>
+</dd>
+</dl>
+<p>Get metric functions from string evaluation.
+:param model: string with metric callable.
+:type model: str</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Callable.</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="tensorflow-caney-utils-model">
 <h2>tensorflow_caney.utils.model<a class="headerlink" href="#tensorflow-caney-utils-model" title="Link to this heading"></a></h2>
+<dl class="py function" id="module-tensorflow_caney.utils.model">
+<dt class="sig sig-object py" id="tensorflow_caney.utils.model.get_model">
+<span class="sig-prename descclassname"><span class="pre">tensorflow_caney.utils.model.</span></span><span class="sig-name descname"><span class="pre">get_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tensorflow_caney/utils/model.html#get_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tensorflow_caney.utils.model.get_model" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></span></p>
+</dd>
+</dl>
+<p>Get model function from string evaluation.
+:param model: string with model callable.
+:type model: str</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Callable</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tensorflow_caney.utils.model.load_model">
+<span class="sig-prename descclassname"><span class="pre">tensorflow_caney.utils.model.</span></span><span class="sig-name descname"><span class="pre">load_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_filename=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_dir=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_objects={'_iou':</span> <span class="pre">&lt;segmentation_models.metrics.IOUScore</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'binary_tversky_loss':</span> <span class="pre">&lt;function</span> <span class="pre">binary_tversky_loss&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'focal_tversky_loss':</span> <span class="pre">&lt;function</span> <span class="pre">focal_tversky_loss&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'iou_score':</span> <span class="pre">&lt;segmentation_models.metrics.IOUScore</span> <span class="pre">object&gt;}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_extension='*.hdf5'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf=None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tensorflow_caney/utils/model.html#load_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tensorflow_caney.utils.model.load_model" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></span></p>
+</dd>
+</dl>
+<p>Load model from filename, take the latest model if not given.
+:param model_filename: string with model filename.
+:type model_filename: str
+:param model_dir: string with model directory.
+:type model_dir: str
+:param custom_objects: dictionary with callable custom objects
+:type custom_objects: dict
+:param model_extension: string with model extension
+:type model_extension: str</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Callable</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="tensorflow-caney-utils-optimizers">
 <h2>tensorflow_caney.utils.optimizers<a class="headerlink" href="#tensorflow-caney-utils-optimizers" title="Link to this heading"></a></h2>
@@ -828,9 +911,67 @@ crossentropy where shape = <cite>[batch_size, d0, .. dN-1]</cite></p></li>
 </section>
 <section id="tensorflow-caney-utils-regression-tools">
 <h2>tensorflow_caney.utils.regression_tools<a class="headerlink" href="#tensorflow-caney-utils-regression-tools" title="Link to this heading"></a></h2>
+<dl class="py class" id="module-tensorflow_caney.utils.regression_tools">
+<dt class="sig sig-object py" id="tensorflow_caney.utils.regression_tools.RegressionDataLoader">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tensorflow_caney.utils.regression_tools.</span></span><span class="sig-name descname"><span class="pre">RegressionDataLoader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_filenames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_filenames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tensorflow_caney/utils/regression_tools.html#RegressionDataLoader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tensorflow_caney.utils.regression_tools.RegressionDataLoader" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tensorflow_caney.utils.regression_tools.RegressionDataLoader.load_data">
+<span class="sig-name descname"><span class="pre">load_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tensorflow_caney/utils/regression_tools.html#RegressionDataLoader.load_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tensorflow_caney.utils.regression_tools.RegressionDataLoader.load_data" title="Link to this definition"></a></dt>
+<dd><p>Load data on training loop.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tensorflow_caney.utils.regression_tools.RegressionDataLoader.tf_data_loader">
+<span class="sig-name descname"><span class="pre">tf_data_loader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tensorflow_caney/utils/regression_tools.html#RegressionDataLoader.tf_data_loader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tensorflow_caney.utils.regression_tools.RegressionDataLoader.tf_data_loader" title="Link to this definition"></a></dt>
+<dd><p>Initialize TensorFlow dataloader.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tensorflow_caney.utils.regression_tools.RegressionDataLoader.tf_dataset">
+<span class="sig-name descname"><span class="pre">tf_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">64</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tensorflow_caney/utils/regression_tools.html#RegressionDataLoader.tf_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tensorflow_caney.utils.regression_tools.RegressionDataLoader.tf_dataset" title="Link to this definition"></a></dt>
+<dd><p>Fetch tensorflow dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="tensorflow-caney-utils-segmentation-tools">
 <h2>tensorflow_caney.utils.segmentation_tools<a class="headerlink" href="#tensorflow-caney-utils-segmentation-tools" title="Link to this heading"></a></h2>
+<dl class="py class" id="module-tensorflow_caney.utils.segmentation_tools">
+<dt class="sig sig-object py" id="tensorflow_caney.utils.segmentation_tools.SegmentationDataLoader">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tensorflow_caney.utils.segmentation_tools.</span></span><span class="sig-name descname"><span class="pre">SegmentationDataLoader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_filenames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_filenames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tensorflow_caney/utils/segmentation_tools.html#SegmentationDataLoader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tensorflow_caney.utils.segmentation_tools.SegmentationDataLoader" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tensorflow_caney.utils.segmentation_tools.SegmentationDataLoader.load_data">
+<span class="sig-name descname"><span class="pre">load_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tensorflow_caney/utils/segmentation_tools.html#SegmentationDataLoader.load_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tensorflow_caney.utils.segmentation_tools.SegmentationDataLoader.load_data" title="Link to this definition"></a></dt>
+<dd><p>Load data on training loop.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tensorflow_caney.utils.segmentation_tools.SegmentationDataLoader.tf_data_loader">
+<span class="sig-name descname"><span class="pre">tf_data_loader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tensorflow_caney/utils/segmentation_tools.html#SegmentationDataLoader.tf_data_loader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tensorflow_caney.utils.segmentation_tools.SegmentationDataLoader.tf_data_loader" title="Link to this definition"></a></dt>
+<dd><p>Initialize TensorFlow dataloader.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tensorflow_caney.utils.segmentation_tools.SegmentationDataLoader.tf_dataset">
+<span class="sig-name descname"><span class="pre">tf_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">64</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tensorflow_caney/utils/segmentation_tools.html#SegmentationDataLoader.tf_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tensorflow_caney.utils.segmentation_tools.SegmentationDataLoader.tf_dataset" title="Link to this definition"></a></dt>
+<dd><p>Fetch tensorflow dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="tensorflow-caney-utils-system">
 <h2>tensorflow_caney.utils.system<a class="headerlink" href="#tensorflow-caney-utils-system" title="Link to this heading"></a></h2>
