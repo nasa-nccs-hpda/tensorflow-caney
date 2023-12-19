@@ -1,7 +1,9 @@
-name: CI to Docker Hub 
+name: Prod - CI to Docker Hub 
 
 on:
   push:
+    branches:
+      - 'main'
   schedule:
     - cron: '30 5 * * 1,3'
 
