@@ -6,7 +6,7 @@ from tensorflow_caney.networks import deeplabv3_plus
 from tensorflow_caney.utils import losses
 from tensorflow_caney.model.losses import binary_focal_loss
 
-__version__ = "0.2.5"
+__version__ = "0.3.0"
 
 __all__ = [
     "deeplabv3_plus", "unet", "unet_regression", "segmentation_unet",
