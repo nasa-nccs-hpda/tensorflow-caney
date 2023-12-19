@@ -77,7 +77,11 @@ class CNNSegmentation(object):
         os.makedirs(self.model_dir, exist_ok=True)
 
         # save configuration into the model directory
-        OmegaConf.save(self.conf, os.path.join(self.model_dir, 'config.yaml'))
+        try:
+            OmegaConf.save(
+                self.conf, os.path.join(self.model_dir, 'config.yaml'))
+        except PermissionError:
+            logging.info('No permissions to save config, skipping step.')
 
         # Seed everything
         seed_everything(self.conf.seed)

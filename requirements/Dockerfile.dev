@@ -1,6 +1,6 @@
 # Arguments to pass to the image
 ARG TF_VER=tf2
-ARG VERSION_DATE=23.01
+ARG VERSION_DATE=23.10
 ARG FROM_IMAGE=nvcr.io/nvidia/tensorflow
 
 # Import RAPIDS container as the BASE Image (cuda base image)
@@ -104,6 +104,7 @@ RUN pip install \
     sphinx_rtd_theme \
     geedim \
     geemap \
+    zarr \
     GDAL==`ogrinfo --version | grep -Eo '[0-9]\.[0-9]\.[0-9]+'` \
     git+https://github.com/dshean/pygeotools.git@master
 

@@ -2,16 +2,15 @@ import os
 import sys
 import logging
 import tensorflow as tf
-import segmentation_models as sm
-import tensorflow_addons as tfa
-import tensorflow_caney as tfc
-from keras_unet_collection import models as kuc
 import tensorflow_caney
+import tensorflow_caney as tfc
+import tensorflow_addons as tfa
+import segmentation_models as sm
+from keras_unet_collection import models as kuc
 
-from typing import Any
 from glob import glob
+from typing import Any
 from omegaconf import OmegaConf
-
 from tensorflow_caney.utils.losses import get_loss
 from tensorflow_caney.utils.optimizers import get_optimizer
 from tensorflow_caney.utils.metrics import get_metrics
@@ -19,6 +18,7 @@ from tensorflow_caney.utils.metrics import get_metrics
 __all__ = ["get_model", "load_model"]
 
 CUSTOM_OBJECTS = {
+    '_iou': sm.metrics.iou_score,
     'iou_score': sm.metrics.iou_score,
     'focal_tversky_loss': tfc.utils.losses.focal_tversky_loss,
     'binary_tversky_loss': tfc.utils.losses.binary_tversky_loss,
@@ -36,7 +36,8 @@ def get_model(model: str) -> Any:
     try:
         model_function = eval(model)
     except (NameError, AttributeError) as err:
-        sys.exit(f'{err}. Accepted models from {tf}, {sm}, {tfa}, {tfc}, {kuc}')
+        sys.exit(
+            f'{err}. Accepted models from {tf}, {sm}, {tfa}, {tfc}, {kuc}')
     return model_function
 
 
