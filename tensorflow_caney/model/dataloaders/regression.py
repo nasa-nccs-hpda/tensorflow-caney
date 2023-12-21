@@ -168,7 +168,7 @@ class RegressionDataLoader(object):
             # if 0 < 1 then channel last, etc.
             x = np.load(x)
             y = np.load(y)
-            #print(y.min(), y.max())
+            # print(y.min(), y.max())
         elif extension == '.tif':
             x = np.moveaxis(rxr.open_rasterio(x).data, 0, -1)
             y = np.moveaxis(rxr.open_rasterio(y).data, 0, -1)

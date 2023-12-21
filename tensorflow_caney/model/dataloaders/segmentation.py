@@ -128,12 +128,14 @@ class SegmentationDataLoader(object):
             # Sharpen
             #sometimes(iaa.Sharpen(alpha=(0.0, 1.0), lightness=(0.75, 2.0))),
             # AddToHueAndSaturation
-            # sometimes(iaa.AddToHueAndSaturation((-50, 50), per_channel=True)),
+            # sometimes(iaa.AddToHueAndSaturation(
+            # (-50, 50), per_channel=True)),
 
             # sometimes(iaa.Affine(scale={"x": (0.5, 1.5), "y": (0.5, 1.5)})),
             #sometimes(iaa.Affine(rotate=(-90, 90))),
 
-            # iaa.CoarseDropout((0.03, 0.25), size_percent=(0.02, 0.05), per_channel=True)
+            # iaa.CoarseDropout((0.03, 0.25),
+            # size_percent=(0.02, 0.05), per_channel=True)
             # sometimes(iaa.Multiply((0.75, 1.25), per_channel=True), 0.3),
             sometimes(iaa.LinearContrast((0.3, 1.2)), 0.3),
             # iaa.Add(value=(-0.5,0.5),per_channel=True),
@@ -243,7 +245,6 @@ class SegmentationDataLoader(object):
             x = center_crop(x, (self.conf.tile_size, self.conf.tile_size))
             y = center_crop(y, (self.conf.tile_size, self.conf.tile_size))
 
-       
         # Augment
         if self.conf.augment:
 

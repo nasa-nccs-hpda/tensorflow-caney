@@ -3,6 +3,8 @@ import tensorflow as tf
 from tiler import Tiler, Merger
 from ..utils.data import standardize_image
 
+__all__ = ["tf"]
+
 
 def sliding_window_tiler(
             xraster,
@@ -14,9 +16,9 @@ def sliding_window_tiler(
             batch_size: int = 1024,
             threshold: float = 0.50,
             standardization: str = None,
-            mean=None,
-            std=None,
-            normalize=1.0,
+            mean: list = None,
+            std: list = None,
+            normalize: float = 1.0,
             window: str = 'triang'  # 'boxcar', 'overlap-tile'
         ):
     """

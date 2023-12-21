@@ -98,8 +98,10 @@ def seed_everything(seed: int = 42) -> None:
     """
     np.random.seed(seed)
     tf.random.set_seed(seed)
-    if HAS_GPU:
+    try:
         cp.random.seed(seed)
+    except RuntimeError:
+        return
     return
 
 
