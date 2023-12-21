@@ -7,10 +7,7 @@ import sys
 
 sys.path.insert(0, os.path.abspath('..'))
 
-import tensorflow_caney
-
-# package_path = os.path.abspath('..')
-# os.environ['PYTHONPATH'] = ':'.join((package_path, os.environ.get('PYTHONPATH', '')))
+import tensorflow_caney  # noqa: E402
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
@@ -46,12 +43,12 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-#source_suffix ={
+# source_suffix ={
 #    '.rst': 'restructuredtext',
 #    '.txt': 'markdown',
 #    '.md': 'markdown',
 #    '.ipynb': 'myst-nb'
-#}
+# }
 master_doc = "index"
 
 version = release = tensorflow_caney.__version__

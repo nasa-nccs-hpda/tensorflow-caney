@@ -8,6 +8,8 @@ from ..utils.data import normalize_image, rescale_image, \
     standardize_batch, standardize_image
 from tiler import Tiler, Merger
 
+__all__ = ["rescale_image"]
+
 
 def window2d(window_func, window_size, **kwargs):
     window = np.matrix(window_func(M=window_size, sym=False, **kwargs))
@@ -271,7 +273,7 @@ def sliding_window_tiler_multiclass(
 
     if tile_size is None:
         tile_size = 256
-    
+
     if tile_channels is None:
         tile_channels = xraster.shape[-1]
 
@@ -319,7 +321,8 @@ def sliding_window_tiler_multiclass(
                 stds = batch[item, :, :, :].std(axis=(0, 1))
                 newMin = means - (2 * stds)
                 newMax = means + (2 * stds)
-                batch[item, :, :, :] = (batch[item, :, :, :] - newMin) / (newMax - newMin)
+                batch[item, :, :, :] = (batch[item, :, :, :] - newMin) \
+                    / (newMax - newMin)
 
         # Predict
         batch = model.predict(batch, batch_size=batch_size, verbose=0)

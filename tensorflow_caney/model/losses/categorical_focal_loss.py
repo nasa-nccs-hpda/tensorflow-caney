@@ -80,9 +80,10 @@ def sparse_categorical_focal_loss(y_true, y_pred, gamma, *,
     [0.009 0.032 0.082]
     Warnings
     --------
-    This function does not reduce its output to a scalar, so it cannot be passed
-    to :meth:`tf.keras.Model.compile` as a `loss` argument. Instead, use the
-    wrapper class :class:`~focal_loss.SparseCategoricalFocalLoss`.
+    This function does not reduce its output to a scalar, so it cannot be
+    passed to :meth:`tf.keras.Model.compile` as a `loss` argument.
+    Instead, use the wrapper class
+    :class:`~focal_loss.SparseCategoricalFocalLoss`.
     References
     ----------
     .. [1] T. Lin, P. Goyal, R. Girshick, K. He and P. Dollár. Focal loss for
@@ -112,14 +113,14 @@ def sparse_categorical_focal_loss(y_true, y_pred, gamma, *,
     if y_pred_rank is not None:
         axis %= y_pred_rank
         if axis != y_pred_rank - 1:
-            # Put channel axis last for sparse_softmax_cross_entropy_with_logits
+            # Channel axis last for sparse_softmax_cross_entropy_with_logits
             perm = list(itertools.chain(range(axis),
                                         range(axis + 1, y_pred_rank), [axis]))
             y_pred = tf.transpose(y_pred, perm=perm)
     elif axis != -1:
         raise ValueError(
-            f'Cannot compute sparse categorical focal loss with axis={axis} on '
-            'a prediction tensor with statically unknown rank.')
+            f'Cannot compute sparse categorical focal loss with axis={axis} on'
+            ' a prediction tensor with statically unknown rank.')
     y_pred_shape = tf.shape(y_pred)
 
     # Process ground truth tensor
@@ -127,8 +128,8 @@ def sparse_categorical_focal_loss(y_true, y_pred, gamma, *,
     y_true_rank = y_true.shape.rank
 
     if y_true_rank is None:
-        raise NotImplementedError('Sparse categorical focal loss not supported '
-                                  'for target/label tensors of unknown rank')
+        raise NotImplementedError('Sparse categorical focal loss not supported'
+                                  ' for target/label tensors of unknown rank')
 
     reshape_needed = (y_true_rank is not None and y_pred_rank is not None and
                       y_pred_rank != y_true_rank + 1)
@@ -195,9 +196,9 @@ class SparseCategoricalFocalLoss(tf.keras.losses.Loss):
     Examples
     --------
     An instance of this class is a callable that takes a rank-one tensor of
-    integer class labels `y_true` and a tensor of model predictions `y_pred` and
-    returns a scalar tensor obtained by reducing the per-example focal loss (the
-    default reduction is a batch-wise average).
+    integer class labels `y_true` and a tensor of model predictions `y_pred`
+    and returns a scalar tensor obtained by reducing the per-example focal
+    loss (the default reduction is a batch-wise average).
     >>> from focal_loss import SparseCategoricalFocalLoss
     >>> loss_func = SparseCategoricalFocalLoss(gamma=2)
     >>> y_true = [0, 1, 2]
@@ -213,7 +214,7 @@ class SparseCategoricalFocalLoss(tf.keras.losses.Loss):
         model = tf.keras.Model(...)
         model.compile(
             optimizer=...,
-            loss=SparseCategoricalFocalLoss(gamma=2),  # Used here like a tf.keras loss
+            loss=SparseCategoricalFocalLoss(gamma=2),
             metrics=...,
         )
         history = model.fit(...)
