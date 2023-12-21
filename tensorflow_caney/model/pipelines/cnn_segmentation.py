@@ -6,7 +6,6 @@ import logging
 import argparse
 import omegaconf
 import rasterio
-# import cupy as cp
 import numpy as np
 import xarray as xr
 import rioxarray as rxr
@@ -34,12 +33,17 @@ from tensorflow_caney.utils.metrics import get_metrics
 from tensorflow_caney.utils.callbacks import get_callbacks
 from tensorflow_caney.inference import inference
 
+try:
+    import cupy as cp
+    HAS_GPU = True
+except ImportError:
+    HAS_GPU = False
+
 CHUNKS = {'band': 'auto', 'x': 'auto', 'y': 'auto'}
 xp = array_module()
-print(xp)
 
-
-__status__ = "Development"
+__status__ = "Production"
+__all__ = ["cp"]
 
 
 # -----------------------------------------------------------------------------
@@ -572,7 +576,7 @@ class CNNSegmentation(object):
                 if probability is not None:
 
                     probability = xr.DataArray(
-                        np.expand_dims(probability, axis=-1), # probability[0]
+                        np.expand_dims(probability, axis=-1),
                         name=self.conf.experiment_type,
                         coords=image.coords,
                         dims=image.dims,

@@ -9,6 +9,7 @@ from tensorflow.keras import models
 from tensorflow.keras import regularizers, mixed_precision
 from tensorflow.keras import backend as K
 
+
 def unet_batchnorm_regression(
             nclass=1,
             input_size=(256, 256, 8),
@@ -135,22 +136,24 @@ def get_model_new():
 
 
 def attention_unet_regression(
-        input_shape,
-        input_label_channel_count:int,
-        layer_count=64,
-        regularizers=regularizers.l2(0.0001),
-        weight_file=None,
-         summary=False,
-         countbranch=False
-    ):
+            input_shape,
+            input_label_channel_count: int,
+            layer_count=64,
+            regularizers=regularizers.l2(0.0001),
+            weight_file=None,
+            summary=False,
+            countbranch=False
+        ):
     """ Method to declare the UNet model.
     Args:
         input_shape: tuple(int, int, int, int)
             Shape of the input in the format (batch, height, width, channels).
         input_label_channel_count: int
-            index count of label channels, used for calculating the number of channels in model output.
+            index count of label channels, used for calculating the
+            number of channels in model output.
         layer_count: (int, optional)
-            Count of kernels in first layer. Number of kernels in other layers grows with a fixed factor.
+            Count of kernels in first layer. Number of kernels in other
+            layers grows with a fixed factor.
         regularizers: keras.regularizers
             regularizers to use in each layer.
         weight_file: str
@@ -166,7 +169,8 @@ def attention_unet_regression(
     pp_in_layer = input_img
 
     c1 = layers.Conv2D(
-        1 * layer_count, (3, 3), activation='relu', padding='same')(pp_in_layer)
+        1 * layer_count, (3, 3), activation='relu',
+        padding='same')(pp_in_layer)
     c1 = layers.Conv2D(
         1 * layer_count, (3, 3), activation='relu', padding='same')(c1)
     n1 = layers.BatchNormalization()(c1)
@@ -236,7 +240,8 @@ def attention_unet_regression(
 
         d2 = layers.Conv2D(
             input_label_channel_count, (1, 1), activation='linear',
-            dtype='float32', kernel_regularizer= regularizers, name = 'output_dens')(n9)
+            dtype='float32', kernel_regularizer=regularizers,
+            name='output_dens')(n9)
 
         seg_model = models.Model(inputs=[input_img], outputs=[d, d2])
 # =============================================================================

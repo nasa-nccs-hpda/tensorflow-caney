@@ -338,19 +338,19 @@ def binary_focal_loss(y_true, y_pred, gamma=2, *, pos_weight=None,
         Whether `y_pred` contains logits or probabilities.
     label_smoothing : float, optional
         Float in [0, 1]. When 0, no smoothing occurs. When positive, the binary
-        ground truth labels `y_true` are squeezed toward 0.5, with larger values
+        ground truth labels `y_true` are squeezed toward 0.5, with larger value
         of `label_smoothing` leading to label values closer to 0.5.
     Returns
     -------
     :class:`tf.Tensor`
-        The focal loss for each example (assuming `y_true` and `y_pred` have the
+        The focal loss on each example (assuming `y_true` and `y_pred` have the
         same shapes). In general, the shape of the output is the result of
         broadcasting the shapes of `y_true` and `y_pred`.
     Warnings
     --------
-    This function does not reduce its output to a scalar, so it cannot be passed
-    to :meth:`tf.keras.Model.compile` as a `loss` argument. Instead, use the
-    wrapper class :class:`~focal_loss.BinaryFocalLoss`.
+    This function does not reduce its output to a scalar, so it cannot be
+    passed to :meth:`tf.keras.Model.compile` as a `loss` argument.
+    Instead, use the wrapper class :class:`~focal_loss.BinaryFocalLoss`.
     Examples
     --------
     This function computes the per-example focal loss between a label and
@@ -433,7 +433,8 @@ def binary_focal_loss(y_true, y_pred, gamma=2, *, pos_weight=None,
         &= -\alpha y \hat{q}^\gamma \log(\sigma(\hat{y}))
         - (1 - y) \hat{p}^\gamma \log(1 - \sigma(\hat{y})) \\
         &= \alpha y \hat{q}^\gamma \log(1 + e^{-\hat{y}})
-        + (1 - y) \hat{p}^\gamma \left(\hat{y} + \log(1 + e^{-\hat{y}})\right)\\
+        + (1 - y) \hat{p}^\gamma \left(\hat{y} + \log(1 + \
+            e^{-\hat{y}})\right)\\
         &= (1 - y) \hat{p}^\gamma \hat{y}
         + \left(\alpha y \hat{q}^\gamma + (1 - y) \hat{p}^\gamma\right)
         \log(1 + e^{-\hat{y}}).
@@ -490,7 +491,8 @@ def binary_focal_loss(y_true, y_pred, gamma=2, *, pos_weight=None,
                                               label_smoothing=label_smoothing)
     else:
         return _binary_focal_loss_from_probs(labels=y_true, p=y_pred,
-                                             gamma=gamma, pos_weight=pos_weight,
+                                             gamma=gamma,
+                                             pos_weight=pos_weight,
                                              label_smoothing=label_smoothing)
 
 
@@ -499,7 +501,7 @@ class BinaryFocalLoss(tf.keras.losses.Loss):
     r"""Focal loss function for binary classification.
     This loss function generalizes binary cross-entropy by introducing a
     hyperparameter called the *focusing parameter* that allows hard-to-classify
-    examples to be penalized more heavily relative to easy-to-classify examples.
+    examples to be penalized more heavily relative to easy-to-classify examples
     This class is a wrapper around :class:`~focal_loss.binary_focal_loss`. See
     the documentation there for details about this loss function.
     Parameters
@@ -520,10 +522,10 @@ class BinaryFocalLoss(tf.keras.losses.Loss):
         or `reduction`).
     Examples
     --------
-    An instance of this class is a callable that takes a tensor of binary ground
-    truth labels `y_true` and a tensor of model predictions `y_pred` and returns
-    a scalar tensor obtained by reducing the per-example focal loss (the default
-    reduction is a batch-wise average).
+    An instance of this class is a callable that takes a tensor of binary
+    ground truth labels `y_true` and a tensor of model predictions `y_pred`
+    and returns a scalar tensor obtained by reducing the per-example focal
+    loss (the default reduction is a batch-wise average).
     >>> from focal_loss import BinaryFocalLoss
     >>> loss_func = BinaryFocalLoss(gamma=2)
     >>> loss = loss_func([0, 1, 1], [0.1, 0.7, 0.9])  # A scalar tensor
@@ -590,15 +592,16 @@ class BinaryFocalLoss(tf.keras.losses.Loss):
             Binary (0 or 1) class labels.
         y_pred : tensor-like
             Either probabilities for the positive class or logits for the
-            positive class, depending on the `from_logits` attribute. The shapes
-            of `y_true` and `y_pred` should be broadcastable.
+            positive class, depending on the `from_logits` attribute.
+            The shapes of `y_true` and `y_pred` should be broadcastable.
         Returns
         -------
         :class:`tf.Tensor`
             The per-example focal loss. Reduction to a scalar is handled by
             this layer's :meth:`~focal_loss.BinaryFocalLoss.__call__` method.
         """
-        return binary_focal_loss(y_true=y_true, y_pred=y_pred, gamma=self.gamma,
+        return binary_focal_loss(y_true=y_true, y_pred=y_pred,
+                                 gamma=self.gamma,
                                  pos_weight=self.pos_weight,
                                  from_logits=self.from_logits,
                                  label_smoothing=self.label_smoothing)
@@ -615,8 +618,8 @@ def _process_labels(labels, label_smoothing, dtype):
         Tensor of 0's and 1's.
     label_smoothing : float or None
         Float in [0, 1]. When 0, no smoothing occurs. When positive, the binary
-        ground truth labels `y_true` are squeezed toward 0.5, with larger values
-        of `label_smoothing` leading to label values closer to 0.5.
+        ground truth labels `y_true` are squeezed toward 0.5, with larger
+        values of `label_smoothing` leading to label values closer to 0.5.
     dtype : tf.dtypes.DType
         Desired type of the elements of `labels`.
     Returns
@@ -646,8 +649,8 @@ def _binary_focal_loss_from_logits(labels, logits, gamma, pos_weight,
         weight.
     label_smoothing : float or None
         Float in [0, 1]. When 0, no smoothing occurs. When positive, the binary
-        ground truth labels `y_true` are squeezed toward 0.5, with larger values
-        of `label_smoothing` leading to label values closer to 0.5.
+        ground truth labels `y_true` are squeezed toward 0.5, with larger
+        values of `label_smoothing` leading to label values closer to 0.5.
     Returns
     -------
     tf.Tensor
@@ -659,13 +662,13 @@ def _binary_focal_loss_from_logits(labels, logits, gamma, pos_weight,
     # Compute probabilities for the positive class
     p = tf.math.sigmoid(logits)
 
-    # Without label smoothing we can use TensorFlow's built-in per-example cross
+    # Without label smoothing we can use TensorFlow built-in per-example cross
     # entropy loss functions and multiply the result by the modulating factor.
     # Otherwise, we compute the focal loss ourselves using a numerically stable
     # formula below
     if label_smoothing is None:
         # The labels and logits tensors' shapes need to be the same for the
-        # built-in cross-entropy functions. Since we want to allow broadcasting,
+        # built-in cross-entropy functions. Since we want to allow broadcasting
         # we do some checks on the shapes and possibly broadcast explicitly
         # Note: tensor.shape returns a tf.TensorShape, whereas tf.shape(tensor)
         # returns an int tf.Tensor; this is why both are used below
@@ -723,8 +726,8 @@ def _binary_focal_loss_from_probs(labels, p, gamma, pos_weight,
         weight.
     label_smoothing : float or None
         Float in [0, 1]. When 0, no smoothing occurs. When positive, the binary
-        ground truth labels `y_true` are squeezed toward 0.5, with larger values
-        of `label_smoothing` leading to label values closer to 0.5.
+        ground truth labels `y_true` are squeezed toward 0.5, with larger
+        values of `label_smoothing` leading to label values closer to 0.5.
     Returns
     -------
     tf.Tensor
@@ -750,7 +753,8 @@ def _binary_focal_loss_from_probs(labels, p, gamma, pos_weight,
         labels = tf.dtypes.cast(labels, dtype=tf.bool)
         loss = tf.where(labels, pos_loss, neg_loss)
     else:
-        labels = _process_labels(labels=labels, label_smoothing=label_smoothing,
+        labels = _process_labels(labels=labels,
+                                 label_smoothing=label_smoothing,
                                  dtype=p.dtype)
         loss = labels * pos_loss + (1 - labels) * neg_loss
 

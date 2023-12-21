@@ -35,6 +35,7 @@ jobs:
           conda config --set channel_priority strict
           conda create -n docs python=3.9 rasterio xarray scipy pyproj pandoc sphinx sphinx-autodoc-typehints jupyter_sphinx sphinx_rtd_theme sphinx-click nbsphinx tensorflow myst-nb
           source activate docs
+          pip install tensorflow
           python -m pip install -e .[doc]
           sphinx-build -b html docs/ docs/_build/
           #cd docs/

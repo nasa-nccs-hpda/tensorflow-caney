@@ -2,3 +2,4 @@ sphinx
 sphinx-autodoc-typehints
 jupyter-sphinx
 sphinx-rtd-theme
+tensorflow
