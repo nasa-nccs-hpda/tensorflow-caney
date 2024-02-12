@@ -171,6 +171,9 @@ class Config:
     # Pad options for border of images
     pad_style: Optional[str] = 'reflect'
 
+    # Nodata padding
+    pad_nodata_value: Optional[float] = 0
+
     # Batch size for inference
     pred_batch_size: Optional[int] = 128
 
