@@ -496,8 +496,12 @@ class CNNRegression(object):
                 image = image.transpose("y", "x", "band")
 
                 # Remove no-data values to account for edge effects
+                input_nodata = image.rio.nodata
+                if input_nodata is None:
+                    input_nodata = self.conf.input_nodata
+
                 temporary_tif = xr.where(
-                    image > -100, image, self.conf.inference_pad_value)
+                    image != input_nodata, image, self.conf.pad_nodata_value)
 
                 # Sliding window prediction
                 prediction = regression_inference.sliding_window_tiler(
