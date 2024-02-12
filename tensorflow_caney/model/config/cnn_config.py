@@ -95,6 +95,9 @@ class Config:
     # Specify standardization mechanism
     standardization: Optional[str] = None
 
+    # Input nodata (only used if raster does not have no-data defined)
+    input_nodata: Optional[float] = -10001
+
     # Specify CNN batch size for training
     batch_size: int = 32
 
@@ -163,10 +166,16 @@ class Config:
     inference_treshold: Optional[float] = 0.5
 
     # Inference padding value to replace no-data boundaries
-    inference_pad_value: Optional[int] = 1000
+    inference_pad_value: Optional[float] = 1000
 
     # Window algorithm for smoothing prediction
     window_algorithm: Optional[str] = 'triang'
+
+    # Pad options for border of images
+    pad_style: Optional[str] = 'reflect'
+
+    # Nodata padding
+    pad_nodata_value: Optional[float] = 0
 
     # Batch size for inference
     pred_batch_size: Optional[int] = 128
