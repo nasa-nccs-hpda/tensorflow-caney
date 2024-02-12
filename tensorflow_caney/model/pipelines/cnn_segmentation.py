@@ -12,6 +12,7 @@ import rioxarray as rxr
 
 from glob import glob
 from pathlib import Path
+from datetime import datetime
 from omegaconf import OmegaConf
 from multiprocessing import Pool, cpu_count
 from omegaconf.listconfig import ListConfig
@@ -68,6 +69,9 @@ class CNNSegmentation(object):
         # Set Data CSV
         self.data_csv = data_csv
 
+        # create data directory
+        os.makedirs(self.conf.data_dir, exist_ok=True)
+
         # Set output directories and locations
         self.images_dir = os.path.join(self.conf.data_dir, 'images')
         os.makedirs(self.images_dir, exist_ok=True)
@@ -117,8 +121,19 @@ class CNNSegmentation(object):
         formatter = logging.Formatter(
             "%(asctime)s; %(levelname)s; %(message)s", "%Y-%m-%d %H:%M:%S"
         )
+
+        # set console output
         ch.setFormatter(formatter)
         logger.addHandler(ch)
+
+        # set filename output
+        log_filename = f'{datetime.now().strftime("%Y-%m-%d-%H-%M-%S")}.log'
+        fh = logging.FileHandler(
+            os.path.join(self.conf.data_dir, log_filename))
+        fh.setLevel(logging.INFO)
+        fh.setFormatter(formatter)
+        logger.addHandler(fh)
+
         return logger
 
     # -------------------------------------------------------------------------
@@ -509,9 +524,12 @@ class CNNSegmentation(object):
                 image = image.transpose("y", "x", "band")
 
                 # Remove no-data values to account for edge effects
-                temporary_tif = xr.where(image > -100, image, 600)
+                input_nodata = image.rio.nodata
+                if input_nodata is None:
+                    input_nodata = self.conf.input_nodata
 
-                # print("ENTERING PREDICTION")
+                temporary_tif = xr.where(
+                    image != input_nodata, image, self.conf.pad_nodata_value)
 
                 # Sliding window prediction
                 prediction, probability = \
@@ -528,6 +546,7 @@ class CNNSegmentation(object):
                         normalize=self.conf.normalize,
                         rescale=self.conf.rescale,
                         window=self.conf.window_algorithm,
+                        pad_style=self.conf.pad_style,
                         probability_map=self.conf.probability_map
                     )
 
