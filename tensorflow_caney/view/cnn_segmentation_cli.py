@@ -26,9 +26,18 @@ def main():
     parser.add_argument('-d',
                         '--data-csv',
                         type=str,
-                        required=True,
+                        required=False,
                         dest='data_csv',
                         help='Path to the data configuration file')
+
+    parser.add_argument('-p',
+                        '--enable-parallelization',
+                        type=bool,
+                        required=False,
+                        default=False,
+                        action='store_true',
+                        dest='enable_parallel',
+                        help='Enable parallelization in preprocessing')
 
     parser.add_argument(
                         '-s',
@@ -51,7 +60,7 @@ def main():
 
     # Regression CHM pipeline steps
     if "preprocess" in args.pipeline_step:
-        pipeline.preprocess()
+        pipeline.preprocess(enable_multiprocessing=args.enable_parallel)
     if "train" in args.pipeline_step:
         pipeline.train()
     if "predict" in args.pipeline_step:

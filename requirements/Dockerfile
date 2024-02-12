@@ -106,6 +106,7 @@ RUN pip install \
     geemap \
     GDAL==`ogrinfo --version | grep -Eo '[0-9]\.[0-9]\.[0-9]+'` \
     zarr \
+    cubo[ee] \
     git+https://github.com/dshean/pygeotools.git@master \
     git+https://github.com/nasa-nccs-hpda/tensorflow-caney.git@main
 
