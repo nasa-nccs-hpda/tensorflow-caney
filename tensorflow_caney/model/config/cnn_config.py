@@ -168,6 +168,9 @@ class Config:
     # Window algorithm for smoothing prediction
     window_algorithm: Optional[str] = 'triang'
 
+    # Pad options for border of images
+    pad_style: Optional[str] = 'reflect'
+
     # Batch size for inference
     pred_batch_size: Optional[int] = 128
 
