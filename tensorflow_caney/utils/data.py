@@ -165,6 +165,8 @@ def gen_random_tiles(
             if expand_dims:
                 label_tile = xp.expand_dims(label_tile, axis=-1)
 
+        image_tile = image_tile / image_tile.max(axis=(0, 1))
+
         # save tiles to disk
         xp.save(os.path.join(out_image_dir, filename), image_tile)
         xp.save(os.path.join(out_label_dir, filename), label_tile)
@@ -471,6 +473,8 @@ def modify_bands(
     for ind_id in list(set(input_bands) - set(output_bands)):
         drop_bands.append(input_bands.index(ind_id)+1)
 
+    # print(drop_bands)
+
     if isinstance(xraster, (np.ndarray, np.generic)):
         # Do not modify if image has the same number of output bands
         if xraster.shape[-1] == len(output_bands):
@@ -479,6 +483,7 @@ def modify_bands(
             xraster[:][:], [x - 1 for x in drop_bands], axis=0)
         return xraster
     else:
+        # print("DROP BANDS",drop_bands )
         # Do not modify if image has the same number of output bands
         if xraster['band'].shape[0] == len(output_bands):
             return xraster
@@ -608,17 +613,17 @@ def read_metadata(filename_regex: str, input_bands, output_bands) -> dict:
     drop_bands = []
     for ind_id in list(set(input_bands) - set(output_bands)):
         drop_bands.append(input_bands.index(ind_id))
-    print(drop_bands)
+    # print(drop_bands)
     metadata = dict()
     filenames = glob(filename_regex)
     assert len(filenames) > 0, f'No filenames under {filename_regex}'
     for filename in filenames:
         features_df = pd.read_csv(filename)
-        print(features_df.index)
-        print(features_df)
+        # print(features_df.index)
+        # print(features_df)
         features_df = features_df.drop(
             features_df.index[[drop_bands]]).reset_index()
-        print(features_df)
+        # print(features_df)
         metadata[str(int(features_df['timestamp'][0]))] = features_df
     return metadata
 
