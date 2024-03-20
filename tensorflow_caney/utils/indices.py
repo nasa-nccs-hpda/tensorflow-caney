@@ -347,11 +347,15 @@ def add_indices(
     xraster.attrs['band_names'] = input_bands
     n_bands = len(input_bands)  # get number of input bands
 
+    registry_indices = list(indices_registry.keys())
+    # print(registry_indices)
+
     # iterate over each new band that needs to be included
     for band_id in output_bands:
 
-        if band_id not in input_bands:
+        if band_id not in input_bands and band_id in registry_indices:
 
+            # print("IUHUHWUIHEIRUHIEURHIUVHREIUHVIU", band_id)
             # increase the number of input bands
             n_bands += 1
 

@@ -46,16 +46,18 @@ class CNNRegression(object):
     # -------------------------------------------------------------------------
     # __init__
     # -------------------------------------------------------------------------
-    def __init__(self, config_filename, data_csv=None, logger=None):
-
-        # TODO:
-        # slurm filename in output dir
-
-        # Set logger
-        self.logger = logger if logger is not None else self._set_logger()
+    def __init__(
+                self,
+                config_filename: str,
+                data_csv: str = None,
+                logger=None
+            ):
 
         # Configuration file intialization
         self.conf = self._read_config(config_filename)
+
+        # Set logger
+        self.logger = logger if logger is not None else self._set_logger()
 
         # Set Data CSV
         self.data_csv = data_csv
@@ -112,12 +114,15 @@ class CNNRegression(object):
 
         # set filename output
         log_filename = f'{datetime.now().strftime("%Y-%m-%d-%H-%M-%S")}.log'
+        os.makedirs(self.conf.data_dir, exist_ok=True)
         fh = logging.FileHandler(
             os.path.join(self.conf.data_dir, log_filename))
         fh.setLevel(logging.INFO)
         fh.setFormatter(formatter)
         logger.addHandler(fh)
 
+        # remove the root logger
+        logger.handlers.pop(0)
         return logger
 
     # -------------------------------------------------------------------------
