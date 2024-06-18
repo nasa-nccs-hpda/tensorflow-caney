@@ -1,4 +1,4 @@
-name: Prod - CI to Docker Hub 
+name: Prod CI to Docker Hub - MultiArch
 
 on:
   push:
@@ -6,23 +6,21 @@ on:
       - 'main'
   schedule:
     - cron: '30 5 * * 1,3'
-
 jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
-      -
-        name: Checkout
-        uses: actions/checkout@v3
-      -
-        name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-      -
-        name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-      -
-        name: Login to Docker Hub
-        uses: docker/login-action@v2
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -35,11 +33,11 @@ jobs:
           sudo rm -rf "/usr/local/share/boost"
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
 
-      -
-        name: Build and push
-        uses: docker/build-push-action@v4
+      - name: Build and push
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: ./requirements/Dockerfile
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: nasanccs/tensorflow-caney:latest
