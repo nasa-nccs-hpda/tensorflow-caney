@@ -1,6 +1,6 @@
 # Arguments to pass to the image
 ARG TF_VER=tf2
-ARG VERSION_DATE=23.01
+ARG VERSION_DATE=24.08
 ARG FROM_IMAGE=nvcr.io/nvidia/tensorflow
 
 # Import RAPIDS container as the BASE Image (cuda base image)
@@ -18,7 +18,7 @@ RUN apt-get update && \
     apt-get -y install software-properties-common && \
     add-apt-repository ppa:ubuntugis/ubuntugis-unstable && \
     apt-get update && apt-get -y dist-upgrade && \
-    apt-get -y install build-essential \
+    apt-get -y install \
         libsm6 \
         libxext6 \
         libxrender-dev \
@@ -35,9 +35,6 @@ RUN apt-get update && \
         libgeos-dev \
         libsqlite3-dev \
         libx11-dev \
-        #libproj-dev \
-        #proj-data \
-        #proj-bin \
         libspatialindex-dev \
         wget \
         vim \
@@ -51,8 +48,9 @@ RUN apt-get update && \
         libzmq3-dev \
         libpng-dev \
         libfreetype6-dev \ 
-        locales && \
-    apt-get -y install gdal-bin libgdal-dev && \
+        locales \
+        gdal-bin \
+        libgdal-dev && \
     apt-get -y autoremove && \
     rm -rf /var/cache/apt /var/lib/apt/lists/*
 
