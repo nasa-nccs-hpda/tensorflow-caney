@@ -35,9 +35,9 @@ RUN apt-get update && \
         libgeos-dev \
         libsqlite3-dev \
         libx11-dev \
-        libproj-dev \
-        proj-data \
-        proj-bin \
+        #libproj-dev \
+        #proj-data \
+        #proj-bin \
         libspatialindex-dev \
         wget \
         vim \
