@@ -50,7 +50,8 @@ RUN apt-get update && \
         libfreetype6-dev \ 
         locales \
         #gdal-bin \
-        libgdal-dev && \
+        #libgdal-dev 
+        gdal && \
     apt-get -y autoremove && \
     rm -rf /var/cache/apt /var/lib/apt/lists/*
 
