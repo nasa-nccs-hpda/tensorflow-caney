@@ -16,7 +16,7 @@ ENV SM_FRAMEWORK="tf.keras"
 # System dependencies
 RUN apt-get update && \
     apt-get -y install software-properties-common && \
-    add-apt-repository ppa:ubuntugis/ubuntugis && \
+    add-apt-repository ppa:ubuntugis/ubuntugis-stable && \
     apt-get update && apt-get -y dist-upgrade && \
     apt-get -y install \
         libsm6 \
