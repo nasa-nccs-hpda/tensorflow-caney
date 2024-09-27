@@ -16,7 +16,7 @@ ENV SM_FRAMEWORK="tf.keras"
 # System dependencies
 RUN apt-get update && \
     apt-get -y install software-properties-common && \
-    add-apt-repository ppa:ubuntugis/ubuntugis-unstable && \
+    add-apt-repository ppa:ubuntugis/ubuntugis && \
     apt-get update && apt-get -y dist-upgrade && \
     apt-get -y install \
         libsm6 \
@@ -49,9 +49,8 @@ RUN apt-get update && \
         libpng-dev \
         libfreetype6-dev \ 
         locales \
-        #gdal-bin \
-        #libgdal-dev 
-        gdal && \
+        gdal-bin \
+        libgdal-dev && \
     apt-get -y autoremove && \
     rm -rf /var/cache/apt /var/lib/apt/lists/*
 
