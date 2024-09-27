@@ -10,7 +10,7 @@ FROM ${FROM_IMAGE}:${VERSION_DATE}-${TF_VER}-py3
 ENV DEBIAN_FRONTEND noninteractive
 ENV CPLUS_INCLUDE_PATH="/usr/include/gdal"
 ENV C_INCLUDE_PATH="/usr/include/gdal"
-ENV PROJ_LIB="/usr/share/proj"
+#ENV PROJ_LIB="/usr/share/proj"
 ENV SM_FRAMEWORK="tf.keras"
 
 # System dependencies
@@ -49,7 +49,7 @@ RUN apt-get update && \
         libpng-dev \
         libfreetype6-dev \ 
         locales \
-        gdal-bin \
+        #gdal-bin \
         libgdal-dev && \
     apt-get -y autoremove && \
     rm -rf /var/cache/apt /var/lib/apt/lists/*
