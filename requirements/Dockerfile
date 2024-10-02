@@ -10,14 +10,15 @@ FROM ${FROM_IMAGE}:${VERSION_DATE}-${TF_VER}-py3
 ENV DEBIAN_FRONTEND noninteractive
 ENV CPLUS_INCLUDE_PATH="/usr/include/gdal"
 ENV C_INCLUDE_PATH="/usr/include/gdal"
-#ENV PROJ_LIB="/usr/share/proj"
+ENV PROJ_LIB="/usr/share/proj"
 ENV SM_FRAMEWORK="tf.keras"
 
 # System dependencies
 RUN apt-get update && \
     apt-get -y install software-properties-common && \
-    add-apt-repository ppa:ubuntugis/ubuntugis-stable && \
-    apt-get update && apt-get -y dist-upgrade && \
+    add-apt-repository ppa:ubuntugis/ubuntugis-unstable && \
+    apt-get update && \
+    apt-get -y dist-upgrade && \
     apt-get -y install \
         libsm6 \
         libxext6 \
