@@ -1,7 +1,6 @@
 import sys
 import tensorflow as tf
 import segmentation_models as sm
-import tensorflow_addons as tfa
 from typing import List
 
 __all__ = ["get_callbacks"]
@@ -20,5 +19,5 @@ def get_callbacks(callbacks: List[str]) -> List:
         try:
             callback_functions.append(eval(callback))
         except (NameError, AttributeError) as err:
-            sys.exit(f'{err}. Accepted callbacks from {tf}, {sm}, {tfa}')
+            sys.exit(f'{err}. Accepted callbacks from {tf}, {sm}')
     return callback_functions
