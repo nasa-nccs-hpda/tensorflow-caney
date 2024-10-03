@@ -4,7 +4,6 @@ import logging
 import tensorflow as tf
 import tensorflow_caney
 import tensorflow_caney as tfc
-import tensorflow_addons as tfa
 import segmentation_models as sm
 from keras_unet_collection import models as kuc
 
@@ -37,7 +36,7 @@ def get_model(model: str) -> Any:
         model_function = eval(model)
     except (NameError, AttributeError) as err:
         sys.exit(
-            f'{err}. Accepted models from {tf}, {sm}, {tfa}, {tfc}, {kuc}')
+            f'{err}. Accepted models from {tf}, {sm}, {tfc}, {kuc}')
     return model_function
 
 
