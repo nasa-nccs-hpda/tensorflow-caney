@@ -22,6 +22,7 @@ CUSTOM_OBJECTS = {
     'iou_score': sm.metrics.iou_score,
     'focal_tversky_loss': tfc.utils.losses.focal_tversky_loss,
     'binary_tversky_loss': tfc.utils.losses.binary_tversky_loss,
+    'focal_loss_plus_dice_loss': sm.losses.categorical_focal_dice_loss
 }
 
 
