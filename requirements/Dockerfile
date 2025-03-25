@@ -17,9 +17,9 @@ ENV SM_FRAMEWORK="tf.keras"
 RUN apt-get update && \
     apt-get -y install software-properties-common && \
     add-apt-repository ppa:ubuntugis/ubuntugis-unstable && \
-    apt-get update && \
-    apt-get -y dist-upgrade && \
-    apt-get -y install \
+    curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash && \
+    apt-get update && apt-get -y dist-upgrade && \
+    apt-get -y install build-essential \
         libsm6 \
         libxext6 \
         libxrender-dev \
@@ -36,6 +36,9 @@ RUN apt-get update && \
         libgeos-dev \
         libsqlite3-dev \
         libx11-dev \
+        libproj-dev \
+        proj-data \
+        proj-bin \
         libspatialindex-dev \
         wget \
         vim \
@@ -50,8 +53,8 @@ RUN apt-get update && \
         libpng-dev \
         libfreetype6-dev \ 
         locales \
-        gdal-bin \
-        libgdal-dev && \
+        git-lfs && \
+    apt-get -y install gdal-bin libgdal-dev && \
     apt-get -y autoremove && \
     rm -rf /var/cache/apt /var/lib/apt/lists/*
 
