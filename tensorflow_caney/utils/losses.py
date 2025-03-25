@@ -1,7 +1,6 @@
 import sys
 import numpy as np
 import tensorflow as tf
-import tensorflow_addons as tfa
 import segmentation_models as sm
 import tensorflow_caney as tfc
 
@@ -31,7 +30,7 @@ def get_loss(loss: str) -> Any:
     try:
         loss_function = eval(loss)
     except (NameError, AttributeError) as err:
-        sys.exit(f'{err}. Accepted loss from {tf}, {sm}, {tfa}.')
+        sys.exit(f'{err}. Accepted loss from {tf}, {sm}.')
     return loss_function
 
 

@@ -4,7 +4,6 @@ import numpy as np
 import tensorflow as tf
 from typing import Any, List
 import segmentation_models as sm
-import tensorflow_addons as tfa
 from tensorflow.keras import backend as K
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import precision_score
@@ -39,7 +38,7 @@ def get_metrics(metrics: List[str]) -> Any:
         try:
             metric_functions.append(eval(metric))
         except (NameError, AttributeError) as err:
-            sys.exit(f'{err}. Accepted metrics from {tf}, {sm}, {tfa}')
+            sys.exit(f'{err}. Accepted metrics from {tf}, {sm}')
     return metric_functions
 
 
