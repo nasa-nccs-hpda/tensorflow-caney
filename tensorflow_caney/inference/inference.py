@@ -303,7 +303,8 @@ def sliding_window_tiler_multiclass(
     #    xraster = rescale_image(xraster, rescale)
 
     # Iterate over the data in batches
-    for batch_id, batch_i in tiler_image(xraster, batch_size=batch_size):
+    for batch_id, batch_i in tiler_image(
+            xraster, batch_size=batch_size, progress_bar=True):
 
         # Standardize
         batch = batch_i.copy()

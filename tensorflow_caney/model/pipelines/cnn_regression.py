@@ -63,16 +63,19 @@ class CNNRegression(object):
         self.data_csv = data_csv
 
         # create data directory
-        os.makedirs(self.conf.data_dir, exist_ok=True)
+        if self.conf.data_dir is not None:
 
-        # Set output directories and locations
-        self.images_dir = os.path.join(self.conf.data_dir, 'images')
-        os.makedirs(self.images_dir, exist_ok=True)
-        self.logger.info(f'Images dir: {self.images_dir}')
+            # Create data directory
+            os.makedirs(self.conf.data_dir, exist_ok=True)
 
-        self.labels_dir = os.path.join(self.conf.data_dir, 'labels')
-        os.makedirs(self.labels_dir, exist_ok=True)
-        self.logger.info(f'Images dir: {self.labels_dir}')
+            # Set output directories and locations
+            self.images_dir = os.path.join(self.conf.data_dir, 'images')
+            os.makedirs(self.images_dir, exist_ok=True)
+            self.logger.info(f'Images dir: {self.images_dir}')
+
+            self.labels_dir = os.path.join(self.conf.data_dir, 'labels')
+            os.makedirs(self.labels_dir, exist_ok=True)
+            self.logger.info(f'Images dir: {self.labels_dir}')
 
         self.model_dir = self.conf.model_dir
         os.makedirs(self.model_dir, exist_ok=True)
@@ -114,9 +117,15 @@ class CNNRegression(object):
 
         # set filename output
         log_filename = f'{datetime.now().strftime("%Y-%m-%d-%H-%M-%S")}.log'
-        os.makedirs(self.conf.data_dir, exist_ok=True)
-        fh = logging.FileHandler(
-            os.path.join(self.conf.data_dir, log_filename))
+
+        if self.conf.data_dir is not None:
+            os.makedirs(self.conf.data_dir, exist_ok=True)
+            log_filename = os.path.join(self.conf.data_dir, log_filename)
+        else:
+            os.makedirs(self.conf.model_dir, exist_ok=True)
+            log_filename = os.path.join(self.conf.model_dir, log_filename)
+
+        fh = logging.FileHandler(log_filename)
         fh.setLevel(logging.INFO)
         fh.setFormatter(formatter)
         logger.addHandler(fh)

@@ -9,13 +9,13 @@ class Config:
     """
 
     # Directory to store all data files
-    data_dir: str
+    data_dir: Optional[str] = None
 
     # Directory to store model artifacts
-    model_dir: Optional[str]
+    model_dir: Optional[str] = 'model-dir'
 
     # String with model function (e.g. tensorflow object)
-    model: str
+    model: Optional[str] = None
 
     # Directory to store inference output files
     inference_save_dir: str = "results"
