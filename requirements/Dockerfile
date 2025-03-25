@@ -80,6 +80,7 @@ RUN pip install \
     rasterio \
     rioxarray \
     xarray \
+    dask-geopandas \
     geopandas \
     tensorflow_probability \
     keras-cv \

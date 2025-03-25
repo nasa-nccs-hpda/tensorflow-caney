@@ -1,6 +1,6 @@
 # Arguments to pass to the image
 ARG TF_VER=tf2
-ARG VERSION_DATE=24.02
+ARG VERSION_DATE=24.08
 ARG FROM_IMAGE=nvcr.io/nvidia/tensorflow
 
 # Import RAPIDS container as the BASE Image (cuda base image)
@@ -82,6 +82,7 @@ RUN pip install \
     rioxarray \
     xarray \
     geopandas \
+    dask-geopandas \
     tensorflow_probability \
     keras-cv \
     keras-unet-collection \

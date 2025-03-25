@@ -220,6 +220,23 @@ def gndvi(raster):
     return index.expand_dims(dim="band", axis=0)
 
 
+def ndre(raster):
+    """
+    Norm. Difference Red Edge (NDRE), NDRE := (NIR - RedEdge) / (NIR + RedEdge)
+    Args:
+        raster (list): xarray or numpy array object in the form (c, h, w)
+    Returns:
+        new xarray.DataArray band with index calculated
+    """
+    nir1, rededge = _get_band_locations(
+        raster.attrs['band_names'], ['nir1', 'rededge'])
+    index = (
+        (raster[nir1, :, :] - raster[rededge, :, :]) /
+        (raster[nir1, :, :] + raster[rededge, :, :])
+    )
+    return index.expand_dims(dim="band", axis=0)
+
+
 def ndvi(raster):
     """
     Norm. Difference Vegetation Index (DVI), NDVI := (NIR - Red) / (NIR + RED)
@@ -300,8 +317,10 @@ indices_registry = {
     'cs2': cs2,
     'dvi': dvi,
     'dwi': dwi,
+    'evi': evi,
     'fdi': fdi,
     'gndvi': gndvi,
+    'ndre': ndre,
     'ndvi': ndvi,
     'ndwi': ndwi,
     'si': si,
