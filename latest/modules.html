@@ -1,24 +1,22 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="./">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>tensorflow-caney package &mdash; tensorflow-caney 0.4.2 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+  <title>tensorflow-caney package &mdash; tensorflow-caney 0.5.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="_static/jquery.js?v=5d32c60e"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=ff822928"></script>
-        <script src="_static/doctools.js?v=888ff710"></script>
-        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=b9afe91b"></script>
+      <script src="_static/doctools.js?v=9a2dae69"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,9 +34,6 @@
           <a href="index.html" class="icon icon-home">
             tensorflow-caney
           </a>
-              <div class="version">
-                0.4.2
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -670,21 +665,7 @@ NDWI := factor * (Green - NIR1) / (Green + NIR1)
 <dl class="py method">
 <dt class="sig sig-object py" id="tensorflow_caney.utils.losses.CategoricalCrossEntropy.call">
 <span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tensorflow_caney/utils/losses.html#CategoricalCrossEntropy.call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tensorflow_caney.utils.losses.CategoricalCrossEntropy.call" title="Link to this definition"></a></dt>
-<dd><p>Invokes the <cite>Loss</cite> instance.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>y_true</strong> – Ground truth values. shape = <cite>[batch_size, d0, .. dN]</cite>,
-except sparse loss functions such as sparse categorical
-crossentropy where shape = <cite>[batch_size, d0, .. dN-1]</cite></p></li>
-<li><p><strong>y_pred</strong> – The predicted values. shape = <cite>[batch_size, d0, .. dN]</cite></p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Loss values with the shape <cite>[batch_size, d0, .. dN-1]</cite>.</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -699,21 +680,7 @@ Keras implementation: <a class="reference external" href="https://github.com/umb
 <dl class="py method">
 <dt class="sig sig-object py" id="tensorflow_caney.utils.losses.CategoricalFocalLoss.call">
 <span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tensorflow_caney/utils/losses.html#CategoricalFocalLoss.call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tensorflow_caney.utils.losses.CategoricalFocalLoss.call" title="Link to this definition"></a></dt>
-<dd><p>Invokes the <cite>Loss</cite> instance.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>y_true</strong> – Ground truth values. shape = <cite>[batch_size, d0, .. dN]</cite>,
-except sparse loss functions such as sparse categorical
-crossentropy where shape = <cite>[batch_size, d0, .. dN-1]</cite></p></li>
-<li><p><strong>y_pred</strong> – The predicted values. shape = <cite>[batch_size, d0, .. dN]</cite></p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Loss values with the shape <cite>[batch_size, d0, .. dN-1]</cite>.</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -731,21 +698,7 @@ Jaccard = (<a href="#id1"><span class="problematic" id="id2">|X &amp; Y|</span><
 <dl class="py method">
 <dt class="sig sig-object py" id="tensorflow_caney.utils.losses.JaccardDistanceLoss.call">
 <span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tensorflow_caney/utils/losses.html#JaccardDistanceLoss.call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tensorflow_caney.utils.losses.JaccardDistanceLoss.call" title="Link to this definition"></a></dt>
-<dd><p>Invokes the <cite>Loss</cite> instance.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>y_true</strong> – Ground truth values. shape = <cite>[batch_size, d0, .. dN]</cite>,
-except sparse loss functions such as sparse categorical
-crossentropy where shape = <cite>[batch_size, d0, .. dN-1]</cite></p></li>
-<li><p><strong>y_pred</strong> – The predicted values. shape = <cite>[batch_size, d0, .. dN]</cite></p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Loss values with the shape <cite>[batch_size, d0, .. dN-1]</cite>.</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -764,21 +717,7 @@ Tanimoto = (<a href="#id15"><span class="problematic" id="id16">|X &amp; Y|</spa
 <dl class="py method">
 <dt class="sig sig-object py" id="tensorflow_caney.utils.losses.TanimotoDistanceLoss.call">
 <span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tensorflow_caney/utils/losses.html#TanimotoDistanceLoss.call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tensorflow_caney.utils.losses.TanimotoDistanceLoss.call" title="Link to this definition"></a></dt>
-<dd><p>Invokes the <cite>Loss</cite> instance.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>y_true</strong> – Ground truth values. shape = <cite>[batch_size, d0, .. dN]</cite>,
-except sparse loss functions such as sparse categorical
-crossentropy where shape = <cite>[batch_size, d0, .. dN-1]</cite></p></li>
-<li><p><strong>y_pred</strong> – The predicted values. shape = <cite>[batch_size, d0, .. dN]</cite></p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Loss values with the shape <cite>[batch_size, d0, .. dN-1]</cite>.</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -865,7 +804,7 @@ crossentropy where shape = <cite>[batch_size, d0, .. dN-1]</cite></p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tensorflow_caney.utils.model.load_model">
-<span class="sig-prename descclassname"><span class="pre">tensorflow_caney.utils.model.</span></span><span class="sig-name descname"><span class="pre">load_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_filename=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_dir=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_objects={'_iou':</span> <span class="pre">&lt;segmentation_models.metrics.IOUScore</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'binary_tversky_loss':</span> <span class="pre">&lt;function</span> <span class="pre">binary_tversky_loss&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'focal_tversky_loss':</span> <span class="pre">&lt;function</span> <span class="pre">focal_tversky_loss&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'iou_score':</span> <span class="pre">&lt;segmentation_models.metrics.IOUScore</span> <span class="pre">object&gt;}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_extension='*.hdf5'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf=None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tensorflow_caney/utils/model.html#load_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tensorflow_caney.utils.model.load_model" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">tensorflow_caney.utils.model.</span></span><span class="sig-name descname"><span class="pre">load_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_filename=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_dir=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_objects={'_iou':</span> <span class="pre">&lt;segmentation_models.metrics.IOUScore</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'binary_tversky_loss':</span> <span class="pre">&lt;function</span> <span class="pre">binary_tversky_loss&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'focal_loss_plus_dice_loss':</span> <span class="pre">&lt;segmentation_models.base.objects.SumOfLosses</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'focal_tversky_loss':</span> <span class="pre">&lt;function</span> <span class="pre">focal_tversky_loss&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'iou_score':</span> <span class="pre">&lt;segmentation_models.metrics.IOUScore</span> <span class="pre">object&gt;}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_extension='*.hdf5'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf=None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tensorflow_caney/utils/model.html#load_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tensorflow_caney.utils.model.load_model" title="Link to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></span></p>
